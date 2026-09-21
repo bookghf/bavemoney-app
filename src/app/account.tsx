@@ -5,12 +5,12 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 
-export default function DashboardScreen() {
+export default function AccountScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ThemedText type="title">Dashboard</ThemedText>
-        <ThemedText type="default">Your overview lives here.</ThemedText>
+        <ThemedText type="title">Account</ThemedText>
+        <ThemedText type="default">Manage your account details here.</ThemedText>
       </SafeAreaView>
     </ThemedView>
   );
