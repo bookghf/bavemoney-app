@@ -1,20 +1,88 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { useEffect } from 'react';
+import { Pressable, useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { ThemedText } from '@/components/themed-text';
+import { ToastHost } from '@/components/ui/toast';
+import { Colors } from '@/constants/theme';
+import { t } from '@/lib/i18n';
 import { AppProviders } from '@/providers/app-providers';
+import { useAuthStore } from '@/store/auth-store';
+import { usePreferences } from '@/store/preferences-store';
 
+// Keep the native splash up until the persisted session has been restored;
+// AnimatedSplashOverlay hides it once it mounts.
 SplashScreen.preventAutoHideAsync();
 
-export default function TabLayout() {
+function CancelButton() {
+  return (
+    <Pressable accessibilityRole="button" hitSlop={10} onPress={() => router.back()}>
+      <ThemedText themeColor="tint">{t('Cancel')}</ThemedText>
+    </Pressable>
+  );
+}
+
+export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme === 'dark' ? 'dark' : 'light'];
+  const isHydrated = useAuthStore((state) => state.isHydrated);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const prefsHydrated = usePreferences((state) => state.isHydrated);
+  // Text and dates are rendered with plain t()/format calls, so remount the
+  // screens when the language or calendar changes.
+  const localeKey = usePreferences((state) => `${state.language ?? 'auto'}-${state.calendar}`);
+
+  useEffect(() => {
+    useAuthStore.getState().hydrate();
+    usePreferences.getState().hydrate();
+  }, []);
+
+  // Render no routes until we know whether a session exists, so protected
+  // screens never flash (and never fire requests) for signed-out users.
+  if (!isHydrated || !prefsHydrated) return null;
+
+  // Headers blend into the gray canvas instead of sitting on a white bar.
+  const header = {
+    headerStyle: { backgroundColor: colors.background },
+    headerShadowVisible: false,
+    headerTintColor: colors.tint,
+    headerTitleStyle: { color: colors.text },
+  };
+  const modal = { ...header, presentation: 'modal' as const, headerShown: true, headerLeft: CancelButton };
+
   return (
     <AppProviders>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack key={localeKey} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
+          {/* Signed in: the tab app plus modal forms. */}
+          <Stack.Protected guard={isAuthenticated}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen
+              name="transactions"
+              options={{ ...header, headerShown: true, title: t('Transactions'), headerBackTitle: t('Back') }}
+            />
+            <Stack.Screen
+              name="budgets"
+              options={{ ...header, headerShown: true, title: t('Budgets'), headerBackTitle: t('Back') }}
+            />
+            <Stack.Screen name="add-transaction" options={{ ...modal, title: t('Add transaction') }} />
+            <Stack.Screen name="transaction/[id]" options={{ ...modal, title: t('Edit transaction') }} />
+            <Stack.Screen name="add-account" options={{ ...modal, title: t('New account') }} />
+            <Stack.Screen name="edit-account" options={{ ...modal, title: t('Edit account') }} />
+            <Stack.Screen name="add-budget" options={{ ...modal, title: t('New budget') }} />
+          </Stack.Protected>
+
+          {/* Signed out: auth screens only. Stack.Protected redirects to the
+              first available screen when a guard flips. */}
+          <Stack.Protected guard={!isAuthenticated}>
+            <Stack.Screen name="login" />
+            <Stack.Screen name="register" />
+          </Stack.Protected>
+        </Stack>
+        <ToastHost />
         <AnimatedSplashOverlay />
-        <AppTabs />
       </ThemeProvider>
     </AppProviders>
   );

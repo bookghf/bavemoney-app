@@ -1,0 +1,143 @@
+import { router } from 'expo-router';
+import { useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+
+import { CategoryGrid } from '@/components/category-grid';
+import { ThemedText } from '@/components/themed-text';
+import { Button } from '@/components/ui/button';
+import { ChipSelect } from '@/components/ui/chip-select';
+import { ErrorText } from '@/components/ui/query-state';
+import { Screen } from '@/components/ui/screen';
+import { SegmentedControl } from '@/components/ui/segmented-control';
+import { TextField } from '@/components/ui/text-field';
+import { toast } from '@/components/ui/toast';
+import { Spacing } from '@/constants/theme';
+import { useCurrencies } from '@/hooks/use-accounts';
+import { useCreateBudget } from '@/hooks/use-budgets';
+import { useCategories } from '@/hooks/use-categories';
+import type { BudgetPeriod } from '@/lib/api/types';
+import { toISODate } from '@/lib/dates';
+import { haptics } from '@/lib/feedback';
+import { t } from '@/lib/i18n';
+import { parsePositiveAmount } from '@/lib/money';
+import { useAuthStore } from '@/store/auth-store';
+
+const THRESHOLDS = ['50', '80', '90', '100'] as const;
+
+/** First day of the period that contains today, so the budget starts now. */
+function periodStart(period: BudgetPeriod): string {
+  const now = new Date();
+  if (period === 'weekly') return toISODate(new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()));
+  if (period === 'yearly') return `${now.getFullYear()}-01-01`;
+  return toISODate(new Date(now.getFullYear(), now.getMonth(), 1));
+}
+
+export default function AddBudgetScreen() {
+  const defaultCurrency = useAuthStore((state) => state.user?.default_currency) || 'THB';
+  const categories = useCategories();
+  const currencies = useCurrencies();
+  const createBudget = useCreateBudget();
+  const submitting = useRef(false);
+
+  const [period, setPeriod] = useState<BudgetPeriod>('monthly');
+  const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [amount, setAmount] = useState('');
+  const [currency, setCurrency] = useState(defaultCurrency);
+  const [threshold, setThreshold] = useState<(typeof THRESHOLDS)[number]>('80');
+  const [showErrors, setShowErrors] = useState(false);
+
+  const parsed = parsePositiveAmount(amount);
+  const amountError = parsed ? null : t('Enter the most you want to spend, e.g. 8,000');
+  const expenseCategories = (categories.data ?? []).filter((c) => c.type === 'expense');
+
+  const submit = () => {
+    if (!parsed) {
+      setShowErrors(true);
+      haptics.warning();
+      return;
+    }
+    if (submitting.current) return;
+    submitting.current = true;
+    createBudget.mutate(
+      {
+        category_id: categoryId ?? undefined,
+        amount: parsed,
+        currency,
+        period,
+        start_date: periodStart(period),
+        alert_threshold_pct: Number(threshold),
+      },
+      {
+        onSuccess: () => {
+          haptics.success();
+          toast.success(t('Budget created'));
+          router.back();
+        },
+        onSettled: () => {
+          submitting.current = false;
+        },
+      },
+    );
+  };
+
+  return (
+    <Screen
+      edges={['bottom']}
+      footer={
+        <>
+          <ErrorText error={createBudget.error} />
+          <Button title={t('Create budget')} onPress={submit} loading={createBudget.isPending} />
+        </>
+      }>
+      <SegmentedControl
+        options={[
+          { value: 'weekly', label: t('Weekly') },
+          { value: 'monthly', label: t('Monthly') },
+          { value: 'yearly', label: t('Yearly') },
+        ]}
+        value={period}
+        onChange={setPeriod}
+      />
+
+      <TextField
+        label={t('Limit')}
+        value={amount}
+        onChangeText={setAmount}
+        keyboardType="decimal-pad"
+        placeholder="0.00"
+        autoFocus
+        error={showErrors ? amountError : null}
+      />
+
+      {(currencies.data?.length ?? 0) > 1 ? (
+        <ChipSelect
+          label={t('Currency')}
+          options={(currencies.data ?? []).map((c) => ({ value: c.code, label: c.code }))}
+          value={currency}
+          onChange={setCurrency}
+        />
+      ) : null}
+
+      <View style={styles.section}>
+        <ThemedText type="smallBold" themeColor="textSecondary">
+          {t('Category')}
+        </ThemedText>
+        <ThemedText type="small" themeColor="textSecondary">
+          {categoryId ? t('Tracks this category and its subcategories.') : t('No category picked: tracks all spending.')}
+        </ThemedText>
+        <CategoryGrid categories={expenseCategories} value={categoryId} onChange={setCategoryId} />
+      </View>
+
+      <ChipSelect
+        label={t('Warn me at')}
+        options={THRESHOLDS.map((value) => ({ value, label: `${value}%` }))}
+        value={threshold}
+        onChange={setThreshold}
+      />
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  section: { gap: Spacing.two },
+});

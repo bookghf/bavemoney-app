@@ -4,7 +4,7 @@ import { Fonts, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
-  type?: 'default' | 'title' | 'small' | 'smallBold' | 'subtitle' | 'link' | 'linkPrimary' | 'code';
+  type?: 'default' | 'title' | 'largeTitle' | 'sectionTitle' | 'amount' | 'small' | 'smallBold' | 'subtitle' | 'link' | 'linkPrimary' | 'code';
   themeColor?: ThemeColor;
 };
 
@@ -17,6 +17,9 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
         { color: theme[themeColor ?? 'text'] },
         type === 'default' && styles.default,
         type === 'title' && styles.title,
+        type === 'largeTitle' && styles.largeTitle,
+        type === 'sectionTitle' && styles.sectionTitle,
+        type === 'amount' && styles.amount,
         type === 'small' && styles.small,
         type === 'smallBold' && styles.smallBold,
         type === 'subtitle' && styles.subtitle,
@@ -50,6 +53,27 @@ const styles = StyleSheet.create({
     fontSize: 48,
     fontWeight: 600,
     lineHeight: 52,
+  },
+  /** Screen title (iOS large-title scale). */
+  largeTitle: {
+    fontSize: 32,
+    lineHeight: 38,
+    fontWeight: 800,
+    letterSpacing: -0.6,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: 700,
+    letterSpacing: -0.2,
+  },
+  /** Large money figure; tabular digits keep amounts from jittering. */
+  amount: {
+    fontSize: 34,
+    lineHeight: 42,
+    fontWeight: 800,
+    letterSpacing: -0.8,
+    fontVariant: ['tabular-nums'],
   },
   subtitle: {
     fontSize: 32,

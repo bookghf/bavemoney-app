@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+    <!-- coin rim -->
+    <circle cx="300" cy="300" r="266" stroke-width="36"/>
+    <!-- baht-style B: stem, two bowls, and the bars through top and bottom -->
+    <g transform="translate(-11 0)" stroke-width="48">
+      <path d="M225 175V425"/>
+      <path d="M225 175H320A62 62 0 0 1 320 299H225"/>
+      <path d="M225 299H335A63 63 0 0 1 335 425H225"/>
+      <path d="M285 128V175M285 425V472" stroke-width="40"/>
+    </g>
+  </g>
+</svg>

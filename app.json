@@ -8,7 +8,16 @@
     "scheme": "learnfromscratch",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/bavemoney.icon",
+      "infoPlist": {
+        "CFBundleDisplayName": "BaveMoney",
+        "CFBundleLocalizations": [
+          "en",
+          "th"
+        ],
+        "CFBundleDevelopmentRegion": "en"
+      },
+      "bundleIdentifier": "com.smartworld.learn-from-scratch"
     },
     "android": {
       "adaptiveIcon": {
@@ -32,7 +41,8 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
