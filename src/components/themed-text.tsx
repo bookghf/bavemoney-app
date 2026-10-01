@@ -1,6 +1,7 @@
 import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
 
 import { Fonts, ThemeColor } from '@/constants/theme';
+import { FontScaleCap } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
@@ -8,11 +9,32 @@ export type ThemedTextProps = TextProps & {
   themeColor?: ThemeColor;
 };
 
+// Every text follows the device text size; big display text grows least.
+const SCALE_CAP: Record<NonNullable<ThemedTextProps['type']>, number> = {
+  title: FontScaleCap.display,
+  largeTitle: FontScaleCap.display,
+  amount: FontScaleCap.display,
+  subtitle: FontScaleCap.heading,
+  sectionTitle: FontScaleCap.heading,
+  default: FontScaleCap.body,
+  small: FontScaleCap.body,
+  smallBold: FontScaleCap.body,
+  link: FontScaleCap.body,
+  linkPrimary: FontScaleCap.body,
+  code: FontScaleCap.body,
+};
+
 export function ThemedText({ style, type = 'default', themeColor, ...rest }: ThemedTextProps) {
   const theme = useTheme();
 
   return (
     <Text
+      maxFontSizeMultiplier={SCALE_CAP[type]}
+      // Break lines at word boundaries like native iOS text; on Android,
+      // hyphenate long words rather than cutting them at an arbitrary letter.
+      lineBreakStrategyIOS="standard"
+      textBreakStrategy="balanced"
+      android_hyphenationFrequency="normal"
       style={[
         { color: theme[themeColor ?? 'text'] },
         type === 'default' && styles.default,

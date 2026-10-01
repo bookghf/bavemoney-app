@@ -29,6 +29,8 @@ type AuthState = {
   hydrate: () => Promise<void>;
   /** Store a session from a register/login/refresh response and persist it. */
   setSession: (response: AuthResponse) => Promise<void>;
+  /** Replace the signed-in user after a profile edit and persist it. */
+  setUser: (user: User) => Promise<void>;
   /** Clear the session locally (does not call the API; see useLogout). */
   signOut: () => Promise<void>;
 };
@@ -83,6 +85,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       await persist(session);
     } catch (error) {
       console.warn('[auth] failed to persist session', error);
+    }
+  },
+
+  setUser: async (user) => {
+    if (!get().isAuthenticated) return;
+    set({ user });
+    try {
+      await sessionStorage.setItem(KEYS.user, JSON.stringify(user));
+    } catch (error) {
+      console.warn('[auth] failed to persist user', error);
     }
   },
 

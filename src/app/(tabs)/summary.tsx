@@ -247,7 +247,7 @@ export default function SummaryScreen() {
               {typeNoun}
               {filterLabel ? ` · ${filterLabel}` : ''} · {rangeLabel(period, range, todayISO)}
             </ThemedText>
-            <ThemedText type="amount" themeColor={type === 'expense' ? undefined : 'success'} numberOfLines={1} adjustsFontSizeToFit>
+            <ThemedText type="amount" themeColor={type === 'expense' ? 'danger' : 'success'} numberOfLines={1} adjustsFontSizeToFit>
               {money(total)}
             </ThemedText>
             <View style={styles.stats}>
@@ -271,7 +271,7 @@ export default function SummaryScreen() {
                 {t(unit === 'day' ? '{noun} per day' : unit === 'week' ? '{noun} per week' : '{noun} per month', { noun: typeNoun })}
               </ThemedText>
               {view === 'chart' ? (
-                <ColumnChart data={series} formatValue={money} />
+                <ColumnChart data={series} formatValue={money} color={type === 'expense' ? theme.danger : theme.success} />
               ) : (
                 <ValueTable
                   title={unit === 'day' ? t('Date') : unit === 'week' ? t('Week') : t('Month')}

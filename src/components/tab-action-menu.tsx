@@ -13,6 +13,7 @@ import Animated, {
 import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 
 import { useTheme } from '@/hooks/use-theme';
+import { FontScaleCap } from '@/hooks/use-font-scale';
 import { haptics } from '@/lib/feedback';
 import { t } from '@/lib/i18n';
 
@@ -35,6 +36,8 @@ type MenuItem = {
   key: string;
   label: string;
   icon: IoniconName;
+  /** Theme color of the item's circle: spending red, income green, transfer blue. */
+  color: 'danger' | 'success' | 'transfer' | 'tint';
   href: Href;
   /** Resting offset of the item's circle from the button center (pt). */
   offset: { x: number; y: number };
@@ -45,6 +48,7 @@ type MenuItem = {
 const MENU_ITEMS: readonly MenuItem[] = [
   {
     key: 'expense',
+    color: 'danger',
     label: 'Add\nexpense',
     icon: 'trending-down',
     href: { pathname: '/add-transaction', params: { type: 'expense' } },
@@ -52,6 +56,7 @@ const MENU_ITEMS: readonly MenuItem[] = [
   },
   {
     key: 'income',
+    color: 'success',
     label: 'Add\nincome',
     icon: 'trending-up',
     href: { pathname: '/add-transaction', params: { type: 'income' } },
@@ -59,6 +64,7 @@ const MENU_ITEMS: readonly MenuItem[] = [
   },
   {
     key: 'transfer',
+    color: 'transfer',
     label: 'Transfer\nmoney',
     icon: 'swap-horizontal',
     href: { pathname: '/add-transaction', params: { type: 'transfer' } },
@@ -66,6 +72,7 @@ const MENU_ITEMS: readonly MenuItem[] = [
   },
   {
     key: 'account',
+    color: 'tint',
     label: 'New\naccount',
     icon: 'wallet-outline',
     href: '/add-account',
@@ -207,7 +214,7 @@ export function TabActionMenu({ open, onOpenChange, tabBarHeight }: TabActionMen
             item={item}
             progress={progress}
             open={open}
-            tint={theme.tint}
+            tint={theme[item.color]}
             textColor={theme.text}
             onPress={() => select(item)}
           />
@@ -275,7 +282,9 @@ function ActionItem({ item, progress, open, tint, textColor, onPress }: ActionIt
         <Ionicons name={item.icon} size={24} color="#ffffff" />
       </Pressable>
       <Animated.View style={[styles.itemLabelWrap, labelStyle]} pointerEvents="none">
-        <Text style={[styles.itemLabel, { color: textColor }]}>{t(item.label)}</Text>
+        <Text style={[styles.itemLabel, { color: textColor }]} maxFontSizeMultiplier={FontScaleCap.display}>
+          {t(item.label)}
+        </Text>
       </Animated.View>
     </Animated.View>
   );

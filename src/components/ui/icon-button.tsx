@@ -29,5 +29,5 @@ export function IconButton({ icon, primary, ...rest }: IconButtonProps) {
 }
 
 const styles = StyleSheet.create({
-  button: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  button: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', padding: 8 },
 });

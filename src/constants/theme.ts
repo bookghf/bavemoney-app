@@ -17,12 +17,16 @@ export const Colors = {
     backgroundSelected: '#E2E5EC',
     border: '#E6E8EE',
     textSecondary: '#6B7080',
-    tint: '#1E6FE8',
-    tintSoft: '#E6EFFD',
-    success: '#1A7F4B',
-    successSoft: '#E3F5EB',
+    // Brand green: dark enough for white text on filled buttons (WCAG AA).
+    tint: '#15803D',
+    tintSoft: '#E3F6EA',
+    // Money colors: income/saving green, spending red, transfers blue.
+    success: '#15803D',
+    successSoft: '#E3F6EA',
     danger: '#D93036',
     dangerSoft: '#FDE8E8',
+    transfer: '#2563EB',
+    transferSoft: '#E5EEFD',
     warning: '#B35C00',
     warningSoft: '#FFF1E0',
   },
@@ -34,20 +38,25 @@ export const Colors = {
     backgroundSelected: '#2D313A',
     border: '#262A33',
     textSecondary: '#9BA1AE',
-    // Dark enough for white text on filled buttons (WCAG AA).
-    tint: '#2F74E6',
-    tintSoft: '#1A2A45',
+    // Readable as text on the dark canvas and under white button labels.
+    tint: '#178A47',
+    tintSoft: '#12301F',
     success: '#3DD68C',
     successSoft: '#12301F',
     danger: '#FF6369',
     dangerSoft: '#3A1A1C',
+    transfer: '#6AA6FF',
+    transferSoft: '#1A2A45',
     warning: '#FFB45C',
     warningSoft: '#3A2A12',
   },
 } as const;
 
 /** Brand gradient for hero surfaces (balance card, avatar). */
-export const BrandGradient = ['#2F80ED', '#4B4FD8'] as const;
+export const BrandGradient = ['#22A55E', '#0E6E44'] as const;
+
+/** Soft glow under hero surfaces, matching BrandGradient. */
+export const BrandShadow = '0 12px 28px rgba(14, 110, 68, 0.30)';
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 

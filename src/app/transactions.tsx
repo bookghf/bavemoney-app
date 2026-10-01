@@ -1,10 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { TransactionRow } from '@/components/transaction-row';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ChipSelect } from '@/components/ui/chip-select';
 import { QueryState } from '@/components/ui/query-state';
@@ -13,6 +12,7 @@ import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Spacing } from '@/constants/theme';
 import { useAccounts } from '@/hooks/use-accounts';
 import { useCategories } from '@/hooks/use-categories';
+import { FontScaleCap } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
 import { useTransactions } from '@/hooks/use-transactions';
 import type { Transaction, TransactionListParams, TransactionType } from '@/lib/api/types';
@@ -86,6 +86,14 @@ export default function TransactionsScreen() {
     setSearch('');
   };
 
+  // Infinite scroll: fetch the next page as the bottom comes into view. The
+  // guard matters because scroll events keep firing while a page loads.
+  const loadMore = () => {
+    if (transactions.hasNextPage && !transactions.isFetchingNextPage && !transactions.isFetching) {
+      transactions.fetchNextPage();
+    }
+  };
+
   // The API returns newest first, so grouping in order keeps days sorted.
   const groups = (transactions.data?.items ?? []).reduce<{ day: string; items: Transaction[] }[]>(
     (acc, transaction) => {
@@ -99,7 +107,11 @@ export default function TransactionsScreen() {
   );
 
   return (
-    <Screen edges={['bottom']} refreshing={transactions.isRefetching} onRefresh={transactions.refetch}>
+    <Screen
+      edges={['bottom']}
+      refreshing={transactions.isRefetching && !transactions.isFetchingNextPage}
+      onRefresh={transactions.refetch}
+      onEndReached={loadMore}>
       <View style={styles.searchRow}>
         <View style={[styles.search, { backgroundColor: theme.surface, borderColor: theme.border }]}>
           <Ionicons name="search" size={18} color={theme.textSecondary} />
@@ -108,6 +120,7 @@ export default function TransactionsScreen() {
             onChangeText={setSearch}
             placeholder={t('Search notes')}
             placeholderTextColor={theme.textSecondary}
+            maxFontSizeMultiplier={FontScaleCap.body}
             accessibilityLabel={t('Search notes')}
             returnKeyType="search"
             clearButtonMode="while-editing"
@@ -217,13 +230,8 @@ export default function TransactionsScreen() {
         </View>
       ))}
 
-      {transactions.hasNextPage ? (
-        <Button
-          title={t('Load more')}
-          variant="secondary"
-          loading={transactions.isFetchingNextPage}
-          onPress={() => transactions.fetchNextPage()}
-        />
+      {transactions.isFetchingNextPage ? (
+        <ActivityIndicator accessibilityLabel={t('Loading more')} style={styles.more} />
       ) : null}
     </Screen>
   );
@@ -263,4 +271,5 @@ const styles = StyleSheet.create({
   day: { marginLeft: Spacing.three },
   card: { gap: 0, paddingVertical: Spacing.two },
   separator: { height: StyleSheet.hairlineWidth, marginLeft: 42 + Spacing.three },
+  more: { paddingVertical: Spacing.three },
 });

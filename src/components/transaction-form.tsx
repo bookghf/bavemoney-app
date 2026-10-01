@@ -16,6 +16,7 @@ import { toast } from '@/components/ui/toast';
 import { Spacing } from '@/constants/theme';
 import { useCategories } from '@/hooks/use-categories';
 import { useQuickPicks, type QuickPick } from '@/hooks/use-quick-picks';
+import { FontScaleCap } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
 import {
   useCreateTransaction,
@@ -78,6 +79,8 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
   const activeAccounts = accounts.filter((a) => !a.is_archived || a.id === existing?.account_id);
   const account = activeAccounts.find((a) => a.id === selectedAccountId) ?? activeAccounts[0];
   const isTransfer = type === 'transfer';
+  // Spending red, income green, transfers blue.
+  const typeColor = isTransfer ? theme.transfer : type === 'income' ? theme.success : theme.danger;
   // The API only transfers between open accounts that share a currency.
   const transferTargets = activeAccounts.filter(
     (a) => a.id !== account?.id && a.currency === account?.currency && !a.is_archived,
@@ -258,7 +261,7 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
           }
           value={type}
           onChange={changeType}
-          selectedColor={type === 'income' ? theme.success : undefined}
+          selectedColor={typeColor}
         />
       )}
 
@@ -274,10 +277,11 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
           keyboardType="decimal-pad"
           placeholder="0.00"
           placeholderTextColor={theme.textSecondary}
+          maxFontSizeMultiplier={FontScaleCap.display}
           accessibilityLabel={t('Amount')}
           accessibilityHint={showErrors ? (amountError ?? undefined) : undefined}
           selectTextOnFocus
-          style={[styles.amountInput, { color: type === 'income' ? theme.success : theme.text }]}
+          style={[styles.amountInput, { color: typeColor }]}
         />
         {showErrors && amountError ? (
           <ThemedText type="small" themeColor="danger">

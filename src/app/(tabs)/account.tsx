@@ -12,6 +12,7 @@ import { Screen } from '@/components/ui/screen';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Spacing } from '@/constants/theme';
 import { useAccounts } from '@/hooks/use-accounts';
+import { useFontScale } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
 import { formatMoney, humanize } from '@/lib/format';
 import { t, tn } from '@/lib/i18n';
@@ -98,7 +99,13 @@ function AccountRow({
   separator: boolean;
 }) {
   const theme = useTheme();
+  const { isLargeText } = useFontScale();
   const negative = isNegative(account.current_balance);
+  const balance = (
+    <ThemedText type="smallBold" themeColor={negative ? 'danger' : undefined} style={styles.balance}>
+      {formatMoney(account.current_balance, account.currency)}
+    </ThemedText>
+  );
   return (
     <Pressable
       accessibilityRole="button"
@@ -108,17 +115,17 @@ function AccountRow({
       style={({ pressed }) => [styles.row, pressed && { backgroundColor: theme.backgroundElement }]}>
       {separator ? <View style={[styles.separator, { backgroundColor: theme.border }]} /> : null}
       <IconBadge icon={accountIcon(account.type)} size={44} />
+      {/* With large text the balance moves under the name instead of squeezing it. */}
       <View style={styles.text}>
-        <ThemedText type="smallBold" numberOfLines={1} style={styles.name}>
+        <ThemedText type="smallBold" numberOfLines={isLargeText ? 2 : 1} style={styles.name}>
           {account.name}
         </ThemedText>
+        {isLargeText ? balance : null}
         <ThemedText type="small" themeColor="textSecondary">
           {humanize(account.type)} · {account.currency}
         </ThemedText>
       </View>
-      <ThemedText type="smallBold" themeColor={negative ? 'danger' : undefined} style={styles.balance}>
-        {formatMoney(account.current_balance, account.currency)}
-      </ThemedText>
+      {isLargeText ? null : balance}
       <Ionicons name="chevron-forward" size={16} color={theme.textSecondary} />
     </Pressable>
   );

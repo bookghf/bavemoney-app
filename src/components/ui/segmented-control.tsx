@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { useFontScale } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
 import { haptics } from '@/lib/feedback';
 
@@ -15,8 +16,13 @@ type SegmentedControlProps<T extends string> = {
 /** iOS-style segmented control for 2–5 mutually exclusive options. */
 export function SegmentedControl<T extends string>({ options, value, onChange, selectedColor }: SegmentedControlProps<T>) {
   const theme = useTheme();
+  const { isLargeText } = useFontScale();
   return (
-    <View accessibilityRole="radiogroup" style={[styles.track, { backgroundColor: theme.backgroundElement }]}>
+    // With large text, segments size to their labels and wrap onto a second
+    // row instead of being squeezed into equal widths that split words.
+    <View
+      accessibilityRole="radiogroup"
+      style={[styles.track, isLargeText && styles.trackWrap, { backgroundColor: theme.backgroundElement }]}>
       {options.map((option) => {
         const selected = option.value === value;
         return (
@@ -30,12 +36,13 @@ export function SegmentedControl<T extends string>({ options, value, onChange, s
             }}
             style={[
               styles.segment,
+              isLargeText ? styles.segmentWrap : styles.segmentEqual,
               selected && [styles.selected, { backgroundColor: theme.surface }],
             ]}>
             <ThemedText
               type={selected ? 'smallBold' : 'small'}
-              numberOfLines={1}
-              style={selected && selectedColor ? { color: selectedColor } : undefined}
+              numberOfLines={isLargeText ? undefined : 1}
+              style={[styles.label, selected && selectedColor ? { color: selectedColor } : undefined]}
               themeColor={selected ? 'text' : 'textSecondary'}>
               {option.label}
             </ThemedText>
@@ -48,6 +55,12 @@ export function SegmentedControl<T extends string>({ options, value, onChange, s
 
 const styles = StyleSheet.create({
   track: { flexDirection: 'row', borderRadius: 12, padding: 3 },
-  segment: { flex: 1, minHeight: 38, alignItems: 'center', justifyContent: 'center', borderRadius: 9, paddingHorizontal: 6 },
+  label: { textAlign: 'center' },
+  trackWrap: { flexWrap: 'wrap', gap: 3 },
+  // Grow from the label's own width, so a word always fits on one line.
+  segmentWrap: { flexGrow: 1, flexShrink: 0, flexBasis: 'auto', paddingHorizontal: 12 },
+  // Equal widths normally; see segmentWrap for large text.
+  segmentEqual: { flex: 1 },
+  segment: { minHeight: 38, paddingVertical: 4, alignItems: 'center', justifyContent: 'center', borderRadius: 9, paddingHorizontal: 6 },
   selected: { boxShadow: '0 1px 4px rgba(15, 18, 34, 0.12)' },
 });

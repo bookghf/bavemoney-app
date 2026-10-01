@@ -36,6 +36,18 @@ export type RegisterRequest = LoginRequest & {
 
 export type LogoutRequest = { refresh_token: string; all?: boolean };
 
+/** PATCH /me; omitted fields are left unchanged. Email can not be changed. */
+export type UpdateProfileRequest = { display_name?: string; default_currency?: string };
+
+/** POST /me/reset: erases the user's ledger data; the login stays. */
+export type ResetAccountResponse = {
+  message: string;
+  deleted: { transactions: number; accounts: number; budgets: number; categories: number };
+};
+
+/** POST /me/password; signs out every other device. */
+export type ChangePasswordRequest = { current_password: string; new_password: string };
+
 // --- accounts ------------------------------------------------------------
 
 export const ACCOUNT_TYPES = ['cash', 'bank', 'credit_card', 'e_wallet'] as const;

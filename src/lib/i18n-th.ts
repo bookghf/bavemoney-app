@@ -23,7 +23,7 @@ export const TH: Record<string, string> = {
   'See all': 'ดูทั้งหมด',
   'Show all': 'แสดงทั้งหมด',
   Manage: 'จัดการ',
-  'Load more': 'โหลดเพิ่ม',
+  'Loading more': 'กำลังโหลดเพิ่ม',
   Today: 'วันนี้',
   Yesterday: 'เมื่อวาน',
   'Change date': 'เปลี่ยนวันที่',
@@ -207,6 +207,11 @@ export const TH: Record<string, string> = {
   Other: 'อื่นๆ',
   Uncategorized: 'ไม่มีหมวดหมู่',
 
+  Txns: 'รายการ',
+  Total: 'รวม',
+  '{count} transaction': '{count} รายการ',
+  '{count} transactions': '{count} รายการ',
+
   // --- profile & settings -----------------------------------------------
   'Member since {date}': 'สมาชิกตั้งแต่ {date}',
   Display: 'การแสดงผล',
@@ -218,6 +223,37 @@ export const TH: Record<string, string> = {
   'Log out': 'ออกจากระบบ',
   'Log out?': 'ออกจากระบบหรือไม่?',
   'You will need your email and password to sign back in.': 'ต้องใช้อีเมลและรหัสผ่านเพื่อเข้าสู่ระบบอีกครั้ง',
+
+  // --- edit profile -----------------------------------------------------
+  'Edit profile': 'แก้ไขโปรไฟล์',
+  'Profile updated': 'อัปเดตโปรไฟล์แล้ว',
+  'Used for your Home totals and reports. Existing accounts keep their own currency.':
+    'ใช้สำหรับยอดรวมหน้าแรกและรายงาน บัญชีเดิมยังคงใช้สกุลเงินของตัวเอง',
+  'Change password': 'เปลี่ยนรหัสผ่าน',
+  'Current password': 'รหัสผ่านปัจจุบัน',
+  'New password': 'รหัสผ่านใหม่',
+  'Confirm new password': 'ยืนยันรหัสผ่านใหม่',
+  'Enter your current password': 'กรุณากรอกรหัสผ่านปัจจุบัน',
+  'Passwords do not match': 'รหัสผ่านไม่ตรงกัน',
+  'Password changed. Other devices were signed out.': 'เปลี่ยนรหัสผ่านแล้ว อุปกรณ์อื่นถูกออกจากระบบ',
+  'current password is incorrect': 'รหัสผ่านปัจจุบันไม่ถูกต้อง',
+  'new password must be different': 'รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสเดิม',
+  'display name must be at most 60 characters': 'ชื่อที่แสดงต้องไม่เกิน 60 ตัวอักษร',
+
+  // --- reset account ----------------------------------------------------
+  'Reset account': 'รีเซ็ตบัญชี',
+  'Erases all your data after you confirm with your password': 'ลบข้อมูลทั้งหมดหลังยืนยันด้วยรหัสผ่าน',
+  'Start over from zero': 'เริ่มต้นใหม่ทั้งหมด',
+  'This permanently deletes your data. Your login ({email}) stays, so you can start again right away.':
+    'ข้อมูลของคุณจะถูกลบถาวร แต่บัญชีเข้าสู่ระบบ ({email}) ยังอยู่ เริ่มใช้งานใหม่ได้ทันที',
+  'Custom categories': 'หมวดหมู่ที่สร้างเอง',
+  'Enter your password to confirm': 'กรอกรหัสผ่านเพื่อยืนยัน',
+  'Reset your account?': 'รีเซ็ตบัญชีหรือไม่?',
+  'All your transactions, accounts, budgets, and custom categories will be permanently deleted. This can not be undone.':
+    'รายการ บัญชี งบประมาณ และหมวดหมู่ที่สร้างเองทั้งหมดจะถูกลบถาวร และย้อนกลับไม่ได้',
+  'Your account was reset. Start fresh!': 'รีเซ็ตบัญชีแล้ว เริ่มต้นใหม่ได้เลย!',
+  'password is incorrect': 'รหัสผ่านไม่ถูกต้อง',
+  'password is required': 'กรุณากรอกรหัสผ่าน',
 
   // --- auth -------------------------------------------------------------
   'Sign in': 'เข้าสู่ระบบ',
