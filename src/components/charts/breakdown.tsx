@@ -4,7 +4,9 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useChartPalette } from '@/hooks/use-chart-palette';
+import { useFontScale } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
+import { t, tn } from '@/lib/i18n';
 
 export type BreakdownItem = {
   key: string;
@@ -84,22 +86,50 @@ export function BreakdownChart({ items, formatValue }: BreakdownProps) {
 /** The same breakdown as a table, with child rows indented under each item. */
 export function BreakdownTable({ items, formatValue }: BreakdownProps) {
   const theme = useTheme();
+  const { isLargeText } = useFontScale();
   const rows = items.flatMap((item) => [
     { item, child: false },
     ...(item.children ?? []).map((child) => ({ item: child, child: true })),
   ]);
 
+  // With large text the four columns can not fit side by side, so each row
+  // stacks: the name on its own line, then count · amount · share.
+  if (isLargeText) {
+    return (
+      <View>
+        {rows.map(({ item, child }) => (
+          <Pressable
+            key={`${child ? 'c' : 'p'}-${item.key}`}
+            disabled={!item.onPress}
+            onPress={item.onPress}
+            style={[styles.stackedRow, child && styles.indent, { borderBottomColor: theme.backgroundSelected }]}>
+            <View style={styles.nameCell}>
+              <View style={[child ? styles.swatchSmall : styles.swatch, { backgroundColor: item.color }]} />
+              <ThemedText type={child ? 'small' : 'smallBold'} style={styles.name}>
+                {item.name}
+              </ThemedText>
+            </View>
+            <ThemedText type="small" themeColor="textSecondary">
+              {tn(item.count, '{count} transaction', '{count} transactions')} · {formatValue(item.total)} ·{' '}
+              {formatPercent(item.percentage)}
+            </ThemedText>
+          </Pressable>
+        ))}
+      </View>
+    );
+  }
+
   return (
     <View>
       <View style={[styles.tableRow, styles.tableHead, { borderBottomColor: theme.backgroundSelected }]}>
         <ThemedText type="smallBold" themeColor="textSecondary" style={styles.colName}>
-          Category
+          {t('Category')}
         </ThemedText>
         <ThemedText type="smallBold" themeColor="textSecondary" style={styles.colCount}>
-          Txns
+          {t('Txns')}
         </ThemedText>
         <ThemedText type="smallBold" themeColor="textSecondary" style={styles.colAmount}>
-          Amount
+          {t('Amount')}
         </ThemedText>
         <ThemedText type="smallBold" themeColor="textSecondary" style={styles.colPercent}>
           %
@@ -154,7 +184,7 @@ export function ValueTable({
           {title}
         </ThemedText>
         <ThemedText type="smallBold" themeColor="textSecondary" style={styles.colAmount}>
-          Amount
+          {t('Amount')}
         </ThemedText>
       </View>
       {rows.map((row) => (
@@ -173,7 +203,7 @@ export function ValueTable({
       {total !== undefined ? (
         <View style={styles.tableRow}>
           <ThemedText type="smallBold" style={styles.colName}>
-            Total
+            {t('Total')}
           </ThemedText>
           <ThemedText type="smallBold" style={styles.colAmount}>
             {formatValue(total)}
@@ -211,7 +241,10 @@ const styles = StyleSheet.create({
   nameCell: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   indent: { paddingLeft: Spacing.three },
   colName: { flex: 1 },
-  colCount: { width: 40, textAlign: 'right' },
+  // Minimum, not fixed, widths: a column grows with the text instead of
+  // splitting a number such as "100%" across lines.
+  colCount: { minWidth: 40, textAlign: 'right' },
   colAmount: { minWidth: 96, textAlign: 'right' },
-  colPercent: { width: 44, textAlign: 'right' },
+  colPercent: { minWidth: 44, textAlign: 'right' },
+  stackedRow: { gap: 2, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth },
 });

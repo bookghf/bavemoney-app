@@ -30,6 +30,11 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
   return (
     <Text
       maxFontSizeMultiplier={SCALE_CAP[type]}
+      // Break lines at word boundaries like native iOS text; on Android,
+      // hyphenate long words rather than cutting them at an arbitrary letter.
+      lineBreakStrategyIOS="standard"
+      textBreakStrategy="balanced"
+      android_hyphenationFrequency="normal"
       style={[
         { color: theme[themeColor ?? 'text'] },
         type === 'default' && styles.default,

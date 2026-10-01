@@ -18,7 +18,11 @@ export function SegmentedControl<T extends string>({ options, value, onChange, s
   const theme = useTheme();
   const { isLargeText } = useFontScale();
   return (
-    <View accessibilityRole="radiogroup" style={[styles.track, { backgroundColor: theme.backgroundElement }]}>
+    // With large text, segments size to their labels and wrap onto a second
+    // row instead of being squeezed into equal widths that split words.
+    <View
+      accessibilityRole="radiogroup"
+      style={[styles.track, isLargeText && styles.trackWrap, { backgroundColor: theme.backgroundElement }]}>
       {options.map((option) => {
         const selected = option.value === value;
         return (
@@ -32,15 +36,12 @@ export function SegmentedControl<T extends string>({ options, value, onChange, s
             }}
             style={[
               styles.segment,
+              isLargeText ? styles.segmentWrap : styles.segmentEqual,
               selected && [styles.selected, { backgroundColor: theme.surface }],
             ]}>
             <ThemedText
               type={selected ? 'smallBold' : 'small'}
-              // Shrink to fit instead of wrapping: five short segments ("Week",
-              // "Month") would otherwise break mid-word at large text sizes.
-              numberOfLines={1}
-              adjustsFontSizeToFit={isLargeText}
-              minimumFontScale={0.6}
+              numberOfLines={isLargeText ? undefined : 1}
               style={[styles.label, selected && selectedColor ? { color: selectedColor } : undefined]}
               themeColor={selected ? 'text' : 'textSecondary'}>
               {option.label}
@@ -55,6 +56,11 @@ export function SegmentedControl<T extends string>({ options, value, onChange, s
 const styles = StyleSheet.create({
   track: { flexDirection: 'row', borderRadius: 12, padding: 3 },
   label: { textAlign: 'center' },
-  segment: { flex: 1, minHeight: 38, paddingVertical: 4, alignItems: 'center', justifyContent: 'center', borderRadius: 9, paddingHorizontal: 6 },
+  trackWrap: { flexWrap: 'wrap', gap: 3 },
+  // Grow from the label's own width, so a word always fits on one line.
+  segmentWrap: { flexGrow: 1, flexShrink: 0, flexBasis: 'auto', paddingHorizontal: 12 },
+  // Equal widths normally; see segmentWrap for large text.
+  segmentEqual: { flex: 1 },
+  segment: { minHeight: 38, paddingVertical: 4, alignItems: 'center', justifyContent: 'center', borderRadius: 9, paddingHorizontal: 6 },
   selected: { boxShadow: '0 1px 4px rgba(15, 18, 34, 0.12)' },
 });

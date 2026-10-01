@@ -207,6 +207,11 @@ export const TH: Record<string, string> = {
   Other: 'อื่นๆ',
   Uncategorized: 'ไม่มีหมวดหมู่',
 
+  Txns: 'รายการ',
+  Total: 'รวม',
+  '{count} transaction': '{count} รายการ',
+  '{count} transactions': '{count} รายการ',
+
   // --- profile & settings -----------------------------------------------
   'Member since {date}': 'สมาชิกตั้งแต่ {date}',
   Display: 'การแสดงผล',
