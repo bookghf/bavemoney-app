@@ -1,37 +1,236 @@
-import axios, { AxiosError, type AxiosInstance } from 'axios';
+import {
+  create,
+  isAxiosError,
+  type AxiosError,
+  type AxiosInstance,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from 'axios';
 
+import type { AuthResponse } from '@/lib/api/types';
+import { t } from '@/lib/i18n';
 import { useAuthStore } from '@/store/auth-store';
 
 /**
- * Base URL comes from an Expo public env var so it can differ per environment.
- * Set EXPO_PUBLIC_API_URL in a .env file (see https://docs.expo.dev/guides/environment-variables/).
+ * Base URL of the Ledger API, from EXPO_PUBLIC_API_URL (see .env.example).
+ * The default works for web and the iOS simulator on the same machine.
+ * - Android emulator: use http://10.0.2.2:8080/api/v1 (the emulator's alias for the host).
+ * - Physical device: use your machine's LAN IP, e.g. http://192.168.1.20:8080/api/v1.
+ * EXPO_PUBLIC_* vars are inlined at bundle time; restart Metro after changing them.
  */
-export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL ?? 'https://jsonplaceholder.typicode.com';
+export const API_BASE_URL = (
+  process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080/api/v1'
+).replace(/\/+$/, '');
 
-export const api: AxiosInstance = axios.create({
+const baseConfig = {
   baseURL: API_BASE_URL,
   timeout: 15_000,
   headers: { 'Content-Type': 'application/json' },
-});
+};
 
-// Attach the auth token (if any) at request time. Reading from the store
-// lazily via getState() keeps this out of React's render cycle.
+export const api: AxiosInstance = create(baseConfig);
+
+/** Client used only for token refresh; it has no auth/refresh interceptors, so it can never recurse. */
+const refreshClient: AxiosInstance = create(baseConfig);
+
+// --- request/response logging (dev builds only) -----------------------------
+
+/** Values that would leak credentials into the console are masked before logging. */
+const SECRET_KEYS = ['password', 'refresh_token', 'access_token', 'token'];
+
+function redact(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(redact);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, inner]) => [key, SECRET_KEYS.includes(key) ? '***' : redact(inner)]),
+    );
+  }
+  return value;
+}
+
+/** Request bodies arrive already serialized to a JSON string by the time interceptors run. */
+function parseBody(data: unknown): unknown {
+  if (typeof data !== 'string') return data;
+  try {
+    return JSON.parse(data);
+  } catch {
+    return data;
+  }
+}
+
+function logRequest(client: AxiosInstance, config: InternalAxiosRequestConfig) {
+  const headers = { ...config.headers.toJSON() } as Record<string, unknown>;
+  if (typeof headers.Authorization === 'string') {
+    // Keep the scheme and the last few characters so you can tell tokens apart
+    // (every JWT starts with the same header, so a prefix wouldn't).
+    headers.Authorization = headers.Authorization.replace(/^Bearer .*(.{6})$/, 'Bearer …$1');
+  }
+  console.log(
+    `[api] → ${new Date().toISOString()} ${config.method?.toUpperCase()} ${client.getUri(config)}`,
+    { headers, ...(LOG_BODIES && config.data !== undefined && { body: redact(parseBody(config.data)) }) },
+  );
+}
+
+/**
+ * Response bodies hold the user's financial data, so they are only logged when
+ * EXPO_PUBLIC_API_LOG_BODIES=1 is set for a debugging session.
+ */
+const LOG_BODIES = process.env.EXPO_PUBLIC_API_LOG_BODIES === '1';
+
+function logResponse(client: AxiosInstance, response: AxiosResponse) {
+  console.log(
+    `[api] ← ${response.status} ${response.config.method?.toUpperCase()} ${client.getUri(response.config)}`,
+    ...(LOG_BODIES ? [{ body: redact(response.data) }] : []),
+  );
+}
+
+function logError(client: AxiosInstance, error: AxiosError) {
+  const request = error.config ? `${error.config.method?.toUpperCase()} ${client.getUri(error.config)}` : '';
+  if (error.response) {
+    console.log(`[api] ← ${error.response.status} ${request}`, { body: redact(error.response.data) });
+  } else {
+    console.log(`[api] ✕ ${error.code ?? 'ERROR'} ${request}`, error.message);
+  }
+}
+
+/**
+ * Logs every request (timestamp, method, URL, headers, body) and every response
+ * (status, URL, body). Call this before adding other interceptors: axios runs
+ * request interceptors last-added-first, so this one then sees the final
+ * headers (including Authorization), and response interceptors first-added-first,
+ * so it sees the raw 401 before a refresh retry.
+ */
+function attachLogger(client: AxiosInstance) {
+  if (!__DEV__) return;
+  client.interceptors.request.use((config) => {
+    logRequest(client, config);
+    return config;
+  });
+  client.interceptors.response.use(
+    (response) => {
+      logResponse(client, response);
+      return response;
+    },
+    (error: AxiosError) => {
+      logError(client, error);
+      return Promise.reject(error);
+    },
+  );
+}
+
+attachLogger(api);
+attachLogger(refreshClient);
+
+/** Auth endpoints never carry/refresh a bearer token; a 401 there is a real failure. */
+const AUTH_PATHS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
+
+function isAuthEndpoint(url: string | undefined) {
+  return !!url && AUTH_PATHS.some((path) => url.endsWith(path));
+}
+
+/**
+ * Normalize an auth envelope. The API spec calls the access token `token`,
+ * but some server builds emit `access_token`; accept either.
+ */
+export function normalizeAuthResponse(data: AuthResponse & { access_token?: string }): AuthResponse {
+  return { ...data, token: data.token ?? data.access_token ?? '' };
+}
+
+// Attach the access token at request time. Reading via getState() keeps this
+// out of React's render cycle.
 api.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().token;
-  if (token) {
+  const token = useAuthStore.getState().accessToken;
+  if (token && !isAuthEndpoint(config.url)) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// Central place to normalize errors / handle 401s.
+// --- refresh (single-flight) ----------------------------------------------
+
+let refreshInFlight: Promise<string | null> | null = null;
+
+/**
+ * Exchange the stored refresh token for a new session. Concurrent callers share
+ * one request, which matters because refresh tokens rotate: a second request
+ * with the same token would be rejected and log the user out.
+ *
+ * Resolves to the new access token, or null when there is no session / the
+ * server rejected the refresh token (in which case the user is signed out).
+ * Network errors are re-thrown without signing out.
+ */
+export function refreshSession(): Promise<string | null> {
+  if (!refreshInFlight) {
+    refreshInFlight = (async () => {
+      const { refreshToken, setSession, signOut } = useAuthStore.getState();
+      if (!refreshToken) return null;
+      try {
+        const { data } = await refreshClient.post<AuthResponse>('/auth/refresh', {
+          refresh_token: refreshToken,
+        });
+        const session = normalizeAuthResponse(data);
+        // Ignore the result if the user signed out while we were waiting.
+        if (useAuthStore.getState().refreshToken !== refreshToken) return null;
+        await setSession(session);
+        return session.token;
+      } catch (error) {
+        const status = (error as AxiosError).response?.status;
+        // 403: the account was suspended.
+        if (status === 400 || status === 401 || status === 403) {
+          await signOut();
+          return null;
+        }
+        throw error;
+      }
+    })().finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
+}
+
+type RetriableConfig = InternalAxiosRequestConfig & { _retried?: boolean };
+
 api.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      useAuthStore.getState().signOut();
+  async (error: AxiosError) => {
+    const original = error.config as RetriableConfig | undefined;
+    if (error.response?.status !== 401 || !original || original._retried || isAuthEndpoint(original.url)) {
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
+    original._retried = true;
+
+    // Another request may already have refreshed while this one was in flight.
+    const sentToken = String(original.headers.Authorization ?? '').replace(/^Bearer /, '');
+    const current = useAuthStore.getState().accessToken;
+    let token: string | null = current && current !== sentToken ? current : null;
+
+    if (!token) {
+      try {
+        token = await refreshSession();
+      } catch {
+        return Promise.reject(error);
+      }
+    }
+    if (!token) return Promise.reject(error);
+
+    original.headers.Authorization = `Bearer ${token}`;
+    return api(original);
   },
 );
+
+/** Human-readable message from an API error (`{"error": "..."}`) or network failure. */
+export function getErrorMessage(error: unknown): string {
+  if (isAxiosError(error)) {
+    const body = error.response?.data as { error?: string; message?: string } | undefined;
+    // Server messages are English; known ones are translated.
+    if (body?.error) return t(body.error);
+    if (body?.message) return t(body.message);
+    if (error.response?.status === 429) return t('Too many attempts. Wait a minute and try again.');
+    if (error.response) return t('Request failed ({status})', { status: error.response.status });
+    if (error.code === 'ECONNABORTED') return t('Request timed out');
+    return t('Cannot reach the server. Check your connection.');
+  }
+  if (error instanceof Error) return error.message;
+  return t('Something went wrong');
+}
