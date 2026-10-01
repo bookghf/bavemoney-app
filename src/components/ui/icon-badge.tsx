@@ -6,12 +6,13 @@ import { useTheme } from '@/hooks/use-theme';
 
 export type IoniconName = keyof typeof Ionicons.glyphMap;
 
-type Tone = 'tint' | 'success' | 'danger' | 'neutral';
+type Tone = 'tint' | 'success' | 'danger' | 'transfer' | 'neutral';
 
 const TONES: Record<Tone, { fg: ThemeColor; bg: ThemeColor }> = {
   tint: { fg: 'tint', bg: 'tintSoft' },
   success: { fg: 'success', bg: 'successSoft' },
   danger: { fg: 'danger', bg: 'dangerSoft' },
+  transfer: { fg: 'transfer', bg: 'transferSoft' },
   neutral: { fg: 'textSecondary', bg: 'backgroundElement' },
 };
 

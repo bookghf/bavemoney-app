@@ -1,10 +1,10 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { Pressable, useColorScheme } from 'react-native';
+import { useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import { ThemedText } from '@/components/themed-text';
+import { HeaderButton } from '@/components/ui/header-button';
 import { ToastHost } from '@/components/ui/toast';
 import { Colors } from '@/constants/theme';
 import { t } from '@/lib/i18n';
@@ -17,11 +17,11 @@ import { usePreferences } from '@/store/preferences-store';
 SplashScreen.preventAutoHideAsync();
 
 function CancelButton() {
-  return (
-    <Pressable accessibilityRole="button" hitSlop={10} onPress={() => router.back()}>
-      <ThemedText themeColor="tint">{t('Cancel')}</ThemedText>
-    </Pressable>
-  );
+  return <HeaderButton label={t('Cancel')} onPress={() => router.back()} />;
+}
+
+function BackButton() {
+  return <HeaderButton back label={t('Back')} onPress={() => router.back()} />;
 }
 
 export default function RootLayout() {
@@ -51,6 +51,7 @@ export default function RootLayout() {
     headerTitleStyle: { color: colors.text },
   };
   const modal = { ...header, presentation: 'modal' as const, headerShown: true, headerLeft: CancelButton };
+  const pushed = { ...header, headerShown: true, headerLeft: BackButton };
 
   return (
     <AppProviders>
@@ -61,17 +62,19 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" />
             <Stack.Screen
               name="transactions"
-              options={{ ...header, headerShown: true, title: t('Transactions'), headerBackTitle: t('Back') }}
+              options={{ ...pushed, title: t('Transactions') }}
             />
             <Stack.Screen
               name="budgets"
-              options={{ ...header, headerShown: true, title: t('Budgets'), headerBackTitle: t('Back') }}
+              options={{ ...pushed, title: t('Budgets') }}
             />
             <Stack.Screen name="add-transaction" options={{ ...modal, title: t('Add transaction') }} />
             <Stack.Screen name="transaction/[id]" options={{ ...modal, title: t('Edit transaction') }} />
             <Stack.Screen name="add-account" options={{ ...modal, title: t('New account') }} />
             <Stack.Screen name="edit-account" options={{ ...modal, title: t('Edit account') }} />
             <Stack.Screen name="add-budget" options={{ ...modal, title: t('New budget') }} />
+            <Stack.Screen name="edit-profile" options={{ ...modal, title: t('Edit profile') }} />
+            <Stack.Screen name="reset-account" options={{ ...modal, title: t('Reset account') }} />
           </Stack.Protected>
 
           {/* Signed out: auth screens only. Stack.Protected redirects to the

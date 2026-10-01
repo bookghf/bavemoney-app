@@ -10,9 +10,10 @@ import { Card } from '@/components/ui/card';
 import { QueryState } from '@/components/ui/query-state';
 import { Screen } from '@/components/ui/screen';
 import { SectionHeader } from '@/components/ui/section-header';
-import { BrandGradient, Spacing } from '@/constants/theme';
+import { BrandGradient, BrandShadow, Spacing } from '@/constants/theme';
 import { useAccounts } from '@/hooks/use-accounts';
 import { useBudgets } from '@/hooks/use-budgets';
+import { FontScaleCap, useFontScale } from '@/hooks/use-font-scale';
 import { toISODate, useReportSummary } from '@/hooks/use-reports';
 import { useTheme } from '@/hooks/use-theme';
 import { useRecentTransactions } from '@/hooks/use-transactions';
@@ -24,6 +25,7 @@ import { useAuthStore } from '@/store/auth-store';
 
 export default function DashboardScreen() {
   const theme = useTheme();
+  const { isLargeText } = useFontScale();
   const user = useAuthStore((state) => state.user);
   const currency = user?.default_currency || 'THB';
   const today = new Date();
@@ -58,7 +60,9 @@ export default function DashboardScreen() {
     <Screen inTabs refreshing={refreshing} onRefresh={refresh}>
       <View style={styles.header}>
         <LinearGradient colors={BrandGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.avatar}>
-          <Text style={styles.avatarText}>{name.charAt(0).toUpperCase()}</Text>
+          <Text style={styles.avatarText} maxFontSizeMultiplier={1}>
+            {name.charAt(0).toUpperCase()}
+          </Text>
         </LinearGradient>
         <View style={styles.flex}>
           <ThemedText type="small" themeColor="textSecondary">
@@ -86,25 +90,39 @@ export default function DashboardScreen() {
           <View style={[styles.ring, styles.ringLarge]} />
           <View style={[styles.ring, styles.ringSmall]} />
 
-          <Text style={styles.heroLabel}>{t('Total balance')}</Text>
+          <Text style={styles.heroLabel} maxFontSizeMultiplier={FontScaleCap.heading}>
+            {t('Total balance')}
+          </Text>
           {accounts.error ? (
-            <Text style={styles.heroMuted}>{getErrorMessage(accounts.error)}</Text>
+            <Text style={styles.heroMuted} maxFontSizeMultiplier={FontScaleCap.heading}>
+              {getErrorMessage(accounts.error)}
+            </Text>
           ) : accounts.isPending ? (
             <ActivityIndicator color="#ffffff" style={styles.heroSpinner} />
           ) : Object.keys(totals).length === 0 ? (
-            <Text style={styles.heroMuted}>{t('No accounts yet')}</Text>
+            <Text style={styles.heroMuted} maxFontSizeMultiplier={FontScaleCap.heading}>
+              {t('No accounts yet')}
+            </Text>
           ) : (
             Object.entries(totals).map(([code, total]) => (
-              <Text key={code} style={styles.heroAmount} numberOfLines={1} adjustsFontSizeToFit>
+              <Text
+                key={code}
+                style={styles.heroAmount}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                maxFontSizeMultiplier={FontScaleCap.display}>
                 {formatMoney(total, code)}
               </Text>
             ))
           )}
-          <Text style={styles.heroMuted}>{tn(activeAccounts.length, '{count} account', '{count} accounts')}</Text>
+          <Text style={styles.heroMuted} maxFontSizeMultiplier={FontScaleCap.heading}>
+            {tn(activeAccounts.length, '{count} account', '{count} accounts')}
+          </Text>
 
-          <View style={styles.flowRow}>
+          {/* Side by side normally; stacked when large text would squeeze it. */}
+          <View style={[styles.flowRow, isLargeText && styles.flowRowStacked]}>
             <Flow icon="arrow-down" label={t('{month} income', { month: monthLabel })} value={formatMoney(income, currency)} />
-            <View style={styles.flowDivider} />
+            <View style={isLargeText ? styles.flowDividerStacked : styles.flowDivider} />
             <Flow icon="arrow-up" label={t('{month} spent', { month: monthLabel })} value={formatMoney(expense, currency)} />
           </View>
         </LinearGradient>
@@ -187,10 +205,10 @@ function Flow({ icon, label, value }: { icon: 'arrow-down' | 'arrow-up'; label: 
         <Ionicons name={icon} size={14} color="#ffffff" />
       </View>
       <View style={styles.flex}>
-        <Text style={styles.flowLabel} numberOfLines={1}>
+        <Text style={styles.flowLabel} numberOfLines={2} maxFontSizeMultiplier={FontScaleCap.heading}>
           {label}
         </Text>
-        <Text style={styles.flowValue} numberOfLines={1} adjustsFontSizeToFit>
+        <Text style={styles.flowValue} numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={FontScaleCap.heading}>
           {value}
         </Text>
       </View>
@@ -210,8 +228,8 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, marginBottom: Spacing.one },
   avatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   avatarText: { color: '#ffffff', fontSize: 18, fontWeight: 700 },
-  headerButton: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
-  heroShadow: { borderRadius: 28, boxShadow: '0 12px 28px rgba(55, 80, 220, 0.30)' },
+  headerButton: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', padding: 8 },
+  heroShadow: { borderRadius: 28, boxShadow: BrandShadow },
   hero: { borderRadius: 28, padding: Spacing.four, gap: Spacing.half, overflow: 'hidden' },
   ring: { position: 'absolute', borderRadius: 999, borderWidth: 28, borderColor: 'rgba(255,255,255,0.07)' },
   ringLarge: { width: 260, height: 260, top: -120, right: -90 },
@@ -246,6 +264,8 @@ const styles = StyleSheet.create({
   },
   flowLabel: { color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: 500 },
   flowValue: { color: '#ffffff', fontSize: 15, fontWeight: 700, fontVariant: ['tabular-nums'] },
+  flowRowStacked: { flexDirection: 'column', alignItems: 'stretch' },
+  flowDividerStacked: { height: 1, marginVertical: Spacing.two, backgroundColor: 'rgba(255,255,255,0.2)' },
   flowDivider: {
     width: 1,
     alignSelf: 'stretch',

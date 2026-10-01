@@ -76,17 +76,25 @@ function loggedHeaders(config: InternalAxiosRequestConfig): Record<string, unkno
   return headers;
 }
 
+/**
+ * Full request URL including query params (?page=2&limit=20...). axios keeps
+ * params out of config.url, so baseURL + url alone would hide them.
+ */
+function fullUrl(config: InternalAxiosRequestConfig | undefined): string {
+  return config ? api.getUri(config) : '';
+}
+
 function logRequest(config: TimedConfig) {
   config.metadata = { startTime: Date.now() };
   console.log(
-    `Request [${config.method}] ===> ${config.baseURL}${config.url} \nHeader: ${JSON.stringify(loggedHeaders(config), null, 2)} \n Body: ${JSON.stringify(redact(parseBody(config.data)), null, 2)}`,
+    `Request [${config.method}] ===> ${fullUrl(config)} \nHeader: ${JSON.stringify(loggedHeaders(config), null, 2)} \n Body: ${JSON.stringify(redact(parseBody(config.data)), null, 2)}`,
   );
 }
 
 function logResponse(response: AxiosResponse) {
   const responseTime = elapsed(response.config);
   console.log(
-    `Response [${response.status}] (${responseTime ?? '?'}ms) <=== ${response.config.baseURL}${response.config.url} \n Data: ${JSON.stringify(redact(response?.data), null, 2)}`,
+    `Response [${response.status}] (${responseTime ?? '?'}ms) <=== ${fullUrl(response.config)} \n Data: ${JSON.stringify(redact(response?.data), null, 2)}`,
   );
 }
 
@@ -94,12 +102,12 @@ function logError(error: AxiosError) {
   const responseTime = elapsed(error.config);
   if (error.response) {
     console.log(
-      `Error [${error.status}] (${responseTime ?? '?'}ms) <=== ${error.response.config.baseURL}${error.response.config.url}\ndata: ${JSON.stringify(redact(error.response.data), null, 2)}`,
+      `Error [${error.status}] (${responseTime ?? '?'}ms) <=== ${fullUrl(error.response.config)}\ndata: ${JSON.stringify(redact(error.response.data), null, 2)}`,
     );
   } else {
     // No response at all: offline, timeout, or the API is down.
     console.log(
-      `Error [${error.code ?? 'NETWORK'}] (${responseTime ?? '?'}ms) <=== ${error.config?.baseURL}${error.config?.url}\ndata: ${JSON.stringify(error.message)}`,
+      `Error [${error.code ?? 'NETWORK'}] (${responseTime ?? '?'}ms) <=== ${fullUrl(error.config)}\ndata: ${JSON.stringify(error.message)}`,
     );
   }
 }

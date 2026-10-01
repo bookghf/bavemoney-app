@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useFontScale } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
 import type { Category } from '@/lib/api/types';
 import { haptics } from '@/lib/feedback';
@@ -18,6 +19,7 @@ type CategoryGridProps = {
 /** Top-level categories as icon tiles: one tap picks, tapping again clears. */
 export function CategoryGrid({ categories, value, onChange }: CategoryGridProps) {
   const theme = useTheme();
+  const { isLargeText } = useFontScale();
   return (
     <View accessibilityRole="radiogroup" style={styles.grid}>
       {categories.map((category) => {
@@ -44,7 +46,11 @@ export function CategoryGrid({ categories, value, onChange }: CategoryGridProps)
             <ThemedText
               type={selected ? 'smallBold' : 'small'}
               themeColor={selected ? 'text' : 'textSecondary'}
+              // One word per tile: shrink long names ("Entertainment") to fit
+              // rather than breaking them mid-word at large text sizes.
               numberOfLines={1}
+              adjustsFontSizeToFit={isLargeText}
+              minimumFontScale={0.6}
               style={styles.label}>
               {label}
             </ThemedText>

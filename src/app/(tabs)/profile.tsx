@@ -42,7 +42,9 @@ export default function ProfileScreen() {
       {user ? (
         <Card style={styles.identity}>
           <LinearGradient colors={BrandGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.avatar}>
-            <Text style={styles.avatarText}>{name.charAt(0).toUpperCase()}</Text>
+            <Text style={styles.avatarText} maxFontSizeMultiplier={1}>
+              {name.charAt(0).toUpperCase()}
+            </Text>
           </LinearGradient>
           <ThemedText type="sectionTitle" numberOfLines={1}>
             {user.display_name || user.email}
@@ -59,7 +61,8 @@ export default function ProfileScreen() {
       ) : null}
 
       <Card style={styles.list}>
-        <LinkRow icon="pie-chart-outline" label={t('Budgets')} onPress={() => router.push('/budgets')} />
+        <LinkRow icon="person-outline" label={t('Edit profile')} onPress={() => router.push('/edit-profile')} />
+        <LinkRow icon="pie-chart-outline" label={t('Budgets')} onPress={() => router.push('/budgets')} separator />
         <LinkRow icon="receipt-outline" label={t('All transactions')} onPress={() => router.push('/transactions')} separator />
         <LinkRow icon="wallet-outline" label={t('Accounts')} onPress={() => router.navigate('/account')} separator />
       </Card>
@@ -104,6 +107,24 @@ export default function ProfileScreen() {
             {t('Log out')}
           </ThemedText>
           {logout.isPending ? <ActivityIndicator /> : null}
+        </Pressable>
+      </Card>
+
+      {/* Kept apart from Log out so the two red rows can not be mistaken for each other. */}
+      <ThemedText type="smallBold" themeColor="textSecondary" style={styles.dangerLabel}>
+        {t('Danger zone')}
+      </ThemedText>
+      <Card style={styles.list}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityHint={t('Erases all your data after you confirm with your password')}
+          onPress={() => router.push('/reset-account')}
+          style={({ pressed }) => [styles.row, pressed && { backgroundColor: theme.backgroundElement }]}>
+          <IconBadge icon="refresh-circle-outline" tone="danger" size={36} />
+          <ThemedText type="smallBold" themeColor="danger" style={styles.label}>
+            {t('Reset account')}
+          </ThemedText>
+          <Ionicons name="chevron-forward" size={16} color={theme.textSecondary} />
         </Pressable>
       </Card>
     </Screen>
@@ -163,6 +184,7 @@ const styles = StyleSheet.create({
   },
   label: { flex: 1 },
   sectionLabel: { marginLeft: Spacing.three, marginTop: Spacing.two },
+  dangerLabel: { marginLeft: Spacing.three, marginTop: Spacing.five },
   settings: { gap: Spacing.three },
   setting: { gap: Spacing.two },
 });

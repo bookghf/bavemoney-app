@@ -5,6 +5,7 @@ import { ThemedText } from '@/components/themed-text';
 import { IconBadge } from '@/components/ui/icon-badge';
 import { Spacing } from '@/constants/theme';
 import type { Transaction } from '@/lib/api/types';
+import { useFontScale } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
 import { formatDate, formatMoney } from '@/lib/format';
 import { categoryName, t } from '@/lib/i18n';
@@ -19,6 +20,7 @@ type TransactionRowProps = {
 /** One ledger entry; tapping it opens the edit screen. */
 export function TransactionRow({ transaction, hideDate }: TransactionRowProps) {
   const theme = useTheme();
+  const { isLargeText } = useFontScale();
   const isIncome = transaction.type === 'income';
   const isTransfer = transaction.type === 'transfer';
   const title = isTransfer
@@ -34,9 +36,17 @@ export function TransactionRow({ transaction, hideDate }: TransactionRowProps) {
     .join(' · ');
   // Transfers move money between your own accounts, so they are neither gain nor loss.
   const sign = isTransfer ? '' : isIncome ? '+' : '−';
-  const color = isTransfer ? undefined : isIncome ? 'success' : undefined;
+  // Spending red, income green, transfers blue.
+  const color = isTransfer ? 'transfer' : isIncome ? 'success' : 'danger';
   const icon = categoryIcon(transaction.category?.parent?.name ?? transaction.category?.name, transaction.type);
-  const tone = isTransfer ? 'neutral' : isIncome ? 'success' : 'tint';
+  const tone = isTransfer ? 'transfer' : isIncome ? 'success' : 'danger';
+
+  const amount = (
+    <ThemedText type="smallBold" themeColor={color} style={styles.amount}>
+      {sign}
+      {formatMoney(transaction.amount, transaction.currency)}
+    </ThemedText>
+  );
 
   return (
     <Pressable
@@ -46,21 +56,18 @@ export function TransactionRow({ transaction, hideDate }: TransactionRowProps) {
       onPress={() => router.push({ pathname: '/transaction/[id]', params: { id: transaction.id } })}
       style={({ pressed }) => [styles.row, pressed && { backgroundColor: theme.backgroundElement }]}>
       <IconBadge icon={icon} tone={tone} size={42} />
+      {/* With large text the amount moves under the title instead of
+          squeezing it, and lines wrap instead of truncating. */}
       <View style={styles.text}>
-        <ThemedText type="smallBold" numberOfLines={1}>
+        <ThemedText type="smallBold" numberOfLines={isLargeText ? 2 : 1}>
           {title}
         </ThemedText>
-        <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
+        {isLargeText ? amount : null}
+        <ThemedText type="small" themeColor="textSecondary" numberOfLines={isLargeText ? 3 : 1}>
           {subtitle}
         </ThemedText>
       </View>
-      <ThemedText
-        type="smallBold"
-        themeColor={isTransfer ? 'textSecondary' : color}
-        style={styles.amount}>
-        {sign}
-        {formatMoney(transaction.amount, transaction.currency)}
-      </ThemedText>
+      {isLargeText ? null : amount}
     </Pressable>
   );
 }

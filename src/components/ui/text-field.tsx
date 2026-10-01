@@ -12,6 +12,7 @@ import {
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { FontScaleCap } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
 import { t } from '@/lib/i18n';
 
@@ -43,6 +44,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
         accessibilityLabel={label}
         accessibilityHint={error ?? hint}
         placeholderTextColor={theme.textSecondary}
+        maxFontSizeMultiplier={FontScaleCap.body}
         keyboardType={keyboardType}
         inputAccessoryViewID={doneBar ? accessoryId : undefined}
         style={[

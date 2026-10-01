@@ -46,6 +46,9 @@ export default function AppTabs() {
         }}
         screenOptions={{
           headerShown: false,
+          // Like iOS's own tab bars, labels keep their size so the fixed-height
+          // bar never clips; every screen's content follows the text size.
+          tabBarAllowFontScaling: false,
           tabBarActiveTintColor: colors.text,
           tabBarInactiveTintColor: colors.textSecondary,
           // The notched shape is drawn by tabBarBackground.

@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { create } from 'zustand';
 
 import { Spacing } from '@/constants/theme';
+import { FontScaleCap } from '@/hooks/use-font-scale';
 import { t } from '@/lib/i18n';
 
 type Toast = {
@@ -61,7 +62,7 @@ export function ToastHost() {
         accessibilityLiveRegion="polite"
         style={styles.toast}>
         <Ionicons name={ICONS[current.tone]} size={20} color={COLORS[current.tone]} />
-        <Text style={styles.message} numberOfLines={2}>
+        <Text style={styles.message} numberOfLines={3} maxFontSizeMultiplier={FontScaleCap.heading}>
           {current.message}
         </Text>
         {current.action ? (
@@ -72,7 +73,9 @@ export function ToastHost() {
               current.action?.onPress();
               dismiss();
             }}>
-            <Text style={styles.action}>{current.action.label}</Text>
+            <Text style={styles.action} maxFontSizeMultiplier={FontScaleCap.heading}>
+              {current.action.label}
+            </Text>
           </Pressable>
         ) : (
           <Pressable accessibilityRole="button" accessibilityLabel={t('Dismiss')} hitSlop={10} onPress={dismiss}>

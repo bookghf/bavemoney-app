@@ -25,15 +25,19 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+## Reset an account (local development)
 
-When you're ready, run:
+Erase one user's data in the local money-api database and start fresh, keeping
+their login:
 
 ```bash
-npm run reset-project
+yarn reset-account you@example.com          # shows what will go, asks you to type the email
+yarn reset-account you@example.com --yes    # no prompt
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+It deletes the user's transactions, accounts, budgets, and custom categories,
+and keeps the email, password, and sessions. It runs `psql` inside the
+`ledger-db` container (money-api must be up), so it needs no database password.
 
 ### Other setup steps
 
