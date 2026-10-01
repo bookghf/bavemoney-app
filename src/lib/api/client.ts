@@ -58,44 +58,55 @@ function parseBody(data: unknown): unknown {
   }
 }
 
-function logRequest(client: AxiosInstance, config: InternalAxiosRequestConfig) {
+/** When the request left, so the response log can show how long it took. */
+type TimedConfig = InternalAxiosRequestConfig & { metadata?: { startTime: number } };
+
+function elapsed(config: TimedConfig | undefined): number | undefined {
+  const startTime = config?.metadata?.startTime;
+  return startTime === undefined ? undefined : Date.now() - startTime;
+}
+
+/** Headers for the log, with the bearer token shortened to its last characters. */
+function loggedHeaders(config: InternalAxiosRequestConfig): Record<string, unknown> {
   const headers = { ...config.headers.toJSON() } as Record<string, unknown>;
   if (typeof headers.Authorization === 'string') {
-    // Keep the scheme and the last few characters so you can tell tokens apart
-    // (every JWT starts with the same header, so a prefix wouldn't).
+    // Every JWT starts with the same header, so keep the end to tell tokens apart.
     headers.Authorization = headers.Authorization.replace(/^Bearer .*(.{6})$/, 'Bearer …$1');
   }
+  return headers;
+}
+
+function logRequest(config: TimedConfig) {
+  config.metadata = { startTime: Date.now() };
   console.log(
-    `[api] → ${new Date().toISOString()} ${config.method?.toUpperCase()} ${client.getUri(config)}`,
-    { headers, ...(LOG_BODIES && config.data !== undefined && { body: redact(parseBody(config.data)) }) },
+    `Request [${config.method}] ===> ${config.baseURL}${config.url} \nHeader: ${JSON.stringify(loggedHeaders(config), null, 2)} \n Body: ${JSON.stringify(redact(parseBody(config.data)), null, 2)}`,
   );
 }
 
-/**
- * Response bodies hold the user's financial data, so they are only logged when
- * EXPO_PUBLIC_API_LOG_BODIES=1 is set for a debugging session.
- */
-const LOG_BODIES = process.env.EXPO_PUBLIC_API_LOG_BODIES === '1';
-
-function logResponse(client: AxiosInstance, response: AxiosResponse) {
+function logResponse(response: AxiosResponse) {
+  const responseTime = elapsed(response.config);
   console.log(
-    `[api] ← ${response.status} ${response.config.method?.toUpperCase()} ${client.getUri(response.config)}`,
-    ...(LOG_BODIES ? [{ body: redact(response.data) }] : []),
+    `Response [${response.status}] (${responseTime ?? '?'}ms) <=== ${response.config.baseURL}${response.config.url} \n Data: ${JSON.stringify(redact(response?.data), null, 2)}`,
   );
 }
 
-function logError(client: AxiosInstance, error: AxiosError) {
-  const request = error.config ? `${error.config.method?.toUpperCase()} ${client.getUri(error.config)}` : '';
+function logError(error: AxiosError) {
+  const responseTime = elapsed(error.config);
   if (error.response) {
-    console.log(`[api] ← ${error.response.status} ${request}`, { body: redact(error.response.data) });
+    console.log(
+      `Error [${error.status}] (${responseTime ?? '?'}ms) <=== ${error.response.config.baseURL}${error.response.config.url}\ndata: ${JSON.stringify(redact(error.response.data), null, 2)}`,
+    );
   } else {
-    console.log(`[api] ✕ ${error.code ?? 'ERROR'} ${request}`, error.message);
+    // No response at all: offline, timeout, or the API is down.
+    console.log(
+      `Error [${error.code ?? 'NETWORK'}] (${responseTime ?? '?'}ms) <=== ${error.config?.baseURL}${error.config?.url}\ndata: ${JSON.stringify(error.message)}`,
+    );
   }
 }
 
 /**
- * Logs every request (timestamp, method, URL, headers, body) and every response
- * (status, URL, body). Call this before adding other interceptors: axios runs
+ * Logs every request (method, URL, headers, body) and every response or error
+ * (status, time taken, URL, body), with passwords and tokens masked. Call this before adding other interceptors: axios runs
  * request interceptors last-added-first, so this one then sees the final
  * headers (including Authorization), and response interceptors first-added-first,
  * so it sees the raw 401 before a refresh retry.
@@ -103,16 +114,16 @@ function logError(client: AxiosInstance, error: AxiosError) {
 function attachLogger(client: AxiosInstance) {
   if (!__DEV__) return;
   client.interceptors.request.use((config) => {
-    logRequest(client, config);
+    logRequest(config);
     return config;
   });
   client.interceptors.response.use(
     (response) => {
-      logResponse(client, response);
+      logResponse(response);
       return response;
     },
     (error: AxiosError) => {
-      logError(client, error);
+      logError(error);
       return Promise.reject(error);
     },
   );
