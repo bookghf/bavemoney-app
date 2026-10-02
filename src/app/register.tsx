@@ -11,9 +11,8 @@ import { TextField } from '@/components/ui/text-field';
 import { useRegister } from '@/hooks/use-auth';
 import { haptics } from '@/lib/feedback';
 import { t } from '@/lib/i18n';
+import { displayNameProblem, passwordProblem } from '@/lib/validation';
 
-/** Matches the API's rules (internal/user/handler.go). */
-const MIN_PASSWORD = 8;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // The currencies the API seeds; the list endpoint needs a session, so the
 // sign-up form offers these and the API validates.
@@ -29,10 +28,11 @@ export default function RegisterScreen() {
 
   const normalizedEmail = email.trim().toLowerCase();
   const emailError = EMAIL_PATTERN.test(normalizedEmail) ? null : t('Enter a valid email address');
-  const passwordError = password.length >= MIN_PASSWORD ? null : t('Use at least 8 characters');
+  const passwordError = passwordProblem(password);
+  const nameError = displayNameProblem(displayName);
 
   const submit = () => {
-    if (emailError || passwordError) {
+    if (emailError || passwordError || nameError) {
       setShowErrors(true);
       haptics.warning();
       return;
@@ -66,7 +66,7 @@ export default function RegisterScreen() {
         onChangeText={setDisplayName}
         placeholder={t('e.g. Somchai')}
         textContentType="name"
-        maxLength={60}
+        error={showErrors ? nameError : null}
       />
       <TextField
         label={t('Email')}

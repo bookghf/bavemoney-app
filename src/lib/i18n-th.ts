@@ -255,6 +255,19 @@ export const TH: Record<string, string> = {
   'password is incorrect': 'รหัสผ่านไม่ถูกต้อง',
   'password is required': 'กรุณากรอกรหัสผ่าน',
 
+  // --- input rules ------------------------------------------------------
+  'Password can not be only spaces': 'รหัสผ่านต้องไม่เป็นช่องว่างทั้งหมด',
+  'Password is too long': 'รหัสผ่านยาวเกินไป',
+  'Password contains invalid characters': 'รหัสผ่านมีอักขระที่ใช้ไม่ได้',
+  'Keep the name under 60 characters': 'ชื่อต้องไม่เกิน 60 ตัวอักษร',
+  'Name contains invalid characters': 'ชื่อมีอักขระที่ใช้ไม่ได้',
+  'this account is suspended': 'บัญชีนี้ถูกระงับ',
+  'password can not be blank': 'รหัสผ่านต้องไม่ว่าง',
+  'password must be at most 72 bytes': 'รหัสผ่านยาวเกินไป',
+  'password contains invalid characters': 'รหัสผ่านมีอักขระที่ใช้ไม่ได้',
+  'display name is too long': 'ชื่อที่แสดงยาวเกินไป',
+  'display name contains invalid characters': 'ชื่อที่แสดงมีอักขระที่ใช้ไม่ได้',
+
   // --- auth -------------------------------------------------------------
   'Sign in': 'เข้าสู่ระบบ',
   'Welcome back to your ledger.': 'ยินดีต้อนรับกลับ',
@@ -274,7 +287,6 @@ export const TH: Record<string, string> = {
 
   // --- server messages shown to users --------------------------------------
   'invalid credentials': 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
-  'this account is suspended': 'บัญชีนี้ถูกระงับ',
   'an account with this email already exists': 'อีเมลนี้มีบัญชีอยู่แล้ว',
   'email is not valid': 'อีเมลไม่ถูกต้อง',
   'password must be at least 8 characters': 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร',

@@ -35,14 +35,19 @@ const refreshClient: AxiosInstance = create(baseConfig);
 
 // --- request/response logging (dev builds only) -----------------------------
 
-/** Values that would leak credentials into the console are masked before logging. */
-const SECRET_KEYS = ['password', 'refresh_token', 'access_token', 'token'];
+/**
+ * Keys whose values would leak credentials into the console: anything that
+ * mentions a password, token, or secret (current_password, new_password,
+ * refresh_token, fcm_token, ...). Matched loosely so new fields stay masked.
+ */
+const SECRET_KEY = /password|token|secret/i;
 
-function redact(value: unknown): unknown {
+/** Copy of `value` with every secret-looking field replaced by "***". */
+export function redact(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(redact);
   if (value && typeof value === 'object') {
     return Object.fromEntries(
-      Object.entries(value).map(([key, inner]) => [key, SECRET_KEYS.includes(key) ? '***' : redact(inner)]),
+      Object.entries(value).map(([key, inner]) => [key, SECRET_KEY.test(key) ? '***' : redact(inner)]),
     );
   }
   return value;
@@ -213,6 +218,14 @@ type RetriableConfig = InternalAxiosRequestConfig & { _retried?: boolean };
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
+    // A suspended account is refused on every call; sign out rather than
+    // leave the user on screens that can only fail.
+    const body = error.response?.data as { error?: string } | undefined;
+    if (error.response?.status === 403 && body?.error === 'this account is suspended') {
+      await useAuthStore.getState().signOut();
+      return Promise.reject(error);
+    }
+
     const original = error.config as RetriableConfig | undefined;
     if (error.response?.status !== 401 || !original || original._retried || isAuthEndpoint(original.url)) {
       return Promise.reject(error);

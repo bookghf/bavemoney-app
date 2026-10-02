@@ -1,4 +1,4 @@
-import type { PropsWithChildren, ReactNode } from 'react';
+import { useRef, type PropsWithChildren, type ReactNode } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -38,10 +38,18 @@ const END_THRESHOLD = 400;
  * It moves out of the keyboard's way and dismisses the keyboard on drag.
  */
 export function Screen({ children, inTabs, edges, refreshing, onRefresh, footer, onEndReached }: ScreenProps) {
+  const viewportHeight = useRef(0);
   const handleScroll = onEndReached
     ? ({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) => {
         const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
         if (layoutMeasurement.height + contentOffset.y >= contentSize.height - END_THRESHOLD) onEndReached();
+      }
+    : undefined;
+  // When the content is shorter than the screen (a tall tablet, few rows on a
+  // page) the user can not scroll, so ask for more as soon as it renders.
+  const handleContentSize = onEndReached
+    ? (_width: number, height: number) => {
+        if (viewportHeight.current > 0 && height < viewportHeight.current + END_THRESHOLD) onEndReached();
       }
     : undefined;
 
@@ -56,6 +64,10 @@ export function Screen({ children, inTabs, edges, refreshing, onRefresh, footer,
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="interactive"
             onScroll={handleScroll}
+            onContentSizeChange={handleContentSize}
+            onLayout={(event) => {
+              viewportHeight.current = event.nativeEvent.layout.height;
+            }}
             scrollEventThrottle={handleScroll ? 100 : undefined}
             contentContainerStyle={[
               styles.content,

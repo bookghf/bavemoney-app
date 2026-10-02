@@ -15,11 +15,9 @@ import { useCurrencies } from '@/hooks/use-accounts';
 import { useChangePassword, useUpdateProfile } from '@/hooks/use-profile';
 import { haptics } from '@/lib/feedback';
 import { t } from '@/lib/i18n';
+import { displayNameProblem, passwordProblem } from '@/lib/validation';
 import { useAuthStore } from '@/store/auth-store';
 
-/** Matches the API (internal/user/handler.go). */
-const MAX_DISPLAY_NAME = 60;
-const MIN_PASSWORD = 8;
 
 export default function EditProfileScreen() {
   const user = useAuthStore((state) => state.user);
@@ -39,10 +37,15 @@ export default function EditProfileScreen() {
   const profileChanged = displayName.trim() !== (user?.display_name ?? '') || currency !== user?.default_currency;
 
   const currentError = currentPassword === '' ? t('Enter your current password') : null;
-  const newError = newPassword.length < MIN_PASSWORD ? t('Use at least 8 characters') : null;
+  const newError = passwordProblem(newPassword);
+  const nameError = displayNameProblem(displayName);
   const confirmError = confirmPassword !== newPassword ? t('Passwords do not match') : null;
 
   const saveProfile = () => {
+    if (nameError) {
+      haptics.warning();
+      return;
+    }
     if (!profileChanged) {
       router.back();
       return;
@@ -100,7 +103,8 @@ export default function EditProfileScreen() {
         onChangeText={setDisplayName}
         placeholder={t('e.g. Somchai')}
         textContentType="name"
-        maxLength={MAX_DISPLAY_NAME}
+        // No maxLength: it counts emoji twice; the rule below counts characters.
+        error={nameError}
       />
       <View style={styles.readOnly}>
         <ThemedText type="smallBold" themeColor="textSecondary">
