@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, Switch, View } from 'react-native';
 
 import { CategoryGrid } from '@/components/category-grid';
 import { ThemedText } from '@/components/themed-text';
@@ -100,6 +100,8 @@ function RecurringForm({
   const [dayOfMonth, setDayOfMonth] = useState(String(existing?.day_of_month ?? parseISODate(todayISO).getDate()));
   const [weekday, setWeekday] = useState(String(existing?.weekday ?? parseISODate(todayISO).getDay()));
   const [startDate, setStartDate] = useState(existing?.start_date ?? todayISO);
+  // null: no end date, the rule repeats until paused or deleted.
+  const [endDate, setEndDate] = useState<string | null>(existing?.end_date ?? null);
   const [showErrors, setShowErrors] = useState(false);
 
   // A category created from the grid's "+ New" tile is selected on return.
@@ -171,6 +173,8 @@ function RecurringForm({
       day_of_month: schedule.day_of_month ?? undefined,
       weekday: schedule.weekday ?? undefined,
       start_date: startDate,
+      // Empty clears an end date on an edit and means none on create.
+      end_date: endDate ?? '',
       time_zone: deviceTimeZone(),
     };
     const options = {
@@ -370,11 +374,27 @@ function RecurringForm({
       <DateField
         label={t('Starts')}
         value={startDate}
-        onChange={setStartDate}
+        onChange={(next) => {
+          setStartDate(next);
+          // Keep the end on or after the start.
+          if (endDate !== null && endDate < next) setEndDate(next);
+        }}
         // The API back-fills at most a year of missed runs.
         minDate={existing && existing.start_date < addMonths(todayISO, -12) ? existing.start_date : addMonths(todayISO, -12)}
         shortcuts={[{ label: t('Today'), value: todayISO }]}
       />
+
+      <View style={styles.endRow}>
+        <ThemedText style={styles.flex}>{t('Ends on a date')}</ThemedText>
+        <Switch
+          value={endDate !== null}
+          onValueChange={(on) => setEndDate(on ? (endDate ?? addMonths(startDate > todayISO ? startDate : todayISO, 12)) : null)}
+          accessibilityLabel={t('Ends on a date')}
+        />
+      </View>
+      {endDate !== null ? (
+        <DateField label={t('Last time on or before')} value={endDate} onChange={setEndDate} minDate={startDate} />
+      ) : null}
 
       <TextField
         label={t('Note (optional)')}
@@ -410,4 +430,6 @@ function splitCategory(rule: RecurringRule | undefined, tree: Category[]) {
 
 const styles = StyleSheet.create({
   section: { gap: Spacing.two },
+  endRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, minHeight: 44 },
+  flex: { flex: 1 },
 });

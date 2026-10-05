@@ -589,4 +589,6 @@ export const TH: Record<string, string> = {
   'weekly rules need weekday between 0 (Sunday) and 6 (Saturday)': 'เลือกวันในสัปดาห์',
   'start_date can be at most one year in the past': 'วันเริ่มย้อนหลังได้ไม่เกิน 1 ปี',
   'end_date must not be before start_date': 'วันสิ้นสุดต้องไม่อยู่ก่อนวันเริ่ม',
+  'Ends on a date': 'สิ้นสุดในวันที่กำหนด',
+  'Last time on or before': 'ครั้งสุดท้ายไม่เกินวันที่',
 };
