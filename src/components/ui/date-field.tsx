@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Calendar } from '@/components/ui/calendar';
 import { Card } from '@/components/ui/card';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { formatDay, type ISODate } from '@/lib/dates';
 import { t } from '@/lib/i18n';
@@ -47,7 +47,7 @@ export function DateField({ label, value, onChange, maxDate, minDate, shortcuts,
                 styles.chip,
                 selected
                   ? { backgroundColor: theme.tintFill, borderColor: theme.tintFill }
-                  : { backgroundColor: theme.surface, borderColor: theme.border },
+                  : { backgroundColor: theme.surface, borderColor: theme.controlBorder },
               ]}>
               <ThemedText type={selected ? 'smallBold' : 'small'} style={selected ? styles.selectedText : undefined}>
                 {shortcut.label}
@@ -59,12 +59,15 @@ export function DateField({ label, value, onChange, maxDate, minDate, shortcuts,
           accessibilityRole="button"
           accessibilityLabel={`${label}: ${formatDay(value, { year: 'numeric' })}. ${t('Change date')}`}
           onPress={() => setOpen((current) => !current)}
+          accessibilityState={{ expanded: open }}
           style={[
             styles.chip,
             styles.dateChip,
+            // Open thickens the edge in teal, like a focused text field.
+            open && styles.chipOpen,
             {
               backgroundColor: theme.surface,
-              borderColor: open ? theme.tint : theme.border,
+              borderColor: open ? theme.tint : theme.controlBorder,
             },
           ]}>
           <Ionicons name="calendar-outline" size={16} color={theme.text} />
@@ -96,9 +99,10 @@ const styles = StyleSheet.create({
     minHeight: 44,
     justifyContent: 'center',
     paddingHorizontal: Spacing.three,
-    borderRadius: 999,
+    borderRadius: Radius.full,
     borderWidth: 1,
   },
+  chipOpen: { borderWidth: 2, paddingHorizontal: Spacing.three - 1 },
   dateChip: {
     flexDirection: 'row',
     alignItems: 'center',

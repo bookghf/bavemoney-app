@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { Radius } from '@/constants/theme';
 import { useFontScale } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
 import { haptics } from '@/lib/feedback';
@@ -53,14 +54,25 @@ export function SegmentedControl<T extends string>({ options, value, onChange, s
   );
 }
 
+/** Gap between the track and the selected segment. */
+const TRACK_PADDING = 3;
+
 const styles = StyleSheet.create({
-  track: { flexDirection: 'row', borderRadius: 12, padding: 3 },
+  track: { flexDirection: 'row', borderRadius: Radius.md, padding: TRACK_PADDING },
   label: { textAlign: 'center' },
-  trackWrap: { flexWrap: 'wrap', gap: 3 },
+  trackWrap: { flexWrap: 'wrap', gap: TRACK_PADDING },
   // Grow from the label's own width, so a word always fits on one line.
   segmentWrap: { flexGrow: 1, flexShrink: 0, flexBasis: 'auto', paddingHorizontal: 12 },
   // Equal widths normally; see segmentWrap for large text.
   segmentEqual: { flex: 1 },
-  segment: { minHeight: 38, paddingVertical: 4, alignItems: 'center', justifyContent: 'center', borderRadius: 9, paddingHorizontal: 6 },
+  // 44pt is the minimum touch target; the radius stays concentric with the track.
+  segment: {
+    minHeight: 44,
+    paddingVertical: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: Radius.md - TRACK_PADDING,
+    paddingHorizontal: 6,
+  },
   selected: { boxShadow: '0 1px 4px rgba(15, 18, 34, 0.12)' },
 });

@@ -1,7 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { haptics } from '@/lib/feedback';
 
@@ -47,7 +47,7 @@ export function ChipSelect<T extends string>({
           styles.chip,
           selected
             ? { backgroundColor: theme.tintFill, borderColor: theme.tintFill }
-            : { backgroundColor: theme.surface, borderColor: theme.border },
+            : { backgroundColor: theme.surface, borderColor: theme.controlBorder },
           pressed && styles.pressed,
         ]}>
         <ThemedText type={selected ? 'smallBold' : 'small'} style={selected ? styles.selectedText : undefined} numberOfLines={1}>
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     minHeight: 44,
     justifyContent: 'center',
     paddingHorizontal: Spacing.three,
-    borderRadius: 999,
+    borderRadius: Radius.full,
     borderWidth: 1,
   },
   pressed: { opacity: 0.75 },

@@ -15,8 +15,17 @@ export const Colors = {
     surface: '#FFFFFF',
     backgroundElement: '#EEF0F5',
     backgroundSelected: '#E2E5EC',
+    /** Hairline dividers and card edges; decorative, so it may be faint. */
     border: '#E6E8EE',
-    textSecondary: '#6B7080',
+    /**
+     * Edge of an input (text field, date button, unselected chip). Unlike
+     * `border` it must be seen: 3.26:1 on background, 3.59:1 on surface,
+     * 3.15:1 on backgroundElement (WCAG 1.4.11 asks 3:1).
+     */
+    controlBorder: '#828796',
+    // 5.38:1 on background, 5.91:1 on surface, 5.18:1 on backgroundElement,
+    // 4.69:1 on backgroundSelected, 5.11:1 on tintSoft (AA asks 4.5:1).
+    textSecondary: '#5F6472',
     // Brand teal, kept apart from income green so green always means money in.
     // tint is for text and icons; tintFill is a solid background under white
     // text. Both clear WCAG AA (4.5:1) where they are used.
@@ -40,6 +49,10 @@ export const Colors = {
     backgroundElement: '#22252D',
     backgroundSelected: '#2D313A',
     border: '#262A33',
+    // 3.82:1 on background, 3.43:1 on surface, 3.00:1 on backgroundElement.
+    controlBorder: '#686E7B',
+    // 7.54:1 on background, 6.78:1 on surface, 5.91:1 on backgroundElement,
+    // 5.03:1 on backgroundSelected, 4.81:1 on tintSoft.
     textSecondary: '#9BA1AE',
     // In dark mode text needs a lighter teal (11:1 on the canvas) while
     // filled buttons keep a deep one so white labels stay readable (5.5:1).
@@ -100,6 +113,21 @@ export const Spacing = {
   four: 24,
   five: 32,
   six: 64,
+} as const;
+
+/**
+ * Corner radii. Nested shapes subtract the gap between them (e.g. a segment
+ * inside a padded track uses `Radius.md - padding`), and circles use `full`.
+ */
+export const Radius = {
+  /** Small marks: swatches, badges, progress bars. */
+  sm: 8,
+  /** Controls: buttons, text fields, segmented tracks, toasts. */
+  md: 14,
+  /** Cards, sheets, and the tab bar's top corners. */
+  lg: 20,
+  /** Pills, chips, and circles. */
+  full: 999,
 } as const;
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;

@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, type PressableProps } from 'react-native';
 
 import type { IoniconName } from '@/components/ui/icon-badge';
+import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type IconButtonProps = Omit<PressableProps, 'children' | 'style'> & {
@@ -29,5 +30,5 @@ export function IconButton({ icon, primary, ...rest }: IconButtonProps) {
 }
 
 const styles = StyleSheet.create({
-  button: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', padding: 8 },
+  button: { width: 40, height: 40, borderRadius: Radius.full, alignItems: 'center', justifyContent: 'center', padding: 8 },
 });
