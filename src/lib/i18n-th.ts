@@ -465,4 +465,14 @@ export const TH: Record<string, string> = {
   'Built-in categories': 'หมวดหมู่ค่าเริ่มต้น',
   'Other devices will be signed out. You stay signed in here.':
     'อุปกรณ์อื่นจะถูกออกจากระบบ ส่วนเครื่องนี้ยังคงเข้าสู่ระบบอยู่',
+
+  // --- search -------------------------------------------------------------
+  'Search notes, categories, accounts, or amounts': 'ค้นหาโน้ต หมวดหมู่ บัญชี หรือจำนวนเงิน',
+  'Search looks in notes, categories, accounts, tags, and amounts.': 'ค้นหาจากโน้ต หมวดหมู่ บัญชี แท็ก และจำนวนเงิน',
+  'Search looks in notes, categories, accounts, tags, and amounts, within the filters you set.':
+    'ค้นหาจากโน้ต หมวดหมู่ บัญชี แท็ก และจำนวนเงิน ภายในตัวกรองที่เลือกไว้',
+  'No results for “{query}”': 'ไม่พบผลลัพธ์สำหรับ “{query}”',
+  'Clear search': 'ล้างคำค้นหา',
+  'Clear filters': 'ล้างตัวกรอง',
+  'Clear search and filters': 'ล้างคำค้นหาและตัวกรอง',
 };

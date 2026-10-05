@@ -4,8 +4,10 @@ import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react
 
 import { ThemedText } from '@/components/themed-text';
 import { TransactionRow } from '@/components/transaction-row';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ChipSelect } from '@/components/ui/chip-select';
+import { DateField } from '@/components/ui/date-field';
 import { QueryState } from '@/components/ui/query-state';
 import { Screen } from '@/components/ui/screen';
 import { SegmentedControl } from '@/components/ui/segmented-control';
@@ -19,15 +21,26 @@ import type { Transaction, TransactionListParams, TransactionType } from '@/lib/
 import { addDays, addMonths, toISODate, today } from '@/lib/dates';
 import { formatDayHeading } from '@/lib/format';
 import { categoryName, t, tn } from '@/lib/i18n';
+import { rangeLabel, type DateRange } from '@/lib/report-period';
+import { translatedCategoryMatches } from '@/lib/transaction-search';
 
 type TypeFilter = 'all' | TransactionType;
-type RangeFilter = 'any' | 'this-month' | 'last-month' | '30-days';
+type RangeFilter = 'any' | 'this-month' | 'last-month' | '30-days' | 'custom';
 
 const ALL = 'all';
 
-function rangeFor(range: RangeFilter): Pick<TransactionListParams, 'from' | 'to'> {
+function firstOfThisMonth() {
   const now = new Date();
-  const firstOfMonth = toISODate(new Date(now.getFullYear(), now.getMonth(), 1));
+  return toISODate(new Date(now.getFullYear(), now.getMonth(), 1));
+}
+
+/** Where the custom range starts before the user picks: this month so far. */
+function defaultCustomRange(): DateRange {
+  return { from: firstOfThisMonth(), to: today() };
+}
+
+function rangeFor(range: RangeFilter, custom: DateRange): Pick<TransactionListParams, 'from' | 'to'> {
+  const firstOfMonth = firstOfThisMonth();
   switch (range) {
     case 'this-month':
       return { from: firstOfMonth, to: today() };
@@ -35,6 +48,8 @@ function rangeFor(range: RangeFilter): Pick<TransactionListParams, 'from' | 'to'
       return { from: addMonths(firstOfMonth, -1), to: addDays(firstOfMonth, -1) };
     case '30-days':
       return { from: addDays(today(), -29), to: today() };
+    case 'custom':
+      return custom;
     default:
       return {};
   }
@@ -60,19 +75,30 @@ export default function TransactionsScreen() {
   const [accountId, setAccountId] = useState<string>(ALL);
   const [categoryId, setCategoryId] = useState<string>(ALL);
   const [range, setRange] = useState<RangeFilter>('any');
+  const [custom, setCustom] = useState<DateRange>(defaultCustomRange);
   const [showFilters, setShowFilters] = useState(false);
   const debouncedSearch = useDebounced(search.trim());
+  const todayISO = today();
 
+  // The API matches stored names; Thai names of system categories only exist
+  // here, so matching ones go along as IDs.
+  const searchCategories = debouncedSearch ? translatedCategoryMatches(debouncedSearch, categories.data ?? []) : [];
   const filters: TransactionListParams = {
     ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(searchCategories.length > 0 ? { search_categories: searchCategories.join(',') } : {}),
     ...(type !== 'all' ? { type } : {}),
     ...(accountId !== ALL ? { account: accountId } : {}),
     ...(categoryId !== ALL ? { category: categoryId } : {}),
-    ...rangeFor(range),
+    ...rangeFor(range, custom),
   };
   const transactions = useTransactions(filters);
   const activeCount = [type !== 'all', accountId !== ALL, categoryId !== ALL, range !== 'any'].filter(Boolean).length;
   const filtering = activeCount > 0 || !!debouncedSearch;
+  const clearLabel = !debouncedSearch
+    ? t('Clear filters')
+    : activeCount > 0
+      ? t('Clear search and filters')
+      : t('Clear search');
 
   const categoryOptions = (categories.data ?? []).filter(
     (category) => type === 'all' || type === 'transfer' || category.type === type,
@@ -83,6 +109,7 @@ export default function TransactionsScreen() {
     setAccountId(ALL);
     setCategoryId(ALL);
     setRange('any');
+    setCustom(defaultCustomRange());
     setSearch('');
   };
 
@@ -118,10 +145,11 @@ export default function TransactionsScreen() {
           <TextInput
             value={search}
             onChangeText={setSearch}
-            placeholder={t('Search notes')}
+            placeholder={t('Search notes, categories, accounts, or amounts')}
             placeholderTextColor={theme.textSecondary}
             maxFontSizeMultiplier={FontScaleCap.body}
-            accessibilityLabel={t('Search notes')}
+            accessibilityLabel={t('Search notes, categories, accounts, or amounts')}
+            accessibilityHint={t('Search looks in notes, categories, accounts, tags, and amounts.')}
             returnKeyType="search"
             clearButtonMode="while-editing"
             style={[styles.searchInput, { color: theme.text }]}
@@ -164,10 +192,30 @@ export default function TransactionsScreen() {
               { value: 'this-month', label: t('This month') },
               { value: 'last-month', label: t('Last month') },
               { value: '30-days', label: t('Last 30 days') },
+              { value: 'custom', label: t('Custom') },
             ]}
             value={range}
             onChange={setRange}
           />
+          {range === 'custom' ? (
+            <View style={styles.customRange}>
+              <DateField
+                label={t('From')}
+                value={custom.from}
+                maxDate={todayISO}
+                range={custom}
+                onChange={(from) => setCustom((current) => ({ from, to: current.to < from ? from : current.to }))}
+              />
+              <DateField
+                label={t('To')}
+                value={custom.to}
+                maxDate={todayISO}
+                minDate={custom.from}
+                range={custom}
+                onChange={(to) => setCustom((current) => ({ ...current, to }))}
+              />
+            </View>
+          ) : null}
           <ChipSelect
             scroll
             label={t('Account')}
@@ -194,6 +242,8 @@ export default function TransactionsScreen() {
         <View style={styles.summaryRow}>
           <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
             {tn(transactions.data.total, '{count} match', '{count} matches')}
+            {/* The panel may be closed, so say which days a custom range covers. */}
+            {range === 'custom' ? ` · ${rangeLabel('custom', custom, todayISO)}` : ''}
           </ThemedText>
           <Pressable accessibilityRole="button" hitSlop={10} onPress={clearFilters}>
             <ThemedText type="smallBold" themeColor="tint">
@@ -208,9 +258,25 @@ export default function TransactionsScreen() {
       {transactions.data?.total === 0 ? (
         <Card style={styles.empty}>
           <Ionicons name={filtering ? 'search' : 'receipt-outline'} size={28} color={theme.textSecondary} />
-          <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
-            {filtering ? t('Nothing matches these filters.') : t('No transactions yet. Tap + to add one.')}
-          </ThemedText>
+          {debouncedSearch ? (
+            <>
+              <ThemedText type="smallBold" style={styles.center}>
+                {t('No results for “{query}”', { query: debouncedSearch })}
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+                {activeCount > 0
+                  ? t('Search looks in notes, categories, accounts, tags, and amounts, within the filters you set.')
+                  : t('Search looks in notes, categories, accounts, tags, and amounts.')}
+              </ThemedText>
+            </>
+          ) : (
+            <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+              {filtering ? t('Nothing matches these filters.') : t('No transactions yet. Tap + to add one.')}
+            </ThemedText>
+          )}
+          {filtering ? (
+            <Button title={clearLabel} variant="secondary" onPress={clearFilters} />
+          ) : null}
         </Card>
       ) : null}
 
@@ -265,6 +331,7 @@ const styles = StyleSheet.create({
   },
   filterCount: { color: '#ffffff', fontSize: 14, fontWeight: 700 },
   filters: { gap: Spacing.three },
+  customRange: { gap: Spacing.two },
   summaryRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.one },
   empty: { alignItems: 'center', gap: Spacing.two, paddingVertical: Spacing.four },
   group: { gap: Spacing.two },
