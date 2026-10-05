@@ -13,11 +13,15 @@ import { toast } from '@/components/ui/toast';
 import { Spacing } from '@/constants/theme';
 import { useCurrencies } from '@/hooks/use-accounts';
 import { useChangePassword, useUpdateProfile } from '@/hooks/use-profile';
+import { today } from '@/lib/dates';
 import { haptics } from '@/lib/feedback';
 import { t } from '@/lib/i18n';
+import { monthRange, rangeLabel } from '@/lib/report-period';
 import { displayNameProblem, passwordProblem } from '@/lib/validation';
 import { useAuthStore } from '@/store/auth-store';
 
+/** 1-28: every month has these days. */
+const START_DAYS = Array.from({ length: 28 }, (_, i) => String(i + 1));
 
 export default function EditProfileScreen() {
   const user = useAuthStore((state) => state.user);
@@ -28,13 +32,18 @@ export default function EditProfileScreen() {
 
   const [displayName, setDisplayName] = useState(user?.display_name ?? '');
   const [currency, setCurrency] = useState(user?.default_currency ?? 'THB');
+  const [monthStartDay, setMonthStartDay] = useState(String(user?.month_start_day ?? 1));
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPasswordErrors, setShowPasswordErrors] = useState(false);
 
   const codes = currencies.data?.map((c) => c.code) ?? [currency];
-  const profileChanged = displayName.trim() !== (user?.display_name ?? '') || currency !== user?.default_currency;
+  const profileChanged =
+    displayName.trim() !== (user?.display_name ?? '') ||
+    currency !== user?.default_currency ||
+    Number(monthStartDay) !== (user?.month_start_day ?? 1);
+  const todayISO = today();
 
   const currentError = currentPassword === '' ? t('Enter your current password') : null;
   const newError = passwordProblem(newPassword);
@@ -53,7 +62,7 @@ export default function EditProfileScreen() {
     if (saving.current) return;
     saving.current = true;
     updateProfile.mutate(
-      { display_name: displayName.trim(), default_currency: currency },
+      { display_name: displayName.trim(), default_currency: currency, month_start_day: Number(monthStartDay) },
       {
         onSuccess: () => {
           haptics.success();
@@ -120,6 +129,20 @@ export default function EditProfileScreen() {
       />
       <ThemedText type="small" themeColor="textSecondary">
         {t('Used for your Home totals and reports. Existing accounts keep their own currency.')}
+      </ThemedText>
+      <ChipSelect
+        scroll
+        label={t('Month starts on day')}
+        options={START_DAYS.map((day) => ({ value: day, label: day }))}
+        value={monthStartDay}
+        onChange={setMonthStartDay}
+      />
+      <ThemedText type="small" themeColor="textSecondary">
+        {monthStartDay === '1'
+          ? t('Your months follow the calendar. Paid on the 25th? Pick 25 so Home, Summary and monthly budgets match your pay.')
+          : t('This month runs {range}. Home, Summary and monthly budgets follow it.', {
+              range: rangeLabel('month', monthRange(todayISO, Number(monthStartDay)), todayISO),
+            })}
       </ThemedText>
 
       <Card style={styles.password}>

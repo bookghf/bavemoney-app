@@ -460,4 +460,18 @@ export const TH: Record<string, string> = {
   'category:Lottery': 'หวย',
   'category:Other': 'อื่นๆ',
   'category:Other Income': 'รายรับอื่นๆ',
+
+  // --- payday ---
+  'Month starts on day': 'เริ่มต้นเดือนวันที่',
+  'Your months follow the calendar. Paid on the 25th? Pick 25 so Home, Summary and monthly budgets match your pay.':
+    'เดือนของคุณเป็นไปตามปฏิทิน ถ้าเงินเดือนออกวันที่ 25 ให้เลือก 25 เพื่อให้หน้าหลัก สรุป และงบรายเดือนตรงกับรอบเงินเดือน',
+  'This month runs {range}. Home, Summary and monthly budgets follow it.':
+    'เดือนนี้คือ {range} หน้าหลัก สรุป และงบรายเดือนจะใช้ช่วงนี้',
+  'Income {range}': 'รายรับ {range}',
+  'Spent {range}': 'รายจ่าย {range}',
+  'Follows your month, which starts on day {day}: {range}': 'ตามรอบเดือนของคุณที่เริ่มวันที่ {day}: {range}',
+  'Custom range': 'กำหนดช่วงเอง',
+  'No spending in this period yet': 'ยังไม่มีรายจ่ายในช่วงนี้',
+  'No income in this period yet': 'ยังไม่มีรายรับในช่วงนี้',
+  'See previous period': 'ดูช่วงก่อนหน้า',
 };

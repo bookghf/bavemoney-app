@@ -12,8 +12,26 @@ import {
 
 export type DateRange = { from: ISODate; to: ISODate };
 
-/** The calendar range a period covers, matching the API (weeks start Sunday). */
-export function periodRange(period: Exclude<ReportPeriod, 'custom'>, anchor: ISODate): DateRange {
+/**
+ * The user's month containing `anchor` when months begin on `startDay`
+ * (1-28, the profile's month_start_day). Day 25 puts 5 Oct in 25 Sep – 24 Oct;
+ * day 1 gives the calendar month. Matches the API.
+ */
+export function monthRange(anchor: ISODate, startDay = 1): DateRange {
+  const date = parseISODate(anchor);
+  const day = Number.isInteger(startDay) && startDay >= 1 && startDay <= 28 ? startDay : 1;
+  const month = date.getMonth() - (date.getDate() < day ? 1 : 0);
+  return {
+    from: toISODate(new Date(date.getFullYear(), month, day)),
+    to: toISODate(new Date(date.getFullYear(), month + 1, day - 1)),
+  };
+}
+
+/**
+ * The range a period covers, matching the API: weeks start Sunday and months
+ * on `monthStartDay`.
+ */
+export function periodRange(period: Exclude<ReportPeriod, 'custom'>, anchor: ISODate, monthStartDay = 1): DateRange {
   const date = parseISODate(anchor);
   switch (period) {
     case 'day':
@@ -23,27 +41,53 @@ export function periodRange(period: Exclude<ReportPeriod, 'custom'>, anchor: ISO
       return { from, to: addDays(from, 6) };
     }
     case 'month':
-      return {
-        from: toISODate(new Date(date.getFullYear(), date.getMonth(), 1)),
-        to: toISODate(new Date(date.getFullYear(), date.getMonth() + 1, 0)),
-      };
+      return monthRange(anchor, monthStartDay);
     case 'year':
       return { from: `${date.getFullYear()}-01-01`, to: `${date.getFullYear()}-12-31` };
   }
 }
 
 /** Move the anchor one period back (-1) or forward (+1). */
-export function stepPeriod(period: Exclude<ReportPeriod, 'custom'>, anchor: ISODate, direction: 1 | -1): ISODate {
+export function stepPeriod(
+  period: Exclude<ReportPeriod, 'custom'>,
+  anchor: ISODate,
+  direction: 1 | -1,
+  monthStartDay = 1,
+): ISODate {
   switch (period) {
     case 'day':
       return addDays(anchor, direction);
     case 'week':
       return addDays(anchor, 7 * direction);
     case 'month':
-      return addMonths(anchor, direction);
+      // Step from the month's first day (never past the 28th), so no clamping
+      // can skip or repeat a month.
+      return addMonths(monthRange(anchor, monthStartDay).from, direction);
     case 'year':
       return addMonths(anchor, 12 * direction);
   }
+}
+
+/** Whether a range is exactly one calendar month. */
+function isCalendarMonth(range: DateRange): boolean {
+  return range.from.endsWith('-01') && range.to === addDays(addMonths(range.from, 1), -1);
+}
+
+/** "25 Sep – 24 Oct": a span of days, with years only where needed. */
+function spanLabel(range: DateRange): string {
+  if (range.from === range.to) return formatDay(range.from, { year: 'numeric' });
+  const sameYear = range.from.slice(0, 4) === range.to.slice(0, 4);
+  const from = formatDay(range.from, sameYear ? {} : { year: 'numeric' });
+  return `${from} – ${formatDay(range.to, { year: 'numeric' })}`;
+}
+
+/**
+ * Short name of a month range: "October" for a calendar month, else its span
+ * without years ("25 Sep – 24 Oct"), e.g. for "{range} income" on Home.
+ */
+export function monthName(range: DateRange): string {
+  if (isCalendarMonth(range)) return parseISODate(range.from).toLocaleDateString(dateLocale(), { month: 'long' });
+  return `${formatDay(range.from)} – ${formatDay(range.to)}`;
 }
 
 export function rangeLabel(period: ReportPeriod, range: DateRange, todayISO: ISODate): string {
@@ -54,15 +98,13 @@ export function rangeLabel(period: ReportPeriod, range: DateRange, todayISO: ISO
       if (range.from === addDays(todayISO, -1)) return t('Yesterday');
       return formatDay(range.from, { weekday: 'short', year: 'numeric' });
     case 'month':
+      // A payday month is named by its span: no single month name fits it.
+      if (!isCalendarMonth(range)) return spanLabel(range);
       return start.toLocaleDateString(dateLocale(), { month: 'long', year: 'numeric' });
     case 'year':
       return start.toLocaleDateString(dateLocale(), { year: 'numeric' });
-    default: {
-      if (range.from === range.to) return formatDay(range.from, { year: 'numeric' });
-      const sameYear = range.from.slice(0, 4) === range.to.slice(0, 4);
-      const from = formatDay(range.from, sameYear ? {} : { year: 'numeric' });
-      return `${from} – ${formatDay(range.to, { year: 'numeric' })}`;
-    }
+    default:
+      return spanLabel(range);
   }
 }
 

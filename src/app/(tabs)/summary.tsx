@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { PieChart, type pieDataItem } from 'react-native-gifted-charts';
@@ -7,6 +8,7 @@ import { BreakdownChart, BreakdownTable, ValueTable, formatPercent, type Breakdo
 import { ColumnChart } from '@/components/charts/column-chart';
 import { PieLegend, foldSlices } from '@/components/charts/pie-legend';
 import { ThemedText } from '@/components/themed-text';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ChipSelect } from '@/components/ui/chip-select';
 import { DateField } from '@/components/ui/date-field';
@@ -18,6 +20,7 @@ import { seriesColor } from '@/constants/chart-colors';
 import { Spacing } from '@/constants/theme';
 import { useCategories } from '@/hooks/use-categories';
 import { useChartPalette } from '@/hooks/use-chart-palette';
+import { useMonthStartDay } from '@/hooks/use-month-start-day';
 import { useCategoryLook } from '@/lib/category-look';
 import { useReportSummary } from '@/hooks/use-reports';
 import { useTheme } from '@/hooks/use-theme';
@@ -33,7 +36,6 @@ const PERIOD_OPTIONS = [
   { value: 'week', label: 'Week' },
   { value: 'month', label: 'Month' },
   { value: 'year', label: 'Year' },
-  { value: 'custom', label: 'Custom' },
 ] as const satisfies readonly { value: ReportPeriod; label: string }[];
 
 const TYPE_OPTIONS = [
@@ -63,6 +65,7 @@ export default function SummaryScreen() {
   const theme = useTheme();
   const palette = useChartPalette();
   const currency = useAuthStore((state) => state.user?.default_currency) || 'THB';
+  const monthStartDay = useMonthStartDay();
   const todayISO = today();
 
   const [period, setPeriod] = useState<ReportPeriod>('month');
@@ -75,8 +78,23 @@ export default function SummaryScreen() {
   const [shape, setShape] = useState<'pie' | 'bars'>('pie');
   const [selectedSlice, setSelectedSlice] = useState<string | null>(null);
 
-  const range = period === 'custom' ? custom : periodRange(period, anchor);
-  const canGoNext = period !== 'custom' && periodRange(period, stepPeriod(period, anchor, 1)).from <= todayISO;
+  const range = period === 'custom' ? custom : periodRange(period, anchor, monthStartDay);
+  const step = (direction: 1 | -1) => (period === 'custom' ? anchor : stepPeriod(period, anchor, direction, monthStartDay));
+  const canGoNext = period !== 'custom' && periodRange(period, step(1), monthStartDay).from <= todayISO;
+  const periodLabel = rangeLabel(period, range, todayISO);
+  // Month and year names get their days spelled out underneath; a payday
+  // month's label already is its days.
+  const spanLabel = rangeLabel('custom', range, todayISO);
+
+  /** The period just before this one; a custom range shifts back by its own length. */
+  const showPrevious = () => {
+    if (period !== 'custom') {
+      setAnchor(step(-1));
+      return;
+    }
+    const length = daysBetween(custom.from, custom.to) + 1;
+    setCustom({ from: addDays(custom.from, -length), to: addDays(custom.from, -1) });
+  };
 
   const categories = useCategories();
   const topCategories = (categories.data ?? []).filter((category) => category.type === type);
@@ -153,6 +171,8 @@ export default function SummaryScreen() {
   });
 
   const typeNoun = type === 'expense' ? t('Spent') : t('Received');
+  // Nothing of this type in the period: one card replaces the empty tiles.
+  const isEmpty = !!data && breakdown.length === 0;
 
   // Pie slices: largest first, tail folded into "N more". The selection is
   // keyed by slice, so it drops away by itself when the slice disappears.
@@ -178,7 +198,24 @@ export default function SummaryScreen() {
       />
 
       <Card>
-        <SegmentedControl options={translate(PERIOD_OPTIONS)} value={period} onChange={setPeriod} />
+        <View style={styles.periodRow}>
+          <View style={styles.flex}>
+            <SegmentedControl<ReportPeriod> options={translate(PERIOD_OPTIONS)} value={period} onChange={setPeriod} />
+          </View>
+          {/* Custom range sits apart: as a fifth segment its label was cut off. */}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('Custom range')}
+            accessibilityState={{ selected: period === 'custom' }}
+            hitSlop={4}
+            onPress={() => setPeriod('custom')}
+            style={({ pressed }) => [
+              styles.rangeButton,
+              { backgroundColor: period === 'custom' ? theme.tintSoft : theme.backgroundElement, opacity: pressed ? 0.7 : 1 },
+            ]}>
+            <Ionicons name="calendar-outline" size={20} color={period === 'custom' ? theme.tint : theme.textSecondary} />
+          </Pressable>
+        </View>
         {period === 'custom' ? (
           <View style={styles.customRange}>
             <DateField
@@ -199,21 +236,16 @@ export default function SummaryScreen() {
           </View>
         ) : (
           <View style={styles.stepper}>
-            <StepButton icon="chevron-back" label={t('Previous period')} onPress={() => setAnchor(stepPeriod(period, anchor, -1))} />
+            <StepButton icon="chevron-back" label={t('Previous period')} onPress={showPrevious} />
             <ThemedText type="smallBold" style={styles.stepperLabel}>
-              {rangeLabel(period, range, todayISO)}
+              {periodLabel}
             </ThemedText>
-            <StepButton
-              icon="chevron-forward"
-              label={t('Next period')}
-              disabled={!canGoNext}
-              onPress={() => setAnchor(stepPeriod(period, anchor, 1))}
-            />
+            <StepButton icon="chevron-forward" label={t('Next period')} disabled={!canGoNext} onPress={() => setAnchor(step(1))} />
           </View>
         )}
-        {period === 'month' || period === 'year' ? (
+        {(period === 'month' || period === 'year') && spanLabel !== periodLabel ? (
           <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
-            {rangeLabel('custom', range, todayISO)}
+            {spanLabel}
           </ThemedText>
         ) : null}
       </Card>
@@ -241,12 +273,29 @@ export default function SummaryScreen() {
 
       <QueryState isPending={summary.isPending} error={summary.error} onRetry={summary.refetch} />
 
-      {data ? (
+      {isEmpty ? (
+        <Card style={[styles.empty, summary.isPlaceholderData && styles.loading]}>
+          <Ionicons name={type === 'expense' ? 'receipt-outline' : 'wallet-outline'} size={32} color={theme.textSecondary} />
+          <ThemedText type="smallBold" style={styles.center}>
+            {type === 'expense' ? t('No spending in this period yet') : t('No income in this period yet')}
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+            {filterLabel ? `${filterLabel} · ${periodLabel}` : periodLabel}
+          </ThemedText>
+          <View style={styles.emptyActions}>
+            <Button
+              title={t('Add transaction')}
+              onPress={() => router.push({ pathname: '/add-transaction', params: { type } })}
+            />
+            <Button title={t('See previous period')} variant="secondary" onPress={showPrevious} />
+          </View>
+        </Card>
+      ) : data ? (
         <View style={[styles.results, summary.isPlaceholderData && styles.loading]}>
           <Card>
             <ThemedText type="small" themeColor="textSecondary">
               {typeNoun}
-              {filterLabel ? ` · ${filterLabel}` : ''} · {rangeLabel(period, range, todayISO)}
+              {filterLabel ? ` · ${filterLabel}` : ''} · {periodLabel}
             </ThemedText>
             <ThemedText
               type="amount"
@@ -411,6 +460,10 @@ function Stat({ label, value, color }: { label: string; value: string; color?: '
 
 const styles = StyleSheet.create({
   customRange: { gap: Spacing.two },
+  periodRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  rangeButton: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  empty: { alignItems: 'center', gap: Spacing.two, paddingVertical: Spacing.five },
+  emptyActions: { alignSelf: 'stretch', gap: Spacing.two, marginTop: Spacing.two },
   stepper: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   stepperLabel: { flex: 1, textAlign: 'center' },
   stepButton: { padding: Spacing.two, borderRadius: 999 },
