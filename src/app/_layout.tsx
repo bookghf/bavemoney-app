@@ -65,6 +65,7 @@ export default function RootLayout() {
               options={{ ...pushed, title: t('Transactions') }}
             />
             <Stack.Screen name="categories" options={{ ...pushed, title: t('Categories') }} />
+            <Stack.Screen name="change-password" options={{ ...pushed, title: t('Change password') }} />
             <Stack.Screen
               name="budgets"
               options={{ ...pushed, title: t('Budgets') }}

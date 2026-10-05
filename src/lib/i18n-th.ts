@@ -460,4 +460,9 @@ export const TH: Record<string, string> = {
   'category:Lottery': 'หวย',
   'category:Other': 'อื่นๆ',
   'category:Other Income': 'รายรับอื่นๆ',
+
+  // --- design-screens ---------------------------------------------------
+  'Built-in categories': 'หมวดหมู่ค่าเริ่มต้น',
+  'Other devices will be signed out. You stay signed in here.':
+    'อุปกรณ์อื่นจะถูกออกจากระบบ ส่วนเครื่องนี้ยังคงเข้าสู่ระบบอยู่',
 };
