@@ -8206,9 +8206,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"learn-from-scratch@workspace:.":
+"bavemoney@workspace:.":
   version: 0.0.0-use.local
-  resolution: "learn-from-scratch@workspace:."
+  resolution: "bavemoney@workspace:."
   dependencies:
     "@expo/ui": ~57.0.19
     "@expo/vector-icons": ^15.0.2
