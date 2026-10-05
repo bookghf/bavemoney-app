@@ -147,6 +147,9 @@ export default function AddBudgetScreen() {
         value={threshold}
         onChange={setThreshold}
       />
+      <ThemedText type="small" themeColor="textSecondary">
+        {t('At this point the budget turns amber and Home shows a warning.')}
+      </ThemedText>
     </Screen>
   );
 }

@@ -163,7 +163,7 @@ export default function DashboardScreen() {
               <View style={styles.flex}>
                 <ThemedText type="smallBold">{t('Set a monthly budget')}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
-                  {t('Get a heads-up before you overspend.')}
+                  {t('Home shows a warning before you overspend.')}
                 </ThemedText>
               </View>
               <Ionicons name="add-circle" size={26} color={theme.tint} />

@@ -57,3 +57,20 @@ export function useResetAccount() {
     },
   });
 }
+
+/**
+ * Permanently deletes the account and all its data after the API re-checks
+ * the password, then signs out. Remembered form picks are dropped so the next
+ * account on this device starts clean.
+ */
+export function useDeleteAccount() {
+  return useMutation({
+    mutationFn: async (password: string) => {
+      await api.delete('/me', { data: { password } });
+    },
+    onSuccess: async () => {
+      usePreferences.getState().update({ lastAccountId: null, lastCategoryByType: {} });
+      await useAuthStore.getState().signOut();
+    },
+  });
+}

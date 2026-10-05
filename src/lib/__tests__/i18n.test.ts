@@ -3,7 +3,7 @@ import path from 'path';
 
 import { formatMoney } from '@/lib/format';
 import { TH } from '@/lib/i18n-th';
-import { categoryName, t, tn } from '@/lib/i18n';
+import { categoryName, hasTranslation, t, tn } from '@/lib/i18n';
 import { usePreferences } from '@/store/preferences-store';
 
 jest.mock('expo-secure-store', () => ({
@@ -66,6 +66,14 @@ describe('t()', () => {
     expect(t('{amount} over budget', { amount: '฿10' })).toBe('เกินงบ ฿10');
     expect(categoryName('Food')).toBe('อาหาร');
     expect(categoryName('My own category')).toBe('My own category');
+  });
+
+  it('reports untranslated keys only in Thai, so server errors can fall back', () => {
+    usePreferences.setState({ language: 'en' });
+    expect(hasTranslation('account_id must be a UUID')).toBe(true);
+    usePreferences.setState({ language: 'th' });
+    expect(hasTranslation('account not found')).toBe(true);
+    expect(hasTranslation('account_id must be a UUID')).toBe(false);
   });
 });
 

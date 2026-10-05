@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 
 import { api, normalizeAuthResponse } from '@/lib/api/client';
-import type { AuthResponse, LoginRequest, RegisterRequest } from '@/lib/api/types';
+import type { AuthResponse, LoginRequest, RegisterRequest, ResetPasswordRequest } from '@/lib/api/types';
 import { useAuthStore } from '@/store/auth-store';
 
 export function useLogin() {
@@ -18,6 +18,29 @@ export function useRegister() {
   return useMutation({
     mutationFn: async (input: RegisterRequest) => {
       const { data } = await api.post<AuthResponse>('/auth/register', input);
+      return normalizeAuthResponse(data);
+    },
+    onSuccess: (session) => useAuthStore.getState().setSession(session),
+  });
+}
+
+/**
+ * Ask the API to email a 6-digit reset code. It answers the same whether or
+ * not the email has an account.
+ */
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: async (email: string) => {
+      await api.post('/auth/forgot-password', { email });
+    },
+  });
+}
+
+/** Set a new password with the emailed code; signs in on success. */
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: async (input: ResetPasswordRequest) => {
+      const { data } = await api.post<AuthResponse>('/auth/reset-password', input);
       return normalizeAuthResponse(data);
     },
     onSuccess: (session) => useAuthStore.getState().setSession(session),

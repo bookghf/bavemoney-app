@@ -39,6 +39,9 @@ export type LogoutRequest = { refresh_token: string; all?: boolean };
 /** PATCH /me; omitted fields are left unchanged. Email can not be changed. */
 export type UpdateProfileRequest = { display_name?: string; default_currency?: string };
 
+/** POST /auth/reset-password: a code from POST /auth/forgot-password. */
+export type ResetPasswordRequest = { email: string; code: string; new_password: string };
+
 /** POST /me/reset: erases the user's ledger data; the login stays. */
 export type ResetAccountResponse = {
   message: string;

@@ -17,6 +17,7 @@ import { getErrorMessage } from '@/lib/api/client';
 import { useTheme } from '@/hooks/use-theme';
 import { haptics } from '@/lib/feedback';
 import { formatDate } from '@/lib/format';
+import { openLegalPage, PRIVACY_URL, TERMS_URL } from '@/lib/legal';
 import { t } from '@/lib/i18n';
 import { useAuthStore } from '@/store/auth-store';
 import { usePreferences, type CalendarSystem, type Language } from '@/store/preferences-store';
@@ -116,6 +117,14 @@ export default function ProfileScreen() {
         </View>
       </Card>
 
+      <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionLabel}>
+        {t('About')}
+      </ThemedText>
+      <Card style={styles.list}>
+        <LinkRow icon="shield-checkmark-outline" label={t('Privacy policy')} onPress={() => openLegalPage(PRIVACY_URL)} />
+        <LinkRow icon="document-text-outline" label={t('Terms of use')} onPress={() => openLegalPage(TERMS_URL)} separator />
+      </Card>
+
       <Card style={styles.list}>
         <Pressable
           accessibilityRole="button"
@@ -143,6 +152,21 @@ export default function ProfileScreen() {
           <IconBadge icon="refresh-circle-outline" tone="danger" size={36} />
           <ThemedText type="smallBold" themeColor="danger" style={styles.label}>
             {t('Reset account')}
+          </ThemedText>
+          <Ionicons name="chevron-forward" size={16} color={theme.textSecondary} />
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityHint={t('Deletes your login and all your data after you confirm with your password')}
+          onPress={() => router.push('/delete-account')}
+          style={({ pressed }) => [
+            styles.row,
+            { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+            pressed && { backgroundColor: theme.backgroundElement },
+          ]}>
+          <IconBadge icon="trash-outline" tone="danger" size={36} />
+          <ThemedText type="smallBold" themeColor="danger" style={styles.label}>
+            {t('Delete account')}
           </ThemedText>
           <Ionicons name="chevron-forward" size={16} color={theme.textSecondary} />
         </Pressable>

@@ -146,9 +146,15 @@ export type DraftRow = {
   account: string;
 };
 
+/**
+ * Why a line was left out. The import screen turns `kind` into translated
+ * text; `value` is the cell that could not be read.
+ */
+export type RowProblem = { line: number; kind: 'date' | 'missingDate' | 'amount' | 'type'; value?: string };
+
 export type ParseResult = {
   rows: DraftRow[];
-  problems: { line: number; message: string }[];
+  problems: RowProblem[];
   /** Transfers can not be imported as single rows and are left out. */
   skippedTransfers: number;
 };
@@ -173,7 +179,7 @@ export function toDraftRows(records: string[][], columns: ColumnMap): ParseResul
     if (rawDate) {
       const parsed = parseDate(rawDate);
       if (!parsed) {
-        result.problems.push({ line, message: `Unreadable date "${rawDate}"` });
+        result.problems.push({ line, kind: 'date', value: rawDate });
         return;
       }
       currentDate = parsed;
@@ -185,17 +191,17 @@ export function toDraftRows(records: string[][], columns: ColumnMap): ParseResul
     const zero = !rawAmount || /^[0.]+$/.test(parseAmountInput(rawAmount) ?? 'x');
     if (!note && zero) return;
     if (!currentDate) {
-      result.problems.push({ line, message: 'No date above this row' });
+      result.problems.push({ line, kind: 'missingDate' });
       return;
     }
     const amount = parseAmountInput(rawAmount);
     if (!amount || /^[0.]+$/.test(amount)) {
-      result.problems.push({ line, message: `Unreadable amount "${rawAmount}"` });
+      result.problems.push({ line, kind: 'amount', value: rawAmount });
       return;
     }
     const type = typeOf(cell(record, columns.type));
     if (type === null) {
-      result.problems.push({ line, message: `Unknown type "${cell(record, columns.type)}"` });
+      result.problems.push({ line, kind: 'type', value: cell(record, columns.type) });
       return;
     }
     if (type === 'transfer') {

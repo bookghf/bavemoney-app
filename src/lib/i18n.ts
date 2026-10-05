@@ -27,6 +27,15 @@ export function t(key: string, vars?: Record<string, string | number>): string {
   return template.replace(/\{(\w+)\}/g, (match, name: string) => (name in vars ? String(vars[name]) : match));
 }
 
+/**
+ * Whether t(key) would show the key's own text in the current language: always
+ * in English, and in Thai only when the dictionary has it. Lets callers swap
+ * an untranslated server message for a translated fallback.
+ */
+export function hasTranslation(key: string): boolean {
+  return currentLanguage() !== 'th' || key in TH;
+}
+
 /** Plural-aware count label: tn(2, 'account', 'accounts') -> "2 accounts". */
 export function tn(count: number, one: string, other: string): string {
   return t(count === 1 ? one : other, { count });

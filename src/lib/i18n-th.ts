@@ -33,6 +33,36 @@ export const TH: Record<string, string> = {
   'Next period': 'ช่วงถัดไป',
   'Something went wrong': 'เกิดข้อผิดพลาด',
   'Request timed out': 'หมดเวลาเชื่อมต่อ',
+  'Some details are not valid. Check them and try again.': 'ข้อมูลบางอย่างไม่ถูกต้อง ตรวจสอบแล้วลองใหม่',
+  'Your session expired. Sign in again.': 'เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง',
+  'You do not have permission to do this.': 'คุณไม่มีสิทธิ์ทำรายการนี้',
+  'This item no longer exists.': 'ไม่พบรายการนี้แล้ว',
+  'This conflicts with data you already have.': 'ข้อมูลนี้ซ้ำหรือขัดกับข้อมูลที่มีอยู่',
+  'The file is too large.': 'ไฟล์ใหญ่เกินไป',
+  'Something went wrong on our side. Try again.': 'ระบบขัดข้อง ลองใหม่อีกครั้ง',
+
+  // API errors a user can reach despite the app's own checks.
+  'account not found': 'ไม่พบบัญชีนี้',
+  'transaction not found': 'ไม่พบรายการนี้',
+  'category not found': 'ไม่พบหมวดหมู่นี้',
+  'parent category not found': 'ไม่พบหมวดหมู่หลัก',
+  'budget not found': 'ไม่พบงบประมาณนี้',
+  'to_account_id not found': 'ไม่พบบัญชีปลายทาง',
+  'only credit card accounts can start with a negative balance': 'เฉพาะบัญชีบัตรเครดิตที่เริ่มต้นด้วยยอดติดลบได้',
+  'can not change a transaction to or from a transfer': 'เปลี่ยนรายการเป็นหรือจากการโอนไม่ได้',
+  'can not transfer to the same account': 'โอนเข้าบัญชีเดียวกันไม่ได้',
+  'budgets can only track expense categories': 'งบประมาณใช้ได้กับหมวดหมู่รายจ่ายเท่านั้น',
+  'system categories can not be modified': 'แก้ไขหมวดหมู่ค่าเริ่มต้นไม่ได้',
+  "a category's type can not change": 'เปลี่ยนประเภทของหมวดหมู่ไม่ได้',
+  'a subcategory must have the same type as its parent': 'หมวดหมู่ย่อยต้องเป็นประเภทเดียวกับหมวดหมู่หลัก',
+  'parent category must be a top-level category': 'หมวดหมู่หลักต้องไม่ใช่หมวดหมู่ย่อย',
+  'currency is not supported': 'ไม่รองรับสกุลเงินนี้',
+  'default_currency is not a supported currency': 'ไม่รองรับสกุลเงินนี้',
+  'invalid or expired refresh token': 'เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง',
+  'request body too large': 'ข้อมูลใหญ่เกินไป',
+  'at most 20 tags are allowed': 'ใส่แท็กได้ไม่เกิน 20 แท็ก',
+  'name is required': 'กรุณากรอกชื่อ',
+
   'Request failed ({status})': 'คำขอล้มเหลว ({status})',
   'Cannot reach the server. Check your connection.': 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ต',
   'Too many attempts. Wait a minute and try again.': 'ลองหลายครั้งเกินไป รอสักครู่แล้วลองใหม่',
@@ -51,7 +81,7 @@ export const TH: Record<string, string> = {
   'Recent activity': 'รายการล่าสุด',
   'No transactions yet. Tap + to add one.': 'ยังไม่มีรายการ แตะ + เพื่อเพิ่ม',
   'Set a monthly budget': 'ตั้งงบประมาณรายเดือน',
-  'Get a heads-up before you overspend.': 'รับการแจ้งเตือนก่อนใช้เงินเกินงบ',
+  'Home shows a warning before you overspend.': 'หน้าแรกจะแสดงคำเตือนก่อนใช้เงินเกินงบ',
   'You are over your {name} budget': 'คุณใช้เกินงบ{name}แล้ว',
   '{percent}% of your {name} budget is spent': 'ใช้งบ{name}ไปแล้ว {percent}%',
 
@@ -157,8 +187,8 @@ export const TH: Record<string, string> = {
   'Budget created': 'สร้างงบประมาณแล้ว',
   'Budget deleted': 'ลบงบประมาณแล้ว',
   'No budgets yet': 'ยังไม่มีงบประมาณ',
-  'Set a limit for all spending or for one category, like Food. We warn you as you get close.':
-    'ตั้งวงเงินสำหรับรายจ่ายทั้งหมดหรือรายหมวด เช่น อาหาร แล้วเราจะเตือนเมื่อใกล้ถึง',
+  'Set a limit for all spending or for one category, like Food. Home shows a warning as you get close.':
+    'ตั้งวงเงินสำหรับรายจ่ายทั้งหมดหรือรายหมวด เช่น อาหาร หน้าแรกจะแสดงคำเตือนเมื่อใกล้ถึง',
   'All spending': 'รายจ่ายทั้งหมด',
   Weekly: 'รายสัปดาห์',
   Monthly: 'รายเดือน',
@@ -170,6 +200,7 @@ export const TH: Record<string, string> = {
   'Tracks this category and its subcategories.': 'ติดตามหมวดนี้และหมวดย่อยทั้งหมด',
   'No category picked: tracks all spending.': 'ไม่ได้เลือกหมวด: ติดตามรายจ่ายทั้งหมด',
   'Warn me at': 'เตือนเมื่อใช้ถึง',
+  'At this point the budget turns amber and Home shows a warning.': 'เมื่อใช้ถึงจุดนี้ งบจะเปลี่ยนเป็นสีส้มและหน้าแรกจะแสดงคำเตือน',
   'Alert at {pct}%': 'เตือนที่ {pct}%',
   'Delete the {name} budget': 'ลบงบ{name}',
   'Delete the {name} budget?': 'ลบงบ{name}หรือไม่?',
@@ -201,6 +232,7 @@ export const TH: Record<string, string> = {
   'By category': 'แยกตามหมวดหมู่',
   '{name} by subcategory': '{name} แยกตามหมวดย่อย',
   'Nothing recorded in this period.': 'ไม่มีรายการในช่วงนี้',
+  'Peak': 'สูงสุด',
   'Tap a slice or row to highlight it, tap the row again to drill in.': 'แตะส่วนของกราฟหรือแถวเพื่อไฮไลต์ แตะแถวซ้ำเพื่อดูรายละเอียด',
   'Tap a row to drill in.': 'แตะแถวเพื่อดูรายละเอียด',
   '{count} more': 'อีก {count} หมวด',
@@ -254,6 +286,21 @@ export const TH: Record<string, string> = {
   'Your account was reset. Start fresh!': 'รีเซ็ตบัญชีแล้ว เริ่มต้นใหม่ได้เลย!',
   'password is incorrect': 'รหัสผ่านไม่ถูกต้อง',
   'password is required': 'กรุณากรอกรหัสผ่าน',
+
+  // --- delete account ---------------------------------------------------
+  'Delete account': 'ลบบัญชีผู้ใช้',
+  'Deletes your login and all your data after you confirm with your password':
+    'ลบบัญชีเข้าสู่ระบบและข้อมูลทั้งหมดหลังยืนยันด้วยรหัสผ่าน',
+  'Delete your account for good': 'ลบบัญชีของคุณถาวร',
+  'Your login ({email}) and all your data will be permanently deleted. You will be signed out on this device.':
+    'บัญชีเข้าสู่ระบบ ({email}) และข้อมูลทั้งหมดจะถูกลบถาวร และคุณจะออกจากระบบบนอุปกรณ์นี้',
+  'Want a copy first? Export your transactions as CSV before you delete.':
+    'ต้องการเก็บสำเนาไว้ก่อนไหม? ส่งออกรายการเป็น CSV ก่อนลบ',
+  'Delete your account?': 'ลบบัญชีผู้ใช้หรือไม่?',
+  'Your login and all your transactions, accounts, budgets, and categories will be permanently deleted. This can not be undone.':
+    'บัญชีเข้าสู่ระบบ รายการ บัญชี งบประมาณ และหมวดหมู่ทั้งหมดจะถูกลบถาวร และย้อนกลับไม่ได้',
+  'Delete permanently': 'ลบถาวร',
+  'Your account was deleted.': 'ลบบัญชีผู้ใช้แล้ว',
 
   // --- input rules ------------------------------------------------------
   'Password can not be only spaces': 'รหัสผ่านต้องไม่เป็นช่องว่างทั้งหมด',
@@ -315,6 +362,10 @@ export const TH: Record<string, string> = {
   '{count} transfer (add transfers in the app)': 'การโอน {count} รายการ (เพิ่มการโอนในแอป)',
   '{count} transfers (add transfers in the app)': 'การโอน {count} รายการ (เพิ่มการโอนในแอป)',
   'Line {line}: {message}': 'บรรทัด {line}: {message}',
+  'Unreadable date "{value}"': 'อ่านวันที่ไม่ได้ "{value}"',
+  'No date above this row': 'ไม่มีวันที่ในแถวนี้หรือแถวก่อนหน้า',
+  'Unreadable amount "{value}"': 'อ่านจำนวนเงินไม่ได้ "{value}"',
+  'Unknown type "{value}"': 'ไม่รู้จักประเภท "{value}"',
   '…and {count} more': '…และอีก {count} รายการ',
   'Into account': 'นำเข้าบัญชี',
   'Rows that name one of your accounts go to that account instead.': 'แถวที่ระบุชื่อบัญชีของคุณจะเข้าบัญชีนั้นแทน',
@@ -330,6 +381,30 @@ export const TH: Record<string, string> = {
   'Welcome back to your ledger.': 'ยินดีต้อนรับกลับ',
   'No account yet? Create one': 'ยังไม่มีบัญชี? สมัครเลย',
   'Already have an account? Sign in': 'มีบัญชีแล้ว? เข้าสู่ระบบ',
+
+  // --- legal ------------------------------------------------------------
+  'About': 'เกี่ยวกับ',
+  'Privacy policy': 'นโยบายความเป็นส่วนตัว',
+  'Terms of use': 'ข้อกำหนดการใช้งาน',
+  'By creating an account you agree to the': 'การสร้างบัญชีถือว่าคุณยอมรับ',
+  'and': 'และ',
+
+  // --- forgot password --------------------------------------------------
+  'Forgot password?': 'ลืมรหัสผ่าน?',
+  'Reset password': 'ตั้งรหัสผ่านใหม่',
+  'Enter your email and we will send you a 6-digit code.': 'กรอกอีเมลของคุณ เราจะส่งรหัส 6 หลักไปให้',
+  'Send code': 'ส่งรหัส',
+  'If {email} has an account, we sent a 6-digit code to it. It expires in 15 minutes.':
+    'หาก {email} มีบัญชีอยู่ เราได้ส่งรหัส 6 หลักไปแล้ว รหัสใช้ได้ 15 นาที',
+  'Code': 'รหัส',
+  'Enter the 6-digit code': 'กรอกรหัส 6 หลัก',
+  'Set new password': 'ตั้งรหัสผ่านใหม่',
+  'Send a new code': 'ส่งรหัสใหม่',
+  'Use a different email': 'ใช้อีเมลอื่น',
+  'Back to sign in': 'กลับไปหน้าเข้าสู่ระบบ',
+  'Password reset. You are signed in.': 'ตั้งรหัสผ่านใหม่แล้ว เข้าสู่ระบบเรียบร้อย',
+  'New code sent': 'ส่งรหัสใหม่แล้ว',
+  'code is invalid or expired': 'รหัสไม่ถูกต้องหรือหมดอายุ',
   'Track every baht in seconds.': 'จดทุกบาทได้ในไม่กี่วินาที',
   'Display name': 'ชื่อที่แสดง',
   'e.g. Somchai': 'เช่น สมชาย',

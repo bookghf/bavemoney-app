@@ -76,6 +76,7 @@ export default function RootLayout() {
             <Stack.Screen name="add-budget" options={{ ...modal, title: t('New budget') }} />
             <Stack.Screen name="edit-profile" options={{ ...modal, title: t('Edit profile') }} />
             <Stack.Screen name="reset-account" options={{ ...modal, title: t('Reset account') }} />
+            <Stack.Screen name="delete-account" options={{ ...modal, title: t('Delete account') }} />
             <Stack.Screen name="category-form" options={{ ...modal, title: t('Category') }} />
             <Stack.Screen name="import" options={{ ...modal, title: t('Import CSV') }} />
           </Stack.Protected>
@@ -85,6 +86,7 @@ export default function RootLayout() {
           <Stack.Protected guard={!isAuthenticated}>
             <Stack.Screen name="login" />
             <Stack.Screen name="register" />
+            <Stack.Screen name="forgot-password" />
           </Stack.Protected>
         </Stack>
         <ToastHost />

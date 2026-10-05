@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useChartPalette } from '@/hooks/use-chart-palette';
+import { t } from '@/lib/i18n';
 
 export type ColumnDatum = {
   key: string;
@@ -48,13 +49,13 @@ export function ColumnChart({ data, formatValue, color, height = 160 }: ColumnCh
         ) : peak ? (
           <>
             <ThemedText type="small" themeColor="textSecondary">
-              Peak · {peak.label}
+              {t('Peak')} · {peak.label}
             </ThemedText>
             <ThemedText type="smallBold">{formatValue(peak.value)}</ThemedText>
           </>
         ) : (
           <ThemedText type="small" themeColor="textSecondary">
-            Nothing recorded in this period.
+            {t('Nothing recorded in this period.')}
           </ThemedText>
         )}
       </View>

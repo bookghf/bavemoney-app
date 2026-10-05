@@ -66,10 +66,16 @@ export default function LoginScreen() {
         onSubmitEditing={submit}
         error={showErrors ? passwordError : null}
       />
+      <Link
+        href={{ pathname: '/forgot-password', params: { email: email.trim().toLowerCase() } }}
+        style={styles.forgot}>
+        <ThemedText type="linkPrimary">{t('Forgot password?')}</ThemedText>
+      </Link>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   link: { alignSelf: 'center', paddingVertical: 8 },
+  forgot: { alignSelf: 'flex-end', paddingVertical: 8 },
 });

@@ -55,7 +55,7 @@ export default function BudgetsScreen() {
           <IconBadge icon="pie-chart" size={56} />
           <ThemedText type="sectionTitle">{t('No budgets yet')}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
-            {t('Set a limit for all spending or for one category, like Food. We warn you as you get close.')}
+            {t('Set a limit for all spending or for one category, like Food. Home shows a warning as you get close.')}
           </ThemedText>
         </Card>
       ) : null}
