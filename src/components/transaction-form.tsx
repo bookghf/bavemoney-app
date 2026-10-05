@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { CategoryGrid } from '@/components/category-grid';
+import { QuickPickRow } from '@/components/quick-pick-row';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -15,7 +16,7 @@ import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
 import { Spacing } from '@/constants/theme';
 import { useCategories, useJustCreatedCategory } from '@/hooks/use-categories';
-import { useQuickPicks, type QuickPick } from '@/hooks/use-quick-picks';
+import { useEntryUsage, useQuickPicks, type QuickPick } from '@/hooks/use-quick-picks';
 import { FontScaleCap } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
 import {
@@ -23,8 +24,9 @@ import {
   useDeleteTransaction,
   useUpdateTransaction,
 } from '@/hooks/use-transactions';
-import type { Account, CreateTransactionRequest, Transaction } from '@/lib/api/types';
+import type { Account, CreateTransactionRequest, Transaction, UpdateTransactionRequest } from '@/lib/api/types';
 import { addDays, occurredAtFor, toISODate, today } from '@/lib/dates';
+import { defaultAccount } from '@/lib/default-account';
 import { haptics } from '@/lib/feedback';
 import { formatMoney } from '@/lib/format';
 import { categoryName, t } from '@/lib/i18n';
@@ -34,6 +36,8 @@ import { usePreferences } from '@/store/preferences-store';
 export type EntryType = CreateTransactionRequest['type'];
 
 const MAX_NOTE_LENGTH = 500;
+/** Category tiles shown before "See all": two rows of the 4-column grid. */
+const COLLAPSED_CATEGORIES = 8;
 
 type TransactionFormProps = {
   accounts: Account[];
@@ -44,8 +48,11 @@ type TransactionFormProps = {
 
 /**
  * Add/edit form for income, expense, and transfers. The amount comes first
- * and is focused on open; the last account and category are remembered; and
- * frequent entries are one tap away as quick picks.
+ * and is focused on open, with the date right under it so it is never hidden
+ * behind the Save button; then the account, a short category grid, and the
+ * note. The last account and category are remembered, and frequent entries
+ * are one tap away as quick picks. Editing can change everything, including
+ * the account and the type (to or from a transfer).
  */
 export function TransactionForm({ accounts, existing, initialType = 'expense' }: TransactionFormProps) {
   const theme = useTheme();
@@ -60,9 +67,8 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
   const submitting = useRef(false);
 
   const [type, setType] = useState<EntryType>(existing ? (existing.type as EntryType) : initialType);
-  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
-    existing?.account_id ?? prefs.lastAccountId,
-  );
+  // null until the user picks one; the default below applies meanwhile.
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(existing?.account_id ?? null);
   const [toAccountId, setToAccountId] = useState<string | null>(existing?.to_account_id ?? null);
   const [amount, setAmount] = useState(existing?.amount ?? '');
   const initialCategory = splitCategory(existing, categories.data);
@@ -73,26 +79,45 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
   const [day, setDay] = useState(existing ? toISODate(new Date(existing.occurred_at)) : today());
   const [note, setNote] = useState(existing?.note ?? '');
   const [showErrors, setShowErrors] = useState(false);
+  // The quick pick last filled in; it offers an explicit Save button.
+  const [armedPickKey, setArmedPickKey] = useState<string | null>(null);
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
   const quickPicks = useQuickPicks(type);
+  const usage = useEntryUsage();
   const todayISO = today();
-  const activeAccounts = accounts.filter((a) => !a.is_archived || a.id === existing?.account_id);
-  const account = activeAccounts.find((a) => a.id === selectedAccountId) ?? activeAccounts[0];
+  // Open accounts, plus the archived ones this entry already uses: the API
+  // lets an edit keep those but not move anything onto them.
+  const known = (a: Account) => a.id === existing?.account_id || a.id === existing?.to_account_id;
+  const activeAccounts = accounts.filter((a) => !a.is_archived || known(a));
+  const account =
+    activeAccounts.find((a) => a.id === selectedAccountId) ??
+    defaultAccount(accounts, { lastAccountId: prefs.lastAccountId, usage: usage.data?.accounts[type] }) ??
+    activeAccounts[0];
   const isTransfer = type === 'transfer';
   // Spending red, income green, transfers blue.
   const typeColor = isTransfer ? theme.transfer : type === 'income' ? theme.success : theme.danger;
-  // The API only transfers between open accounts that share a currency.
-  const transferTargets = activeAccounts.filter(
-    (a) => a.id !== account?.id && a.currency === account?.currency && !a.is_archived,
-  );
-  const toAccount = isEdit
-    ? accounts.find((a) => a.id === toAccountId) ?? null
-    : (transferTargets.find((a) => a.id === toAccountId) ?? null);
+  // The API only transfers between accounts that share a currency.
+  const transferTargets = activeAccounts.filter((a) => a.id !== account?.id && a.currency === account?.currency);
+  const toAccount = transferTargets.find((a) => a.id === toAccountId) ?? null;
 
-  const topCategories = (categories.data ?? []).filter((category) => category.type === type);
+  // Most-used categories first (stable, so the rest keep their order).
+  const categoryUse = usage.data?.categories[type] ?? {};
+  const topCategories = (categories.data ?? [])
+    .filter((category) => category.type === type)
+    .sort((a, b) => (categoryUse[b.id] ?? 0) - (categoryUse[a.id] ?? 0));
   // A remembered category may belong to the other type; ignore it then.
   const category = topCategories.find((c) => c.id === categoryId) ?? null;
   const subcategories = category?.children ?? [];
+  const collapsible = topCategories.length > COLLAPSED_CATEGORIES;
+  let shownCategories = topCategories;
+  if (collapsible && !showAllCategories) {
+    shownCategories = topCategories.slice(0, COLLAPSED_CATEGORIES);
+    // Keep the picked category visible when it sits below the fold.
+    if (category && !shownCategories.includes(category)) {
+      shownCategories = [...shownCategories.slice(0, COLLAPSED_CATEGORIES - 1), category];
+    }
+  }
 
   const parsedAmount = parsePositiveAmount(amount);
   const amountError = !parsedAmount
@@ -106,6 +131,7 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
 
   const changeType = (next: EntryType) => {
     setType(next);
+    setArmedPickKey(null);
     setCategoryId(isEdit ? null : (prefs.lastCategoryByType[next] ?? null));
     setSubcategoryId(null);
   };
@@ -126,26 +152,28 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
     setSubcategoryId(null); // subcategories belong to one parent
   };
 
+  const pickAccountOf = (pick: QuickPick) => activeAccounts.find((a) => a.id === pick.accountId && !a.is_archived);
+
   const applyPick = (pick: QuickPick) => {
     const resolved = resolveCategory(pick.categoryId, categories.data);
-    const pickAccount = activeAccounts.find((a) => a.id === pick.accountId && !a.is_archived);
-    const alreadyApplied =
-      parsedAmount === parsePositiveAmount(pick.amount) &&
-      note.trim() === pick.note &&
-      (subcategoryId ?? categoryId) === pick.categoryId &&
-      (!pickAccount || account?.id === pickAccount.id);
+    const pickAccount = pickAccountOf(pick);
     setAmount(pick.amount);
     // Pay from the same account as before (unless it was archived since).
-    if (pickAccount) {
-      setSelectedAccountId(pickAccount.id);
-      setToAccountId(null);
-    }
+    if (pickAccount) setSelectedAccountId(pickAccount.id);
     setNote(pick.note);
     setCategoryId(resolved.top);
     setSubcategoryId(resolved.sub);
-    // Tapping a pick that is already filled in saves it.
-    if (alreadyApplied) submit({ amount: pick.amount, note: pick.note, categoryId: pick.categoryId });
+    setArmedPickKey(pick.key);
   };
+
+  // The Save button stays next to a pick only while the form still holds it.
+  const armedPick = (quickPicks.data ?? []).find((pick) => pick.key === armedPickKey);
+  const pickStillApplied =
+    !!armedPick &&
+    parsedAmount === parsePositiveAmount(armedPick.amount) &&
+    note.trim() === armedPick.note &&
+    (subcategoryId ?? categoryId) === armedPick.categoryId &&
+    (!pickAccountOf(armedPick) || account?.id === armedPick.accountId);
 
   // Name the account on a chip only when the same item comes from several.
   const pickLabel = (pick: QuickPick) => {
@@ -156,10 +184,10 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
     return twins.length > 1 ? `${base} · ${pick.accountName}` : base;
   };
 
-  const submit = (override?: { amount: string; note: string; categoryId: string | null }) => {
-    const finalAmount = override ? parsePositiveAmount(override.amount) : parsedAmount;
-    const finalNote = (override?.note ?? note).trim();
-    const finalCategory = override ? override.categoryId : (subcategoryId ?? category?.id ?? null);
+  const submit = () => {
+    const finalAmount = parsedAmount;
+    const finalNote = note.trim();
+    const finalCategory = subcategoryId ?? category?.id ?? null;
     if (!account || !finalAmount || transferError || noteError) {
       setShowErrors(true);
       haptics.warning();
@@ -174,16 +202,21 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
     const money = formatMoney(finalAmount, account.currency);
 
     if (existing) {
+      // Only what changed, so an unchanged archived account is not re-checked.
+      // The API drops the category of a new transfer and the target of a
+      // former one.
+      const changes: UpdateTransactionRequest = {
+        amount: finalAmount,
+        note: finalNote,
+        occurred_at: sameDay(existing.occurred_at, day) ? undefined : occurredAtFor(day),
+        account_id: account.id !== existing.account_id ? account.id : undefined,
+        type: type !== existing.type ? type : undefined,
+        ...(isTransfer
+          ? { to_account_id: toAccount?.id !== existing.to_account_id ? toAccount?.id : undefined }
+          : { category_id: finalCategory ?? '' }),
+      };
       updateTransaction.mutate(
-        {
-          id: existing.id,
-          amount: finalAmount,
-          note: finalNote,
-          occurred_at: sameDay(existing.occurred_at, day) ? undefined : occurredAtFor(day),
-          ...(isTransfer
-            ? {}
-            : { type: type as 'income' | 'expense', category_id: finalCategory ?? '' }),
-        },
+        { id: existing.id, ...changes },
         {
           onSuccess: () => {
             haptics.success();
@@ -213,6 +246,7 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
           lastAccountId: account.id,
           lastCategoryByType: { ...prefs.lastCategoryByType, [type]: category?.id ?? null },
         });
+        setArmedPickKey(null);
         toast.success(t('{label} {amount} saved', { label, amount: money }), {
           label: t('Undo'),
           onPress: () => deleteTransaction.mutate(created.id),
@@ -268,29 +302,16 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
           ) : null}
         </>
       }>
-      {isEdit && isTransfer ? (
-        <ThemedText type="small" themeColor="textSecondary">
-          {t('Transfers stay transfers; you can change the amount, date, and note.')}
-        </ThemedText>
-      ) : (
-        <SegmentedControl
-          options={
-            isEdit
-              ? [
-                  { value: 'expense', label: t('Expense') },
-                  { value: 'income', label: t('Income') },
-                ]
-              : [
-                  { value: 'expense', label: t('Expense') },
-                  { value: 'income', label: t('Income') },
-                  { value: 'transfer', label: t('Transfer') },
-                ]
-          }
-          value={type}
-          onChange={changeType}
-          selectedColor={typeColor}
-        />
-      )}
+      <SegmentedControl
+        options={[
+          { value: 'expense', label: t('Expense') },
+          { value: 'income', label: t('Income') },
+          { value: 'transfer', label: t('Transfer') },
+        ]}
+        value={type}
+        onChange={changeType}
+        selectedColor={typeColor}
+      />
 
       <Card style={styles.amountCard}>
         <ThemedText type="small" themeColor="textSecondary">
@@ -302,8 +323,9 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
           onChangeText={setAmount}
           autoFocus={!isEdit}
           keyboardType="decimal-pad"
-          placeholder="0.00"
-          placeholderTextColor={theme.textSecondary}
+          // A faint "฿0" rather than "0.00", which read as an entered zero.
+          placeholder={zeroPlaceholder(account?.currency)}
+          placeholderTextColor={`${theme.textSecondary}66`}
           maxFontSizeMultiplier={FontScaleCap.display}
           accessibilityLabel={t('Amount')}
           accessibilityHint={showErrors ? (amountError ?? undefined) : undefined}
@@ -318,48 +340,38 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
       </Card>
 
       {!isEdit && !isTransfer && (quickPicks.data?.length ?? 0) > 0 ? (
-        <View style={styles.section}>
-          <ThemedText type="smallBold" themeColor="textSecondary">
-            {t('Quick picks')}
-          </ThemedText>
-          <ChipSelect
-            scroll
-            options={(quickPicks.data ?? []).map((pick) => ({
-              value: pick.key,
-              label: pickLabel(pick),
-            }))}
-            value={null}
-            onChange={(key) => {
-              const pick = quickPicks.data?.find((p) => p.key === key);
-              if (pick) applyPick(pick);
-            }}
-          />
-          <ThemedText type="small" themeColor="textSecondary">
-            {t('Tap to fill in, tap again to save.')}
-          </ThemedText>
-        </View>
+        <QuickPickRow
+          picks={quickPicks.data ?? []}
+          label={pickLabel}
+          armedKey={pickStillApplied ? armedPickKey : null}
+          saveLabel={(pick) => t('Save {amount}', { amount: formatMoney(pick.amount, account?.currency) })}
+          saving={createTransaction.isPending}
+          onPick={applyPick}
+          onSave={() => submit()}
+        />
       ) : null}
 
-      {isEdit ? (
-        <ThemedText type="small" themeColor="textSecondary">
-          {isTransfer
-            ? `${account?.name ?? ''} → ${toAccount?.name ?? ''}`
-            : t('Account: {name}', { name: account?.name ?? '' })}
-        </ThemedText>
-      ) : (
-        <ChipSelect
-          scroll
-          label={isTransfer ? t('From account') : t('Account')}
-          options={activeAccounts.map((a) => ({ value: a.id, label: `${a.name} · ${formatMoney(a.current_balance, a.currency)}` }))}
-          value={account?.id ?? null}
-          onChange={(next) => {
-            setSelectedAccountId(next);
-            setToAccountId(null); // the target list depends on the source
-          }}
-        />
-      )}
+      {/* Right under the amount, above the keyboard and the Save button. */}
+      <DateField
+        label={t('Date')}
+        value={day}
+        onChange={setDay}
+        maxDate={todayISO}
+        shortcuts={[
+          { label: t('Today'), value: todayISO },
+          { label: t('Yesterday'), value: addDays(todayISO, -1) },
+        ]}
+      />
 
-      {isTransfer && !isEdit ? (
+      <ChipSelect
+        scroll
+        label={isTransfer ? t('From account') : t('Account')}
+        options={activeAccounts.map((a) => ({ value: a.id, label: `${a.name} · ${formatMoney(a.current_balance, a.currency)}` }))}
+        value={account?.id ?? null}
+        onChange={setSelectedAccountId}
+      />
+
+      {isTransfer ? (
         transferTargets.length > 0 ? (
           <View style={styles.section}>
             <ChipSelect
@@ -380,7 +392,7 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
             <ThemedText type="small" themeColor="textSecondary">
               {t('You need another {currency} account to transfer to.', { currency: account?.currency ?? '' })}
             </ThemedText>
-            <Pressable accessibilityRole="link" hitSlop={8} onPress={() => router.replace('/add-account')}>
+            <Pressable accessibilityRole="link" hitSlop={8} onPress={() => router.push('/add-account')}>
               <ThemedText type="smallBold" themeColor="tint">
                 {t('Create an account')}
               </ThemedText>
@@ -395,16 +407,34 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
             {t('Category')}
           </ThemedText>
           <CategoryGrid
-            categories={topCategories}
+            categories={shownCategories}
             value={category?.id ?? null}
             onChange={pickCategory}
-            onAdd={() =>
-              router.push({
-                pathname: '/category-form',
-                params: { type, ...(category ? { parent_id: category.id } : {}) },
-              })
+            // "+ New" sits after the full list, so only once it is shown.
+            onAdd={
+              collapsible && !showAllCategories
+                ? undefined
+                : () =>
+                    router.push({
+                      pathname: '/category-form',
+                      params: { type, ...(category ? { parent_id: category.id } : {}) },
+                    })
             }
           />
+          {collapsible ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ expanded: showAllCategories }}
+              hitSlop={8}
+              onPress={() => setShowAllCategories((current) => !current)}
+              style={styles.seeAll}>
+              <ThemedText type="smallBold" themeColor="tint">
+                {showAllCategories
+                  ? t('Show fewer')
+                  : t('See all ({count})', { count: topCategories.length })}
+              </ThemedText>
+            </Pressable>
+          ) : null}
           {subcategories.length > 0 ? (
             <ChipSelect
               scroll
@@ -417,17 +447,6 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
           ) : null}
         </View>
       ) : null}
-
-      <DateField
-        label={t('Date')}
-        value={day}
-        onChange={setDay}
-        maxDate={todayISO}
-        shortcuts={[
-          { label: t('Today'), value: todayISO },
-          { label: t('Yesterday'), value: addDays(todayISO, -1) },
-        ]}
-      />
 
       <TextField
         label={t('Note (optional)')}
@@ -454,6 +473,11 @@ function resolveCategory(id: string | null, tree: { id: string; children?: { id:
   if (!id) return { top: null, sub: null };
   const parent = tree?.find((c) => c.children?.some((child) => child.id === id));
   return parent ? { top: parent.id, sub: id } : { top: id, sub: null };
+}
+
+/** "฿0" for the amount field: the money format without its ".00". */
+function zeroPlaceholder(currency = 'THB') {
+  return formatMoney(0, currency).replace(/[.,]00(?=\D*$)/, '');
 }
 
 function sameDay(iso: string, day: string) {
@@ -484,4 +508,5 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
   },
   section: { gap: Spacing.two },
+  seeAll: { alignSelf: 'flex-start', paddingVertical: Spacing.one },
 });

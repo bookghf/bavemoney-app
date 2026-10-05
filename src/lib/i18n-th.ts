@@ -460,4 +460,9 @@ export const TH: Record<string, string> = {
   'category:Lottery': 'หวย',
   'category:Other': 'อื่นๆ',
   'category:Other Income': 'รายรับอื่นๆ',
+  // --- txform ---
+  'Save {amount}': 'บันทึก {amount}',
+  'Fills in the form': 'กรอกข้อมูลให้ในฟอร์ม',
+  'See all ({count})': 'ดูทั้งหมด ({count})',
+  'Show fewer': 'แสดงน้อยลง',
 };
