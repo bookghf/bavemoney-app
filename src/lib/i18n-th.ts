@@ -510,4 +510,10 @@ export const TH: Record<string, string> = {
     'พบคอลัมน์บัญชี แถวที่ระบุชื่อบัญชีของคุณจะเข้าบัญชีนั้น ที่เหลือเข้าบัญชี {name}',
   '{done} of {total} rows were imported before the error. Choose the file again: those rows will show as duplicates.':
     'นำเข้าแล้ว {done} จาก {total} แถวก่อนเกิดข้อผิดพลาด เลือกไฟล์อีกครั้ง แถวเหล่านั้นจะแสดงว่าอาจซ้ำ',
+
+  // --- txform ---
+  'Save {amount}': 'บันทึก {amount}',
+  'Fills in the form': 'กรอกข้อมูลให้ในฟอร์ม',
+  'See all ({count})': 'ดูทั้งหมด ({count})',
+  'Show fewer': 'แสดงน้อยลง',
 };

@@ -169,13 +169,17 @@ export type CreateTransactionRequest = {
 };
 
 /**
- * PATCH /transactions/:id; omitted fields are left unchanged. The account and
- * transfer target can not change, and a transfer stays a transfer. An empty
- * category_id clears the category.
+ * PATCH /transactions/:id; omitted fields are left unchanged. An empty
+ * category_id clears the category. Changing type to 'transfer' needs
+ * to_account_id and drops the category; a transfer changed to income or
+ * expense drops its to_account_id. Moving to another account takes that
+ * account's currency.
  */
 export type UpdateTransactionRequest = {
+  account_id?: string;
+  to_account_id?: string;
   category_id?: string;
-  type?: 'income' | 'expense';
+  type?: TransactionType;
   amount?: string;
   note?: string;
   tags?: string[];
