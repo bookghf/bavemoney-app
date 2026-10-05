@@ -1,7 +1,19 @@
 import fs from 'fs';
 import path from 'path';
 
-import { detectColumns, occurredAt, parseCSV, parseDate, resolveCategories, toDraftRows } from '@/lib/csv';
+import {
+  dayRange,
+  detectColumns,
+  findDuplicates,
+  occurredAt,
+  parseCSV,
+  parseDate,
+  resolveCategories,
+  toCSV,
+  toDraftRows,
+  type DraftRow,
+  type ExistingTransaction,
+} from '@/lib/csv';
 
 describe('parseCSV', () => {
   it('handles quotes, commas, newlines, and a BOM', () => {
@@ -98,5 +110,65 @@ describe('resolveCategories', () => {
       ['อื่นๆ', 'other', null],
       ['หวย', null, null], // not in this tree: will be created
     ]);
+  });
+});
+
+describe('toCSV', () => {
+  it('quotes only what needs it and parses back', () => {
+    const records = [
+      ['วันที่', 'รายการ', 'จำนวนเงิน'],
+      ['30/07/2569', 'ข้าว, ไก่ "พิเศษ"', '50'],
+    ];
+    const text = toCSV(records);
+    expect(text.split('\r\n')[0]).toBe('วันที่,รายการ,จำนวนเงิน');
+    expect(parseCSV(text)).toEqual(records);
+  });
+});
+
+describe('findDuplicates', () => {
+  let line = 1;
+  const row = (day: number, amount: string, note: string, category = ''): DraftRow => ({
+    line: ++line, date: { y: 2026, m: 7, d: day }, minutes: null, type: 'expense', amount, note, category, subcategory: '', account: '',
+  });
+  // Local noon, as the import saves rows without a time.
+  const tx = (day: number, amount: string, note?: string, category?: ExistingTransaction['category']): ExistingTransaction => ({
+    type: 'expense', amount, note, category: category ?? null, occurred_at: new Date(2026, 6, day, 12).toISOString(),
+  });
+  const food = { id: 'food', name: 'Food' };
+  const categoryId = (r: DraftRow) => (r.category === 'อาหาร' ? 'food' : undefined);
+
+  it('matches the same day and amount with the same note or category', () => {
+    const rows = [
+      row(30, '144.00', 'grab bike'), // same note, different case and spacing
+      row(30, '57.00', 'ข้าวเที่ยง', 'อาหาร'), // same category, other note
+      row(30, '38.00', 'ขนม', 'อาหาร'), // different amount
+      row(31, '49.00', 'นม'), // different day
+      row(30, '20.00', 'เรือ'), // different note, no category
+      row(30, '10.00', ''), // bare row and bare transaction
+    ];
+    const existing = [
+      tx(30, '144', ' Grab  Bike '),
+      tx(30, '57.00', 'lunch', { id: 'dining', name: 'Dining Out', parent: food }),
+      tx(30, '39.00', 'ขนม', food),
+      tx(30, '49.00', 'นม'),
+      tx(30, '20.00', 'boat'),
+      tx(30, '10.00'),
+    ];
+    const lines = [...findDuplicates(rows, existing, categoryId)];
+    expect(lines).toEqual([rows[0].line, rows[1].line, rows[5].line]);
+  });
+
+  it('uses each existing transaction once, and ignores other types', () => {
+    const rows = [row(31, '17.00', 'mrt'), row(31, '17.00', 'mrt')];
+    expect(findDuplicates(rows, [tx(31, '17.00', 'mrt')], categoryId).size).toBe(1);
+    expect(findDuplicates(rows, [{ ...tx(31, '17.00', 'mrt'), type: 'income' }], categoryId).size).toBe(0);
+  });
+});
+
+describe('dayRange', () => {
+  it('spans the earliest to the latest day', () => {
+    const records = parseCSV('date,amount\n2026-08-02,1\n2026-07-30,2\n2026-08-01,3');
+    expect(dayRange(toDraftRows(records, detectColumns(records[0])!).rows)).toEqual({ from: '2026-07-30', to: '2026-08-02' });
+    expect(dayRange([])).toBeNull();
   });
 });
