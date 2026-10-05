@@ -31,6 +31,20 @@ export function formatDate(iso: string, options: Intl.DateTimeFormatOptions = {}
   return date.toLocaleDateString(dateLocale(), { year: 'numeric', month: 'short', day: 'numeric', ...options });
 }
 
+/**
+ * Compact date for list rows: "25 ก.ย." this year, "25 ก.ย. 2568" for other
+ * years, so the year only takes room when it says something. Screens that
+ * need the full date (pickers, ranges, "member since") use formatDate.
+ */
+export function formatShortDate(iso: string, now: Date = new Date()): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  // Both calendars change year on 1 January, so comparing Gregorian years is
+  // enough for the Buddhist era too.
+  const sameYear = date.getFullYear() === now.getFullYear();
+  return date.toLocaleDateString(dateLocale(), { month: 'short', day: 'numeric', ...(sameYear ? {} : { year: 'numeric' }) });
+}
+
 /** "Today", "Yesterday", or the formatted date: headers for day-grouped lists. */
 export function formatDayHeading(iso: string): string {
   const date = new Date(iso);

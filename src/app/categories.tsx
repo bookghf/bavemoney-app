@@ -10,7 +10,7 @@ import { IconBadge } from '@/components/ui/icon-badge';
 import { QueryState } from '@/components/ui/query-state';
 import { Screen } from '@/components/ui/screen';
 import { SegmentedControl } from '@/components/ui/segmented-control';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useCategories } from '@/hooks/use-categories';
 import { useTheme } from '@/hooks/use-theme';
 import type { Category, CategoryType } from '@/lib/api/types';
@@ -22,6 +22,8 @@ export default function CategoriesScreen() {
   const categories = useCategories();
   const [type, setType] = useState<CategoryType>('expense');
   const list = (categories.data ?? []).filter((category) => category.type === type);
+  const custom = list.filter((category) => !category.is_system);
+  const builtIn = list.filter((category) => category.is_system);
 
   return (
     <Screen
@@ -43,22 +45,43 @@ export default function CategoriesScreen() {
         onChange={setType}
       />
       <QueryState isPending={categories.isPending} error={categories.error} onRetry={categories.refetch} />
-      {list.length > 0 ? (
-        <Card style={styles.list}>
-          {list.map((category, index) => (
-            <View key={category.id}>
-              <CategoryRow category={category} separator={index > 0} />
-              {(category.children ?? []).map((child) => (
-                <CategoryRow key={child.id} category={child} parent={category} separator />
-              ))}
-            </View>
-          ))}
-        </Card>
+      {/* The user's own categories first, then the built-ins under one
+          header instead of a "Built-in" tag on every row. */}
+      {custom.length > 0 ? (
+        <>
+          <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionLabel}>
+            {t('Custom categories')}
+          </ThemedText>
+          <CategoryList categories={custom} />
+        </>
       ) : null}
-      <ThemedText type="small" themeColor="textSecondary">
-        {t('Built-in categories can not be changed, but you can add your own subcategories under them.')}
-      </ThemedText>
+      {builtIn.length > 0 ? (
+        <>
+          <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionLabel}>
+            {t('Built-in categories')}
+          </ThemedText>
+          <CategoryList categories={builtIn} />
+          <ThemedText type="small" themeColor="textSecondary">
+            {t('Built-in categories can not be changed, but you can add your own subcategories under them.')}
+          </ThemedText>
+        </>
+      ) : null}
     </Screen>
+  );
+}
+
+function CategoryList({ categories }: { categories: Category[] }) {
+  return (
+    <Card style={styles.list}>
+      {categories.map((category, index) => (
+        <View key={category.id}>
+          <CategoryRow category={category} separator={index > 0} />
+          {(category.children ?? []).map((child) => (
+            <CategoryRow key={child.id} category={child} parent={category} separator />
+          ))}
+        </View>
+      ))}
+    </Card>
   );
 }
 
@@ -92,11 +115,10 @@ function CategoryRow({ category, parent, separator }: { category: Category; pare
       {editable ? (
         <Ionicons name="chevron-forward" size={16} color={theme.textSecondary} />
       ) : parent ? null : (
-        <View style={styles.builtIn}>
-          <ThemedText type="small" themeColor="textSecondary">
-            {t('Built-in')}
-          </ThemedText>
-          <Ionicons name="add-circle-outline" size={20} color={theme.tint} />
+        // The whole row is pressable; the + gets a full 44pt box so it reads
+        // as a target of its own.
+        <View style={styles.add}>
+          <Ionicons name="add-circle-outline" size={26} color={theme.tint} />
         </View>
       )}
     </Pressable>
@@ -108,7 +130,8 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingHorizontal: Spacing.three, minHeight: 56 },
   child: { paddingLeft: Spacing.three + 36 + Spacing.three, minHeight: 48 },
   separator: { position: 'absolute', top: 0, right: 0, left: Spacing.three + 36 + Spacing.three, height: StyleSheet.hairlineWidth },
-  dot: { width: 10, height: 10, borderRadius: 5 },
+  dot: { width: 10, height: 10, borderRadius: Radius.full },
   name: { flex: 1 },
-  builtIn: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  add: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginRight: -Spacing.two },
+  sectionLabel: { marginLeft: Spacing.three, marginTop: Spacing.two },
 });

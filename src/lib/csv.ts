@@ -4,7 +4,7 @@
  * files such as a Google Sheet ledger: Thai or English headers, dates only on
  * the first row of each day, amounts like "฿1,234.00".
  */
-import type { Category } from '@/lib/api/types';
+import type { Category, Transaction } from '@/lib/api/types';
 import { TH } from '@/lib/i18n-th';
 import { parseAmountInput } from '@/lib/money';
 
@@ -246,7 +246,7 @@ function sameName(category: Category, name: string): boolean {
   return category.name.toLowerCase() === wanted || (!!thai && thai.toLowerCase() === wanted);
 }
 
-/** Tag on every imported row; also used to spot a second import of the same file. */
+/** Tag on every imported row, so an import can be found and filtered later. */
 export const importTag = (fileName: string) => `import:${fileName}`.slice(0, 50);
 
 export function resolveCategories(rows: DraftRow[], tree: Category[]): Resolution[] {
@@ -260,4 +260,73 @@ export function resolveCategories(rows: DraftRow[], tree: Category[]): Resolutio
     seen.set(key, { key, type: row.type, top: row.category, sub: row.subcategory, topId: top?.id, subId: sub?.id });
   }
   return [...seen.values()];
+}
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/** A row's calendar day as YYYY-MM-DD. */
+export const rowDay = (row: DraftRow) => `${row.date.y}-${pad(row.date.m)}-${pad(row.date.d)}`;
+
+/** First and last day in the file, or null when there are no rows. */
+export function dayRange(rows: DraftRow[]): { from: string; to: string } | null {
+  if (rows.length === 0) return null;
+  const days = rows.map(rowDay).sort();
+  return { from: days[0], to: days[days.length - 1] };
+}
+
+/** The fields of an existing transaction that duplicate matching looks at. */
+export type ExistingTransaction = Pick<Transaction, 'type' | 'amount' | 'note' | 'occurred_at' | 'category'>;
+
+const normalizeNote = (note = '') => note.trim().replace(/\s+/g, ' ').toLowerCase();
+
+/**
+ * Lines of the rows that are probably already in the ledger: an existing
+ * transaction on the same local day, of the same type and amount, and with
+ * the same note or the same category (a top-level category also matches its
+ * subcategories). Rows with neither a note nor a category match a bare
+ * transaction. Each existing transaction matches at most one row, so a file
+ * with two identical rows where the ledger has one flags only one.
+ * `categoryId` is the row's category if it already exists.
+ */
+export function findDuplicates(
+  rows: DraftRow[],
+  existing: ExistingTransaction[],
+  categoryId: (row: DraftRow) => string | undefined,
+): Set<number> {
+  const key = (day: string, type: string, amount: string) => `${day}|${type}|${Number.parseFloat(amount).toFixed(2)}`;
+  const buckets = new Map<string, ExistingTransaction[]>();
+  for (const tx of existing) {
+    const at = new Date(tx.occurred_at);
+    const k = key(`${at.getFullYear()}-${pad(at.getMonth() + 1)}-${pad(at.getDate())}`, tx.type, tx.amount);
+    buckets.set(k, [...(buckets.get(k) ?? []), tx]);
+  }
+
+  const duplicates = new Set<number>();
+  for (const row of rows) {
+    const candidates = buckets.get(key(rowDay(row), row.type, row.amount));
+    if (!candidates?.length) continue;
+    const note = normalizeNote(row.note);
+    const id = categoryId(row);
+    // Strongest signal first, so a weaker match does not use up the
+    // transaction a later row matches by note.
+    const tests: ((tx: ExistingTransaction) => boolean)[] = [
+      (tx) => note !== '' && normalizeNote(tx.note) === note,
+      (tx) => !!id && (tx.category?.id === id || tx.category?.parent?.id === id),
+      (tx) => note === '' && !row.category && !normalizeNote(tx.note) && !tx.category,
+    ];
+    for (const test of tests) {
+      const index = candidates.findIndex(test);
+      if (index < 0) continue;
+      candidates.splice(index, 1);
+      duplicates.add(row.line);
+      break;
+    }
+  }
+  return duplicates;
+}
+
+/** CSV text from records, quoting fields that need it; parseCSV reads it back. */
+export function toCSV(records: string[][]): string {
+  const field = (value: string) => (/[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value);
+  return records.map((record) => record.map(field).join(',')).join('\r\n') + '\r\n';
 }

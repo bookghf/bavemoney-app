@@ -49,7 +49,6 @@ export const TH: Record<string, string> = {
   'budget not found': 'ไม่พบงบประมาณนี้',
   'to_account_id not found': 'ไม่พบบัญชีปลายทาง',
   'only credit card accounts can start with a negative balance': 'เฉพาะบัญชีบัตรเครดิตที่เริ่มต้นด้วยยอดติดลบได้',
-  'can not change a transaction to or from a transfer': 'เปลี่ยนรายการเป็นหรือจากการโอนไม่ได้',
   'can not transfer to the same account': 'โอนเข้าบัญชีเดียวกันไม่ได้',
   'budgets can only track expense categories': 'งบประมาณใช้ได้กับหมวดหมู่รายจ่ายเท่านั้น',
   'system categories can not be modified': 'แก้ไขหมวดหมู่ค่าเริ่มต้นไม่ได้',
@@ -94,7 +93,6 @@ export const TH: Record<string, string> = {
   Transfer: 'โอนเงิน',
   Amount: 'จำนวนเงิน',
   Account: 'บัญชี',
-  'Account: {name}': 'บัญชี: {name}',
   'From account': 'จากบัญชี',
   'To account': 'ไปยังบัญชี',
   Category: 'หมวดหมู่',
@@ -104,7 +102,6 @@ export const TH: Record<string, string> = {
   'e.g. Lunch': 'เช่น ข้าวกลางวัน',
   'No note': 'ไม่มีบันทึก',
   'Quick picks': 'รายการที่ใช้บ่อย',
-  'Tap to fill in, tap again to save.': 'แตะเพื่อกรอก แตะอีกครั้งเพื่อบันทึก',
   'Save transfer': 'บันทึกการโอน',
   'Delete transaction': 'ลบรายการ',
   'Delete this transaction?': 'ลบรายการนี้หรือไม่?',
@@ -120,10 +117,7 @@ export const TH: Record<string, string> = {
   'You need an account before adding transactions.': 'ต้องมีบัญชีก่อนจึงจะเพิ่มรายการได้',
   'You need another {currency} account to transfer to.': 'ต้องมีบัญชี {currency} อีกบัญชีเพื่อโอนเงิน',
   'Create an account': 'สร้างบัญชี',
-  'Transfers stay transfers; you can change the amount, date, and note.':
-    'รายการโอนเงินแก้ได้เฉพาะจำนวนเงิน วันที่ และบันทึกช่วยจำ',
   'Opens the transaction to edit or delete it': 'เปิดรายการเพื่อแก้ไขหรือลบ',
-  'Search notes': 'ค้นหาบันทึกช่วยจำ',
   Filters: 'ตัวกรอง',
   When: 'ช่วงเวลา',
   'Any time': 'ทุกช่วงเวลา',
@@ -178,7 +172,6 @@ export const TH: Record<string, string> = {
   'Net worth': 'มูลค่าสุทธิ',
   'Add a bank account, card, e-wallet or cash to start recording transactions.':
     'เพิ่มบัญชีธนาคาร บัตร วอลเล็ต หรือเงินสด เพื่อเริ่มบันทึกรายการ',
-  'Tap an account to edit or archive it.': 'แตะบัญชีเพื่อแก้ไขหรือเก็บ',
 
   // --- budgets ----------------------------------------------------------
   Budgets: 'งบประมาณ',
@@ -330,7 +323,6 @@ export const TH: Record<string, string> = {
     'รายการยังอยู่แต่จะไม่มีหมวดหมู่ และงบประมาณของหมวดนี้จะถูกลบ',
   'Edit this category': 'แก้ไขหมวดหมู่นี้',
   'Add a subcategory': 'เพิ่มหมวดหมู่ย่อย',
-  'Built-in': 'ค่าเริ่มต้น',
   'Built-in categories can not be changed, but you can add your own subcategories under them.':
     'หมวดหมู่ค่าเริ่มต้นแก้ไขไม่ได้ แต่เพิ่มหมวดหมู่ย่อยของคุณเองได้',
   'Give the category a name': 'กรุณาตั้งชื่อหมวดหมู่',
@@ -349,16 +341,10 @@ export const TH: Record<string, string> = {
   'Preparing file…': 'กำลังเตรียมไฟล์…',
   'Sharing is not available on this device': 'อุปกรณ์นี้แชร์ไฟล์ไม่ได้',
   'Bring in your spending history': 'นำประวัติการใช้เงินเข้ามา',
-  'Export your Google Sheet or Excel file as CSV. It needs a date and an amount column; item, category, type, and account are used when present. Thai headers and dates like 30/07/2569 work.':
-    'ส่งออก Google Sheet หรือ Excel เป็นไฟล์ CSV ต้องมีคอลัมน์วันที่และจำนวนเงิน ถ้ามีรายการ หมวดหมู่ ประเภท และบัญชีก็จะนำมาใช้ด้วย รองรับหัวคอลัมน์ภาษาไทยและวันที่แบบ 30/07/2569',
   'Choose CSV file': 'เลือกไฟล์ CSV',
   'Choose another file': 'เลือกไฟล์อื่น',
   'This file has no date and amount columns. Use a CSV with a header row.':
     'ไฟล์นี้ไม่มีคอลัมน์วันที่และจำนวนเงิน กรุณาใช้ CSV ที่มีแถวหัวคอลัมน์',
-  'A file with this name was imported before. Importing again will duplicate those transactions.':
-    'เคยนำเข้าไฟล์ชื่อนี้แล้ว ถ้านำเข้าอีกครั้งรายการจะซ้ำ',
-  'Split the file: at most 2000 rows can be imported at a time.': 'นำเข้าได้ครั้งละไม่เกิน 2000 แถว กรุณาแบ่งไฟล์',
-  'Left out': 'ไม่ได้นำเข้า',
   '{count} transfer (add transfers in the app)': 'การโอน {count} รายการ (เพิ่มการโอนในแอป)',
   '{count} transfers (add transfers in the app)': 'การโอน {count} รายการ (เพิ่มการโอนในแอป)',
   'Line {line}: {message}': 'บรรทัด {line}: {message}',
@@ -368,7 +354,6 @@ export const TH: Record<string, string> = {
   'Unknown type "{value}"': 'ไม่รู้จักประเภท "{value}"',
   '…and {count} more': '…และอีก {count} รายการ',
   'Into account': 'นำเข้าบัญชี',
-  'Rows that name one of your accounts go to that account instead.': 'แถวที่ระบุชื่อบัญชีของคุณจะเข้าบัญชีนั้นแทน',
   Matched: 'ตรงกัน',
   'Create {count} new category': 'สร้างหมวดหมู่ใหม่ {count} หมวด',
   'Create {count} new categories': 'สร้างหมวดหมู่ใหม่ {count} หมวด',
@@ -460,4 +445,150 @@ export const TH: Record<string, string> = {
   'category:Lottery': 'หวย',
   'category:Other': 'อื่นๆ',
   'category:Other Income': 'รายรับอื่นๆ',
+
+  // --- design-screens ---------------------------------------------------
+  'Built-in categories': 'หมวดหมู่ค่าเริ่มต้น',
+  'Other devices will be signed out. You stay signed in here.':
+    'อุปกรณ์อื่นจะถูกออกจากระบบ ส่วนเครื่องนี้ยังคงเข้าสู่ระบบอยู่',
+
+  // --- search -------------------------------------------------------------
+  'Search notes, categories, accounts, or amounts': 'ค้นหาโน้ต หมวดหมู่ บัญชี หรือจำนวนเงิน',
+  'Search looks in notes, categories, accounts, tags, and amounts.': 'ค้นหาจากโน้ต หมวดหมู่ บัญชี แท็ก และจำนวนเงิน',
+  'Search looks in notes, categories, accounts, tags, and amounts, within the filters you set.':
+    'ค้นหาจากโน้ต หมวดหมู่ บัญชี แท็ก และจำนวนเงิน ภายในตัวกรองที่เลือกไว้',
+  'No results for “{query}”': 'ไม่พบผลลัพธ์สำหรับ “{query}”',
+  'Clear search': 'ล้างคำค้นหา',
+  'Clear filters': 'ล้างตัวกรอง',
+  'Clear search and filters': 'ล้างคำค้นหาและตัวกรอง',
+
+  // --- import ---
+  'Save your Google Sheet or Excel file as CSV, one row per transaction:':
+    'บันทึก Google Sheet หรือ Excel เป็นไฟล์ CSV หนึ่งแถวต่อหนึ่งรายการ:',
+  Item: 'รายการ',
+  'Chicken rice': 'ข้าวมันไก่',
+  Skytrain: 'รถไฟฟ้า',
+  Coffee: 'กาแฟ',
+  Required: 'ต้องมี',
+  Optional: 'ไม่บังคับ',
+  'Thai headers and dates like 30/07/2569 work. A date on the first row of each day is enough.':
+    'รองรับหัวคอลัมน์ภาษาไทยและวันที่แบบ 30/07/2569 ใส่วันที่เฉพาะแถวแรกของแต่ละวันก็พอ',
+  'Up to 2,000 rows go in one import. Larger files are sent in parts of 2,000.':
+    'นำเข้าได้ครั้งละไม่เกิน 2,000 แถว ไฟล์ที่ใหญ่กว่านั้นจะถูกส่งเป็นชุดละ 2,000 แถว',
+  'Download sample file': 'ดาวน์โหลดไฟล์ตัวอย่าง',
+  '{count} of {total} rows': '{count} จาก {total} แถว',
+  'Checking for transactions you already have…': 'กำลังตรวจหารายการที่มีอยู่แล้ว…',
+  'Could not check for duplicates. Review the rows before importing.':
+    'ตรวจหารายการซ้ำไม่ได้ กรุณาตรวจสอบแถวก่อนนำเข้า',
+  '{count} row looks like a transaction you already have (same day, amount, and item or category). It is left out.':
+    '{count} แถวดูเหมือนรายการที่มีอยู่แล้ว (วัน จำนวนเงิน และรายการหรือหมวดหมู่ตรงกัน) จึงไม่ได้เลือกไว้',
+  '{count} rows look like transactions you already have (same day, amount, and item or category). They are left out.':
+    '{count} แถวดูเหมือนรายการที่มีอยู่แล้ว (วัน จำนวนเงิน และรายการหรือหมวดหมู่ตรงกัน) จึงไม่ได้เลือกไว้',
+  'Import likely duplicates too': 'นำเข้ารายการที่อาจซ้ำด้วย',
+  'One import takes up to 2,000 rows, so these go in {parts} parts. Each part is saved whole or not at all; if one fails, the parts before it stay imported.':
+    'นำเข้าได้ครั้งละไม่เกิน 2,000 แถว จึงแบ่งส่งเป็น {parts} ชุด แต่ละชุดจะบันทึกทั้งหมดหรือไม่บันทึกเลย ถ้าชุดใดล้มเหลว ชุดก่อนหน้าจะยังคงนำเข้าแล้ว',
+  'Rows to import': 'แถวที่จะนำเข้า',
+  'Tap a row to leave it out or bring it back.': 'แตะแถวเพื่อเอาออกหรือเลือกกลับมา',
+  'All ({count})': 'ทั้งหมด ({count})',
+  'Likely duplicates ({count})': 'อาจซ้ำ ({count})',
+  'Left out ({count})': 'ไม่นำเข้า ({count})',
+  'Likely duplicate': 'อาจซ้ำกับรายการที่มีอยู่',
+  'No rows here.': 'ไม่มีแถวในส่วนนี้',
+  'Show {count} more': 'แสดงเพิ่มอีก {count} แถว',
+  'Can not be imported': 'นำเข้าไม่ได้',
+  'No type column: every row is imported as spending.': 'ไม่มีคอลัมน์ประเภท ทุกแถวจะนำเข้าเป็นรายจ่าย',
+  'Type column found: {expense} spending, {income} income.': 'พบคอลัมน์ประเภท: รายจ่าย {expense} แถว รายรับ {income} แถว',
+  'No account column: every row goes to the account above.': 'ไม่มีคอลัมน์บัญชี ทุกแถวจะเข้าบัญชีด้านบน',
+  'Account column found. Rows that name one of your accounts go to it; the rest go to {name}.':
+    'พบคอลัมน์บัญชี แถวที่ระบุชื่อบัญชีของคุณจะเข้าบัญชีนั้น ที่เหลือเข้าบัญชี {name}',
+  '{done} of {total} rows were imported before the error. Choose the file again: those rows will show as duplicates.':
+    'นำเข้าแล้ว {done} จาก {total} แถวก่อนเกิดข้อผิดพลาด เลือกไฟล์อีกครั้ง แถวเหล่านั้นจะแสดงว่าอาจซ้ำ',
+
+  // --- txform ---
+  'Save {amount}': 'บันทึก {amount}',
+  'Fills in the form': 'กรอกข้อมูลให้ในฟอร์ม',
+  'See all ({count})': 'ดูทั้งหมด ({count})',
+  'Show fewer': 'แสดงน้อยลง',
+
+  // --- accounts ---
+  'Set current balance': 'ตั้งยอดคงเหลือปัจจุบัน',
+  'Balance today': 'ยอดคงเหลือวันนี้',
+  'Enter what your bank or wallet shows now. The opening balance is adjusted to match, so no income or expense is added to your reports.':
+    'กรอกยอดที่ธนาคารหรือวอลเล็ตแสดงตอนนี้ ระบบจะปรับยอดเงินเริ่มต้นให้ตรงกัน โดยไม่เพิ่มรายรับหรือรายจ่ายในรายงาน',
+  'Set balance': 'ตั้งยอด',
+  'Balance set to {amount}': 'ตั้งยอดคงเหลือเป็น {amount} แล้ว',
+  'Only credit cards can be below zero': 'เฉพาะบัตรเครดิตเท่านั้นที่ยอดติดลบได้',
+  'Tap an account to edit it or set its current balance.': 'แตะบัญชีเพื่อแก้ไขหรือตั้งยอดคงเหลือปัจจุบัน',
+  Orange: 'ส้ม',
+  Amber: 'เหลืองอำพัน',
+  Lime: 'เขียวมะนาว',
+  Cyan: 'ฟ้าอมเขียว',
+  Indigo: 'คราม',
+  Violet: 'ม่วง',
+  Fuchsia: 'บานเย็น',
+  Pink: 'ชมพู',
+  Brown: 'น้ำตาล',
+  Slate: 'เทา',
+
+  // --- payday ---
+  'Month starts on day': 'เริ่มต้นเดือนวันที่',
+  'Your months follow the calendar. Paid on the 25th? Pick 25 so Home, Summary and monthly budgets match your pay.':
+    'เดือนของคุณเป็นไปตามปฏิทิน ถ้าเงินเดือนออกวันที่ 25 ให้เลือก 25 เพื่อให้หน้าหลัก สรุป และงบรายเดือนตรงกับรอบเงินเดือน',
+  'This month runs {range}. Home, Summary and monthly budgets follow it.':
+    'เดือนนี้คือ {range} หน้าหลัก สรุป และงบรายเดือนจะใช้ช่วงนี้',
+  'Income {range}': 'รายรับ {range}',
+  'Spent {range}': 'รายจ่าย {range}',
+  'Follows your month, which starts on day {day}: {range}': 'ตามรอบเดือนของคุณที่เริ่มวันที่ {day}: {range}',
+  'Custom range': 'กำหนดช่วงเอง',
+  'No spending in this period yet': 'ยังไม่มีรายจ่ายในช่วงนี้',
+  'No income in this period yet': 'ยังไม่มีรายรับในช่วงนี้',
+  'See previous period': 'ดูช่วงก่อนหน้า',
+
+  // --- recurring ---
+  Recurring: 'รายการประจำ',
+  'Recurring item': 'รายการประจำ',
+  'New recurring item': 'เพิ่มรายการประจำ',
+  'No recurring items yet': 'ยังไม่มีรายการประจำ',
+  'Add rent, salary, or a monthly transfer once. It is recorded for you on its day every month or week.':
+    'เพิ่มค่าเช่า เงินเดือน หรือการโอนประจำเดือนไว้ครั้งเดียว แล้วแอปจะบันทึกให้เองทุกเดือนหรือทุกสัปดาห์ตามวันที่ตั้งไว้',
+  'Recurring item saved': 'บันทึกรายการประจำแล้ว',
+  'Recurring item updated': 'แก้ไขรายการประจำแล้ว',
+  'Recurring item deleted': 'ลบรายการประจำแล้ว',
+  'Recurring item paused': 'หยุดรายการประจำชั่วคราวแล้ว',
+  'Recurring item resumed': 'เริ่มรายการประจำอีกครั้งแล้ว',
+  'Recurring item not found.': 'ไม่พบรายการประจำนี้',
+  'Delete recurring item': 'ลบรายการประจำ',
+  'Delete the {name} recurring item?': 'ลบรายการประจำ {name} ไหม?',
+  'Transactions it already added stay.': 'รายการที่บันทึกไปแล้วจะยังอยู่',
+  'Opens the recurring item to edit it': 'เปิดรายการประจำเพื่อแก้ไข',
+  'Pause {name}': 'หยุด {name} ชั่วคราว',
+  'Resume {name}': 'เริ่ม {name} อีกครั้ง',
+  'Delete {name}': 'ลบ {name}',
+  Paused: 'หยุดชั่วคราว',
+  'Paused: its account is archived': 'หยุดชั่วคราว: บัญชีถูกเก็บแล้ว',
+  'Paused because its account was archived. Pick an open account, save, then resume it from the list.':
+    'หยุดชั่วคราวเพราะบัญชีถูกเก็บแล้ว เลือกบัญชีอื่นแล้วบันทึก จากนั้นกดเริ่มอีกครั้งในรายการ',
+  'Next: {date}': 'ครั้งถัดไป: {date}',
+  Ended: 'สิ้นสุดแล้ว',
+  'Monthly on day {day}': 'ทุกเดือน วันที่ {day}',
+  'Monthly on the last day': 'ทุกเดือน วันสุดท้ายของเดือน',
+  'Every {weekday}': 'ทุก{weekday}',
+  Repeats: 'ทำซ้ำ',
+  'Day of the month': 'วันที่ของเดือน',
+  'Day of the week': 'วันในสัปดาห์',
+  'In shorter months it is recorded on the last day.': 'เดือนที่มีวันน้อยกว่า จะบันทึกในวันสุดท้ายของเดือน',
+  Starts: 'เริ่ม',
+  'Create an account first': 'สร้างบัญชีก่อน',
+  'e.g. Rent': 'เช่น ค่าเช่าห้อง',
+  'e.g. Savings': 'เช่น เงินเก็บ',
+  'First on {date}.': 'ครั้งแรก {date}',
+  'Runs from {date}; anything due up to today is recorded when you save.':
+    'เริ่มตั้งแต่ {date} รายการที่ถึงกำหนดจนถึงวันนี้จะบันทึกให้ทันทีเมื่อกดบันทึก',
+  'Already recorded through {date}.': 'บันทึกแล้วถึง {date}',
+  'recurring rule not found': 'ไม่พบรายการประจำนี้',
+  'monthly rules need day_of_month between 1 and 31': 'เลือกวันที่ 1 ถึง 31',
+  'weekly rules need weekday between 0 (Sunday) and 6 (Saturday)': 'เลือกวันในสัปดาห์',
+  'start_date can be at most one year in the past': 'วันเริ่มย้อนหลังได้ไม่เกิน 1 ปี',
+  'end_date must not be before start_date': 'วันสิ้นสุดต้องไม่อยู่ก่อนวันเริ่ม',
+  'Ends on a date': 'สิ้นสุดในวันที่กำหนด',
+  'Last time on or before': 'ครั้งสุดท้ายไม่เกินวันที่',
 };

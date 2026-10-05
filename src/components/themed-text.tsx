@@ -3,6 +3,7 @@ import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
 import { Fonts, ThemeColor } from '@/constants/theme';
 import { FontScaleCap } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
+import { currentLanguage } from '@/lib/i18n';
 
 export type ThemedTextProps = TextProps & {
   type?: 'default' | 'title' | 'largeTitle' | 'sectionTitle' | 'amount' | 'small' | 'smallBold' | 'subtitle' | 'link' | 'linkPrimary' | 'code';
@@ -24,8 +25,18 @@ const SCALE_CAP: Record<NonNullable<ThemedTextProps['type']>, number> = {
   code: FontScaleCap.body,
 };
 
+// Thai stacks vowels and tone marks above and below the letters, so the line
+// heights leave about 1.5–1.6x the font size. Negative tracking would crowd
+// those marks, so headings only tighten in English. The root layout remounts
+// the screens when the language changes, so reading it during render is safe.
+const LATIN_TRACKING: Partial<Record<NonNullable<ThemedTextProps['type']>, { letterSpacing: number }>> = {
+  largeTitle: { letterSpacing: -0.6 },
+  sectionTitle: { letterSpacing: -0.2 },
+};
+
 export function ThemedText({ style, type = 'default', themeColor, ...rest }: ThemedTextProps) {
   const theme = useTheme();
+  const tracking = currentLanguage() === 'th' ? undefined : LATIN_TRACKING[type];
 
   return (
     <Text
@@ -36,7 +47,8 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
       textBreakStrategy="balanced"
       android_hyphenationFrequency="normal"
       style={[
-        { color: theme[themeColor ?? 'text'] },
+        // Links default to the brand teal; the old fixed blue was 3.2:1 on the light canvas.
+        { color: theme[themeColor ?? (type === 'linkPrimary' ? 'tint' : 'text')] },
         type === 'default' && styles.default,
         type === 'title' && styles.title,
         type === 'largeTitle' && styles.largeTitle,
@@ -48,6 +60,7 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
         type === 'link' && styles.link,
         type === 'linkPrimary' && styles.linkPrimary,
         type === 'code' && styles.code,
+        tracking,
         style,
       ]}
       {...rest}
@@ -58,42 +71,41 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
 const styles = StyleSheet.create({
   small: {
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 22,
     fontWeight: 500,
   },
   smallBold: {
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 22,
     fontWeight: 700,
   },
   default: {
     fontSize: 16,
-    lineHeight: 24,
+    lineHeight: 26,
     fontWeight: 500,
   },
   title: {
     fontSize: 48,
     fontWeight: 600,
-    lineHeight: 52,
+    lineHeight: 64,
   },
   /** Screen title (iOS large-title scale). */
   largeTitle: {
     fontSize: 32,
-    lineHeight: 38,
+    lineHeight: 44,
     fontWeight: 800,
-    letterSpacing: -0.6,
   },
   sectionTitle: {
     fontSize: 18,
-    lineHeight: 24,
+    lineHeight: 28,
     fontWeight: 700,
-    letterSpacing: -0.2,
   },
   /** Large money figure; tabular digits keep amounts from jittering. */
   amount: {
     fontSize: 34,
-    lineHeight: 42,
+    lineHeight: 44,
     fontWeight: 800,
+    // Digits and the baht sign only, so tight tracking is safe in Thai too.
     letterSpacing: -0.8,
     fontVariant: ['tabular-nums'],
   },
@@ -109,11 +121,11 @@ const styles = StyleSheet.create({
   linkPrimary: {
     lineHeight: 30,
     fontSize: 14,
-    color: '#3c87f7',
   },
   code: {
     fontFamily: Fonts.mono,
     fontWeight: Platform.select({ android: 700 }) ?? 500,
     fontSize: 12,
+    lineHeight: 18,
   },
 });

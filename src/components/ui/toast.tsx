@@ -5,7 +5,7 @@ import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { create } from 'zustand';
 
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { FontScaleCap } from '@/hooks/use-font-scale';
 import { t } from '@/lib/i18n';
 
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: Spacing.three,
     paddingVertical: 14,
-    borderRadius: 16,
+    borderRadius: Radius.md,
     backgroundColor: '#1C1F26',
     boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
   },

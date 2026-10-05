@@ -10,17 +10,19 @@ import { Card } from '@/components/ui/card';
 import { QueryState } from '@/components/ui/query-state';
 import { Screen } from '@/components/ui/screen';
 import { SectionHeader } from '@/components/ui/section-header';
-import { BrandGradient, BrandShadow, Spacing } from '@/constants/theme';
+import { BrandGradient, BrandShadow, Radius, Spacing } from '@/constants/theme';
 import { useAccounts } from '@/hooks/use-accounts';
 import { useBudgets } from '@/hooks/use-budgets';
 import { FontScaleCap, useFontScale } from '@/hooks/use-font-scale';
+import { useMonthStartDay } from '@/hooks/use-month-start-day';
 import { toISODate, useReportSummary } from '@/hooks/use-reports';
 import { useTheme } from '@/hooks/use-theme';
 import { useRecentTransactions } from '@/hooks/use-transactions';
 import { getErrorMessage } from '@/lib/api/client';
 import { formatMoney } from '@/lib/format';
-import { dateLocale, t, tn } from '@/lib/i18n';
+import { t, tn } from '@/lib/i18n';
 import { totalsByCurrency } from '@/lib/money';
+import { monthName, monthRange } from '@/lib/report-period';
 import { useAuthStore } from '@/store/auth-store';
 
 export default function DashboardScreen() {
@@ -30,6 +32,7 @@ export default function DashboardScreen() {
   const currency = user?.default_currency || 'THB';
   const today = new Date();
 
+  const monthStartDay = useMonthStartDay();
   const accounts = useAccounts();
   const summary = useReportSummary({ period: 'month', date: toISODate(today), currency });
   const recent = useRecentTransactions(5);
@@ -45,7 +48,8 @@ export default function DashboardScreen() {
 
   const income = Number.parseFloat(summary.data?.total_income ?? '0') || 0;
   const expense = Number.parseFloat(summary.data?.total_expense ?? '0') || 0;
-  const monthLabel = today.toLocaleDateString(dateLocale(), { month: 'long' });
+  // "October", or "25 Sep – 24 Oct" when the month starts on payday.
+  const monthLabel = monthName(monthRange(toISODate(today), monthStartDay));
   const name = user?.display_name || user?.email || '';
 
   const refreshing = accounts.isRefetching || summary.isRefetching || recent.isRefetching || budgets.isRefetching;
@@ -121,9 +125,17 @@ export default function DashboardScreen() {
 
           {/* Side by side normally; stacked when large text would squeeze it. */}
           <View style={[styles.flowRow, isLargeText && styles.flowRowStacked]}>
-            <Flow icon="arrow-down" label={t('{month} income', { month: monthLabel })} value={formatMoney(income, currency)} />
+            <Flow
+              icon="arrow-down"
+              label={monthStartDay === 1 ? t('{month} income', { month: monthLabel }) : t('Income {range}', { range: monthLabel })}
+              value={formatMoney(income, currency)}
+            />
             <View style={isLargeText ? styles.flowDividerStacked : styles.flowDivider} />
-            <Flow icon="arrow-up" label={t('{month} spent', { month: monthLabel })} value={formatMoney(expense, currency)} />
+            <Flow
+              icon="arrow-up"
+              label={monthStartDay === 1 ? t('{month} spent', { month: monthLabel }) : t('Spent {range}', { range: monthLabel })}
+              value={formatMoney(expense, currency)}
+            />
           </View>
         </LinearGradient>
       </View>
@@ -226,12 +238,12 @@ function greeting(date: Date): string {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, marginBottom: Spacing.one },
-  avatar: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 44, height: 44, borderRadius: Radius.full, alignItems: 'center', justifyContent: 'center' },
   avatarText: { color: '#ffffff', fontSize: 18, fontWeight: 700 },
-  headerButton: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', padding: 8 },
+  headerButton: { width: 44, height: 44, borderRadius: Radius.full, alignItems: 'center', justifyContent: 'center', padding: 8 },
   heroShadow: { borderRadius: 28, boxShadow: BrandShadow },
   hero: { borderRadius: 28, padding: Spacing.four, gap: Spacing.half, overflow: 'hidden' },
-  ring: { position: 'absolute', borderRadius: 999, borderWidth: 28, borderColor: 'rgba(255,255,255,0.07)' },
+  ring: { position: 'absolute', borderRadius: Radius.full, borderWidth: 28, borderColor: 'rgba(255,255,255,0.07)' },
   ringLarge: { width: 260, height: 260, top: -120, right: -90 },
   ringSmall: { width: 140, height: 140, bottom: -60, left: -40 },
   heroLabel: { color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 600 },
@@ -250,14 +262,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: Spacing.three,
     padding: Spacing.three,
-    borderRadius: 18,
+    borderRadius: Radius.lg,
     backgroundColor: 'rgba(255,255,255,0.14)',
   },
   flow: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   flowIcon: {
     width: 28,
     height: 28,
-    borderRadius: 14,
+    borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.2)',
@@ -272,7 +284,7 @@ const styles = StyleSheet.create({
     marginHorizontal: Spacing.three,
     backgroundColor: 'rgba(255,255,255,0.2)',
   },
-  alert: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, padding: Spacing.three, borderRadius: 16 },
+  alert: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, padding: Spacing.three, borderRadius: Radius.md },
   budgetCard: { gap: Spacing.three },
   budgetEmpty: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
   badge: { width: 40, height: 40, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },

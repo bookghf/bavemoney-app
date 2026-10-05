@@ -15,6 +15,12 @@ export type User = {
   email: string;
   display_name: string;
   default_currency: string;
+  /**
+   * Day (1-28) the user's month starts on, e.g. 25 when paid on the 25th.
+   * Monthly reports and budgets follow it. Missing on sessions saved by an
+   * older app version: treat as 1.
+   */
+  month_start_day?: number;
   status: string;
   created_at: string;
 };
@@ -37,7 +43,7 @@ export type RegisterRequest = LoginRequest & {
 export type LogoutRequest = { refresh_token: string; all?: boolean };
 
 /** PATCH /me; omitted fields are left unchanged. Email can not be changed. */
-export type UpdateProfileRequest = { display_name?: string; default_currency?: string };
+export type UpdateProfileRequest = { display_name?: string; default_currency?: string; month_start_day?: number };
 
 /** POST /auth/reset-password: a code from POST /auth/forgot-password. */
 export type ResetPasswordRequest = { email: string; code: string; new_password: string };
@@ -61,6 +67,8 @@ export type Account = {
   name: string;
   type: AccountType | (string & {});
   currency: string;
+  /** Palette key (see lib/category-look.ts); absent means the type's default. */
+  color?: string;
   initial_balance: string;
   current_balance: string;
   is_archived: boolean;
@@ -73,10 +81,18 @@ export type CreateAccountRequest = {
   currency: string;
   /** Decimal string; negative only for credit cards (amount owed). */
   initial_balance: string;
+  /** Palette key; omit for the type's default, "" on PATCH clears it. */
+  color?: string;
 };
 
 /** PATCH /accounts/:id; omitted fields are left unchanged. Currency can only change while the account has no transactions. */
 export type UpdateAccountRequest = Partial<CreateAccountRequest> & { is_archived?: boolean };
+
+/**
+ * POST /accounts/:id/reconcile: the balance the account really holds today.
+ * The API moves the opening balance to match, so no transaction is added.
+ */
+export type ReconcileAccountRequest = { balance: string };
 
 export type Currency = { code: string; name: string; symbol: string };
 
@@ -169,13 +185,17 @@ export type CreateTransactionRequest = {
 };
 
 /**
- * PATCH /transactions/:id; omitted fields are left unchanged. The account and
- * transfer target can not change, and a transfer stays a transfer. An empty
- * category_id clears the category.
+ * PATCH /transactions/:id; omitted fields are left unchanged. An empty
+ * category_id clears the category. Changing type to 'transfer' needs
+ * to_account_id and drops the category; a transfer changed to income or
+ * expense drops its to_account_id. Moving to another account takes that
+ * account's currency.
  */
 export type UpdateTransactionRequest = {
+  account_id?: string;
+  to_account_id?: string;
   category_id?: string;
-  type?: 'income' | 'expense';
+  type?: TransactionType;
   amount?: string;
   note?: string;
   tags?: string[];
@@ -191,7 +211,10 @@ export type TransactionListParams = {
   /** YYYY-MM-DD, inclusive, in `tz`. */
   from?: string;
   to?: string;
+  /** Matches the note, category, account, tags, or amount (number prefix). */
   search?: string;
+  /** Comma-separated category IDs that also count as a `search` match. */
+  search_categories?: string;
   tz?: string;
 };
 
@@ -299,3 +322,59 @@ export type UpdateBudgetRequest = {
   period?: BudgetPeriod;
   alert_threshold_pct?: number;
 };
+
+// --- recurring rules -----------------------------------------------------
+
+export type RecurringFrequency = 'monthly' | 'weekly';
+
+/**
+ * A template the API turns into a transaction on each due day (local to
+ * `time_zone`). Created transactions are tagged `recurring:<id>`.
+ */
+export type RecurringRule = {
+  id: string;
+  type: TransactionType;
+  account_id: string;
+  account_name: string;
+  to_account_id?: string;
+  to_account_name?: string;
+  category: TransactionCategory | null;
+  amount: string;
+  currency: string;
+  note?: string;
+  frequency: RecurringFrequency;
+  /** 1-31 for monthly rules; past the month's end means its last day. */
+  day_of_month: number | null;
+  /** 0 (Sunday) - 6 (Saturday) for weekly rules. */
+  weekday: number | null;
+  start_date: string;
+  end_date: string | null;
+  /** Null once the rule has passed its end date. */
+  next_run_on: string | null;
+  last_run_on: string | null;
+  time_zone: string;
+  is_active: boolean;
+  /** Set when the API paused the rule itself, e.g. its account was archived. */
+  pause_reason: 'account_archived' | 'invalid' | (string & {}) | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CreateRecurringRuleRequest = {
+  type: TransactionType;
+  account_id: string;
+  to_account_id?: string;
+  category_id?: string;
+  amount: string;
+  note?: string;
+  frequency: RecurringFrequency;
+  day_of_month?: number;
+  weekday?: number;
+  start_date: string;
+  end_date?: string;
+  time_zone: string;
+  is_active?: boolean;
+};
+
+/** PATCH body; an empty to_account_id, category_id, note, or end_date clears it. */
+export type UpdateRecurringRuleRequest = Partial<CreateRecurringRuleRequest>;

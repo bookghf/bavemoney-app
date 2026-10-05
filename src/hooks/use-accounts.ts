@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api/client';
-import type { Account, CreateAccountRequest, Currency, UpdateAccountRequest } from '@/lib/api/types';
+import type {
+  Account,
+  CreateAccountRequest,
+  Currency,
+  ReconcileAccountRequest,
+  UpdateAccountRequest,
+} from '@/lib/api/types';
 
 // Centralized, typed query keys make cache invalidation predictable.
 export const accountKeys = {
@@ -60,5 +66,20 @@ export function useUpdateAccount() {
         // import cycle with use-transactions (which imports accountKeys).
         queryClient.invalidateQueries({ queryKey: ['transactions'] }),
       ]),
+  });
+}
+
+/**
+ * Match the account to the real balance today. The API back-computes the
+ * opening balance in one database transaction, so reports are unchanged.
+ */
+export function useReconcileAccount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...input }: ReconcileAccountRequest & { id: string }) => {
+      const { data } = await api.post<{ account: Account }>(`/accounts/${id}/reconcile`, input);
+      return data.account;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: accountKeys.all }),
   });
 }

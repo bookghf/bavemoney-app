@@ -13,7 +13,7 @@ import { Screen } from '@/components/ui/screen';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import {
   flattenCategories,
   useCategories,
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   section: { gap: Spacing.two },
   swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three },
-  swatch: { width: 40, height: 40, borderRadius: 20, borderWidth: 3, alignItems: 'center', justifyContent: 'center' },
+  swatch: { width: 40, height: 40, borderRadius: Radius.full, borderWidth: 3, alignItems: 'center', justifyContent: 'center' },
   icons: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
   iconChoice: { width: 48, height: 48, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
 });

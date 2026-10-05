@@ -9,7 +9,7 @@ import { IconBadge, type IoniconName } from '@/components/ui/icon-badge';
 import { Screen } from '@/components/ui/screen';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { SegmentedControl } from '@/components/ui/segmented-control';
-import { BrandGradient, Spacing } from '@/constants/theme';
+import { BrandGradient, Radius, Spacing } from '@/constants/theme';
 import { toast } from '@/components/ui/toast';
 import { useLogout } from '@/hooks/use-auth';
 import { useExportCSV } from '@/hooks/use-export';
@@ -67,7 +67,14 @@ export default function ProfileScreen() {
 
       <Card style={styles.list}>
         <LinkRow icon="person-outline" label={t('Edit profile')} onPress={() => router.push('/edit-profile')} />
+        <LinkRow
+          icon="lock-closed-outline"
+          label={t('Change password')}
+          onPress={() => router.push('/change-password')}
+          separator
+        />
         <LinkRow icon="pie-chart-outline" label={t('Budgets')} onPress={() => router.push('/budgets')} separator />
+        <LinkRow icon="repeat-outline" label={t('Recurring')} onPress={() => router.push('/recurring')} separator />
         <LinkRow icon="pricetags-outline" label={t('Categories')} onPress={() => router.push('/categories')} separator />
       </Card>
 
@@ -205,7 +212,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 80,
     height: 80,
-    borderRadius: 40,
+    borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.two,

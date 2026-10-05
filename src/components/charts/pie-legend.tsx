@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { formatPercent, type BreakdownItem } from '@/components/charts/breakdown';
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { t } from '@/lib/i18n';
 
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     paddingVertical: Spacing.one,
     paddingHorizontal: Spacing.one,
-    borderRadius: 8,
+    borderRadius: Radius.sm,
   },
   swatch: { width: 10, height: 10, borderRadius: 3 },
   name: { flex: 1 },
