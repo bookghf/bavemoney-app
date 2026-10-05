@@ -74,6 +74,7 @@ export default function ProfileScreen() {
           separator
         />
         <LinkRow icon="pie-chart-outline" label={t('Budgets')} onPress={() => router.push('/budgets')} separator />
+        <LinkRow icon="repeat-outline" label={t('Recurring')} onPress={() => router.push('/recurring')} separator />
         <LinkRow icon="pricetags-outline" label={t('Categories')} onPress={() => router.push('/categories')} separator />
       </Card>
 
