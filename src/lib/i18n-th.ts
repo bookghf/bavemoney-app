@@ -81,7 +81,7 @@ export const TH: Record<string, string> = {
   'Recent activity': 'รายการล่าสุด',
   'No transactions yet. Tap + to add one.': 'ยังไม่มีรายการ แตะ + เพื่อเพิ่ม',
   'Set a monthly budget': 'ตั้งงบประมาณรายเดือน',
-  'Get a heads-up before you overspend.': 'รับการแจ้งเตือนก่อนใช้เงินเกินงบ',
+  'Home shows a warning before you overspend.': 'หน้าแรกจะแสดงคำเตือนก่อนใช้เงินเกินงบ',
   'You are over your {name} budget': 'คุณใช้เกินงบ{name}แล้ว',
   '{percent}% of your {name} budget is spent': 'ใช้งบ{name}ไปแล้ว {percent}%',
 
@@ -187,8 +187,8 @@ export const TH: Record<string, string> = {
   'Budget created': 'สร้างงบประมาณแล้ว',
   'Budget deleted': 'ลบงบประมาณแล้ว',
   'No budgets yet': 'ยังไม่มีงบประมาณ',
-  'Set a limit for all spending or for one category, like Food. We warn you as you get close.':
-    'ตั้งวงเงินสำหรับรายจ่ายทั้งหมดหรือรายหมวด เช่น อาหาร แล้วเราจะเตือนเมื่อใกล้ถึง',
+  'Set a limit for all spending or for one category, like Food. Home shows a warning as you get close.':
+    'ตั้งวงเงินสำหรับรายจ่ายทั้งหมดหรือรายหมวด เช่น อาหาร หน้าแรกจะแสดงคำเตือนเมื่อใกล้ถึง',
   'All spending': 'รายจ่ายทั้งหมด',
   Weekly: 'รายสัปดาห์',
   Monthly: 'รายเดือน',
@@ -200,6 +200,7 @@ export const TH: Record<string, string> = {
   'Tracks this category and its subcategories.': 'ติดตามหมวดนี้และหมวดย่อยทั้งหมด',
   'No category picked: tracks all spending.': 'ไม่ได้เลือกหมวด: ติดตามรายจ่ายทั้งหมด',
   'Warn me at': 'เตือนเมื่อใช้ถึง',
+  'At this point the budget turns amber and Home shows a warning.': 'เมื่อใช้ถึงจุดนี้ งบจะเปลี่ยนเป็นสีส้มและหน้าแรกจะแสดงคำเตือน',
   'Alert at {pct}%': 'เตือนที่ {pct}%',
   'Delete the {name} budget': 'ลบงบ{name}',
   'Delete the {name} budget?': 'ลบงบ{name}หรือไม่?',
