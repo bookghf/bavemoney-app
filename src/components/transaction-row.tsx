@@ -7,7 +7,7 @@ import { Spacing } from '@/constants/theme';
 import type { Transaction } from '@/lib/api/types';
 import { useFontScale } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
-import { formatDate, formatMoney } from '@/lib/format';
+import { formatMoney, formatShortDate } from '@/lib/format';
 import { categoryName, t } from '@/lib/i18n';
 import { useCategoryLook } from '@/lib/category-look';
 
@@ -32,7 +32,7 @@ export function TransactionRow({ transaction, hideDate }: TransactionRowProps) {
     : transaction.account_name;
   // Show the note under the category when both exist.
   const detail = !isTransfer && categoryLabel(transaction) ? transaction.note : undefined;
-  const subtitle = [detail, accounts, hideDate ? undefined : formatDate(transaction.occurred_at)]
+  const subtitle = [detail, accounts, hideDate ? undefined : formatShortDate(transaction.occurred_at)]
     .filter(Boolean)
     .join(' · ');
   // Transfers move money between your own accounts, so they are neither gain nor loss.

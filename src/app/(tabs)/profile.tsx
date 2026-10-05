@@ -67,6 +67,12 @@ export default function ProfileScreen() {
 
       <Card style={styles.list}>
         <LinkRow icon="person-outline" label={t('Edit profile')} onPress={() => router.push('/edit-profile')} />
+        <LinkRow
+          icon="lock-closed-outline"
+          label={t('Change password')}
+          onPress={() => router.push('/change-password')}
+          separator
+        />
         <LinkRow icon="pie-chart-outline" label={t('Budgets')} onPress={() => router.push('/budgets')} separator />
         <LinkRow icon="pricetags-outline" label={t('Categories')} onPress={() => router.push('/categories')} separator />
       </Card>
