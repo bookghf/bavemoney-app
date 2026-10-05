@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useFontScale } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
 import type { Category } from '@/lib/api/types';
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     minHeight: 44,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-    borderRadius: 22,
+    borderRadius: Radius.full,
     borderWidth: 1,
   },
   selectedText: { color: '#ffffff' },

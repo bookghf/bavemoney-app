@@ -11,7 +11,7 @@ import { DateField } from '@/components/ui/date-field';
 import { QueryState } from '@/components/ui/query-state';
 import { Screen } from '@/components/ui/screen';
 import { SegmentedControl } from '@/components/ui/segmented-control';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useAccounts } from '@/hooks/use-accounts';
 import { useCategories } from '@/hooks/use-categories';
 import { FontScaleCap } from '@/hooks/use-font-scale';
@@ -140,7 +140,7 @@ export default function TransactionsScreen() {
       onRefresh={transactions.refetch}
       onEndReached={loadMore}>
       <View style={styles.searchRow}>
-        <View style={[styles.search, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+        <View style={[styles.search, { backgroundColor: theme.surface, borderColor: theme.controlBorder }]}>
           <Ionicons name="search" size={18} color={theme.textSecondary} />
           <TextInput
             value={search}
@@ -162,7 +162,7 @@ export default function TransactionsScreen() {
           onPress={() => setShowFilters((open) => !open)}
           style={[
             styles.filterButton,
-            { backgroundColor: activeCount > 0 ? theme.tintFill : theme.surface, borderColor: activeCount > 0 ? theme.tintFill : theme.border },
+            { backgroundColor: activeCount > 0 ? theme.tintFill : theme.surface, borderColor: activeCount > 0 ? theme.tintFill : theme.controlBorder },
           ]}>
           <Ionicons name="options-outline" size={20} color={activeCount > 0 ? '#ffffff' : theme.text} />
           {activeCount > 0 ? <ThemedText style={styles.filterCount}>{activeCount}</ThemedText> : null}
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     minHeight: 46,
     paddingHorizontal: Spacing.three,
-    borderRadius: 14,
+    borderRadius: Radius.md,
     borderWidth: 1,
   },
   searchInput: { flex: 1, fontSize: 16, paddingVertical: 0 },
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     minWidth: 46,
     minHeight: 46,
     paddingHorizontal: Spacing.two,
-    borderRadius: 14,
+    borderRadius: Radius.md,
     borderWidth: 1,
   },
   filterCount: { color: '#ffffff', fontSize: 14, fontWeight: 700 },

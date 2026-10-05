@@ -14,7 +14,7 @@ import { IconBadge } from '@/components/ui/icon-badge';
 import { ErrorText } from '@/components/ui/query-state';
 import { Screen } from '@/components/ui/screen';
 import { toast } from '@/components/ui/toast';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useAccounts } from '@/hooks/use-accounts';
 import { useCategories } from '@/hooks/use-categories';
 import { sampleRecords, useSampleCSV, useTransactionsBetween } from '@/hooks/use-import';
@@ -584,13 +584,13 @@ function Detected({ rows, columns, accounts, fallback }: DetectedProps) {
 const styles = StyleSheet.create({
   intro: { gap: Spacing.two, alignItems: 'flex-start' },
   stretch: { alignSelf: 'stretch' },
-  table: { alignSelf: 'stretch', borderWidth: StyleSheet.hairlineWidth, borderRadius: 12, overflow: 'hidden' },
+  table: { alignSelf: 'stretch', borderWidth: StyleSheet.hairlineWidth, borderRadius: Radius.md, overflow: 'hidden' },
   tableRow: { flexDirection: 'row', paddingVertical: Spacing.two, paddingHorizontal: Spacing.two, gap: Spacing.two },
   tableCell: { flex: 1 },
   amountCell: { textAlign: 'right' },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: Spacing.one },
   chipLabel: { marginRight: Spacing.one },
-  chip: { borderWidth: 1, borderRadius: 999, paddingHorizontal: Spacing.two, paddingVertical: Spacing.half },
+  chip: { borderWidth: 1, borderRadius: Radius.full, paddingHorizontal: Spacing.two, paddingVertical: Spacing.half },
   fileRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   flex: { flex: 1 },
   notice: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },

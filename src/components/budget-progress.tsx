@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { Budget } from '@/lib/api/types';
 import { daysBetween, today } from '@/lib/dates';
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   icon: { width: 34, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
   flex: { flex: 1 },
-  track: { height: 10, borderRadius: 5, overflow: 'visible' },
-  fill: { height: 10, borderRadius: 5 },
+  track: { height: 10, borderRadius: Radius.full, overflow: 'visible' },
+  fill: { height: 10, borderRadius: Radius.full },
   today: { position: 'absolute', top: -3, width: 2, height: 16, borderRadius: 1, opacity: 0.35 },
 });

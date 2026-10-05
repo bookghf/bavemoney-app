@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { QuickPick } from '@/hooks/use-quick-picks';
 import { haptics } from '@/lib/feedback';
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     minHeight: 44,
     justifyContent: 'center',
     paddingHorizontal: Spacing.three,
-    borderRadius: 999,
+    borderRadius: Radius.full,
     borderWidth: 1,
   },
   save: { flexDirection: 'row', alignItems: 'center', gap: 4 },

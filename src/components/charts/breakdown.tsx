@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useChartPalette } from '@/hooks/use-chart-palette';
 import { useFontScale } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
@@ -228,8 +228,8 @@ const styles = StyleSheet.create({
   swatchSmall: { width: 6, height: 6, borderRadius: 2 },
   name: { flex: 1 },
   percent: { minWidth: 40, textAlign: 'right' },
-  track: { height: 8, borderRadius: 4, overflow: 'hidden' },
-  fill: { height: '100%', borderRadius: 4 },
+  track: { height: 8, borderRadius: Radius.full, overflow: 'hidden' },
+  fill: { height: '100%', borderRadius: Radius.full },
   tableHead: { paddingBottom: Spacing.one },
   tableRow: {
     flexDirection: 'row',

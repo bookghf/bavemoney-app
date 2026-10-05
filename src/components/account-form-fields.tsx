@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ChipSelect } from '@/components/ui/chip-select';
 import { TextField } from '@/components/ui/text-field';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useCurrencies } from '@/hooks/use-accounts';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
@@ -158,5 +158,5 @@ export function AccountFormFields(props: Props) {
 const styles = StyleSheet.create({
   section: { gap: Spacing.two },
   swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
-  swatch: { width: 44, height: 44, borderRadius: 14, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  swatch: { width: 44, height: 44, borderRadius: Radius.md, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
 });

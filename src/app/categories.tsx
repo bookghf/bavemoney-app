@@ -10,7 +10,7 @@ import { IconBadge } from '@/components/ui/icon-badge';
 import { QueryState } from '@/components/ui/query-state';
 import { Screen } from '@/components/ui/screen';
 import { SegmentedControl } from '@/components/ui/segmented-control';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useCategories } from '@/hooks/use-categories';
 import { useTheme } from '@/hooks/use-theme';
 import type { Category, CategoryType } from '@/lib/api/types';
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingHorizontal: Spacing.three, minHeight: 56 },
   child: { paddingLeft: Spacing.three + 36 + Spacing.three, minHeight: 48 },
   separator: { position: 'absolute', top: 0, right: 0, left: Spacing.three + 36 + Spacing.three, height: StyleSheet.hairlineWidth },
-  dot: { width: 10, height: 10, borderRadius: 5 },
+  dot: { width: 10, height: 10, borderRadius: Radius.full },
   name: { flex: 1 },
   add: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginRight: -Spacing.two },
   sectionLabel: { marginLeft: Spacing.three, marginTop: Spacing.two },

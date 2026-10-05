@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { IconBadge } from '@/components/ui/icon-badge';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import type { Transaction } from '@/lib/api/types';
 import { useFontScale } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     marginHorizontal: -Spacing.two,
     paddingHorizontal: Spacing.two,
-    borderRadius: 12,
+    borderRadius: Radius.md,
   },
   text: { flex: 1, gap: 1 },
   amount: { fontSize: 15, fontVariant: ['tabular-nums'] },

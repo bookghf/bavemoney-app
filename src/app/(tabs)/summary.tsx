@@ -17,7 +17,7 @@ import { Screen } from '@/components/ui/screen';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { seriesColor } from '@/constants/chart-colors';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useCategories } from '@/hooks/use-categories';
 import { useChartPalette } from '@/hooks/use-chart-palette';
 import { useMonthStartDay } from '@/hooks/use-month-start-day';
@@ -461,12 +461,12 @@ function Stat({ label, value, color }: { label: string; value: string; color?: '
 const styles = StyleSheet.create({
   customRange: { gap: Spacing.two },
   periodRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
-  rangeButton: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  rangeButton: { width: 44, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   empty: { alignItems: 'center', gap: Spacing.two, paddingVertical: Spacing.five },
   emptyActions: { alignSelf: 'stretch', gap: Spacing.two, marginTop: Spacing.two },
   stepper: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   stepperLabel: { flex: 1, textAlign: 'center' },
-  stepButton: { padding: Spacing.two, borderRadius: 999 },
+  stepButton: { padding: Spacing.two, borderRadius: Radius.full },
   center: { textAlign: 'center' },
   filters: { gap: Spacing.two },
   results: { gap: Spacing.three },
