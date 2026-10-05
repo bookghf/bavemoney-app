@@ -20,7 +20,7 @@ export function IconButton({ icon, primary, ...rest }: IconButtonProps) {
       hitSlop={6}
       style={({ pressed }) => [
         styles.button,
-        { backgroundColor: primary ? theme.tint : theme.surface, opacity: pressed ? 0.7 : 1 },
+        { backgroundColor: primary ? theme.tintFill : theme.surface, opacity: pressed ? 0.7 : 1 },
       ]}
       {...rest}>
       <Ionicons name={icon} size={22} color={primary ? '#ffffff' : theme.text} />

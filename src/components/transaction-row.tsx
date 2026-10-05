@@ -9,7 +9,7 @@ import { useFontScale } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
 import { formatDate, formatMoney } from '@/lib/format';
 import { categoryName, t } from '@/lib/i18n';
-import { categoryIcon } from '@/lib/icons';
+import { useCategoryLook } from '@/lib/category-look';
 
 type TransactionRowProps = {
   transaction: Transaction;
@@ -20,6 +20,7 @@ type TransactionRowProps = {
 /** One ledger entry; tapping it opens the edit screen. */
 export function TransactionRow({ transaction, hideDate }: TransactionRowProps) {
   const theme = useTheme();
+  const categoryLook = useCategoryLook();
   const { isLargeText } = useFontScale();
   const isIncome = transaction.type === 'income';
   const isTransfer = transaction.type === 'transfer';
@@ -38,8 +39,9 @@ export function TransactionRow({ transaction, hideDate }: TransactionRowProps) {
   const sign = isTransfer ? '' : isIncome ? '+' : '−';
   // Spending red, income green, transfers blue.
   const color = isTransfer ? 'transfer' : isIncome ? 'success' : 'danger';
-  const icon = categoryIcon(transaction.category?.parent?.name ?? transaction.category?.name, transaction.type);
-  const tone = isTransfer ? 'transfer' : isIncome ? 'success' : 'danger';
+  // The tile shows the category's own color (its parent's for a
+  // subcategory); the amount's color and sign show money in or out.
+  const look = categoryLook(transaction.category?.parent ?? transaction.category, transaction.type);
 
   const amount = (
     <ThemedText type="smallBold" themeColor={color} style={styles.amount}>
@@ -55,7 +57,11 @@ export function TransactionRow({ transaction, hideDate }: TransactionRowProps) {
       accessibilityHint={t('Opens the transaction to edit or delete it')}
       onPress={() => router.push({ pathname: '/transaction/[id]', params: { id: transaction.id } })}
       style={({ pressed }) => [styles.row, pressed && { backgroundColor: theme.backgroundElement }]}>
-      <IconBadge icon={icon} tone={tone} size={42} />
+      {isTransfer ? (
+        <IconBadge icon="swap-horizontal" tone="transfer" size={42} />
+      ) : (
+        <IconBadge icon={look.icon} colors={look} size={42} />
+      )}
       {/* With large text the amount moves under the title instead of
           squeezing it, and lines wrap instead of truncating. */}
       <View style={styles.text}>

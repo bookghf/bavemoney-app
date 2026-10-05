@@ -10,7 +10,10 @@ import { Screen } from '@/components/ui/screen';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { BrandGradient, Spacing } from '@/constants/theme';
+import { toast } from '@/components/ui/toast';
 import { useLogout } from '@/hooks/use-auth';
+import { useExportCSV } from '@/hooks/use-export';
+import { getErrorMessage } from '@/lib/api/client';
 import { useTheme } from '@/hooks/use-theme';
 import { haptics } from '@/lib/feedback';
 import { formatDate } from '@/lib/format';
@@ -22,6 +25,7 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const user = useAuthStore((state) => state.user);
   const logout = useLogout();
+  const exportCSV = useExportCSV();
   const language = usePreferences((state) => state.language);
   const calendar = usePreferences((state) => state.calendar);
   const update = usePreferences((state) => state.update);
@@ -63,6 +67,22 @@ export default function ProfileScreen() {
       <Card style={styles.list}>
         <LinkRow icon="person-outline" label={t('Edit profile')} onPress={() => router.push('/edit-profile')} />
         <LinkRow icon="pie-chart-outline" label={t('Budgets')} onPress={() => router.push('/budgets')} separator />
+        <LinkRow icon="pricetags-outline" label={t('Categories')} onPress={() => router.push('/categories')} separator />
+      </Card>
+
+      <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionLabel}>
+        {t('Your data')}
+      </ThemedText>
+      <Card style={styles.list}>
+        <LinkRow icon="cloud-upload-outline" label={t('Import CSV')} onPress={() => router.push('/import')} />
+        <LinkRow
+          icon="share-outline"
+          label={exportCSV.isPending ? t('Preparing file…') : t('Export CSV')}
+          onPress={() =>
+            exportCSV.mutate(undefined, { onError: (error) => toast.error(getErrorMessage(error)) })
+          }
+          separator
+        />
         <LinkRow icon="receipt-outline" label={t('All transactions')} onPress={() => router.push('/transactions')} separator />
         <LinkRow icon="wallet-outline" label={t('Accounts')} onPress={() => router.navigate('/account')} separator />
       </Card>

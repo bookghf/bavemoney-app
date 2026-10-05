@@ -44,7 +44,16 @@ function psql(sql) {
     ).trim();
   } catch (error) {
     const detail = (error.stderr || error.message || '').toString().trim();
-    console.error(`Could not reach the database in container "${CONTAINER}". Is money-api running (docker compose up -d)?`);
+    // Tell "Docker or the container is not there" apart from a real SQL
+    // error, so a failed reset is not misreported as a connection problem.
+    const unreachable =
+      error.code === 'ENOENT' ||
+      /No such container|Cannot connect to the Docker daemon|is not running|could not connect to server/i.test(detail);
+    console.error(
+      unreachable
+        ? `Could not reach the database in container "${CONTAINER}". Is money-api running (docker compose up -d)?`
+        : 'The database rejected the reset; nothing was changed.',
+    );
     if (detail) console.error(detail);
     process.exit(1);
   }

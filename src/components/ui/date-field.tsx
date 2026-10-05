@@ -46,7 +46,7 @@ export function DateField({ label, value, onChange, maxDate, minDate, shortcuts,
               style={[
                 styles.chip,
                 selected
-                  ? { backgroundColor: theme.tint, borderColor: theme.tint }
+                  ? { backgroundColor: theme.tintFill, borderColor: theme.tintFill }
                   : { backgroundColor: theme.surface, borderColor: theme.border },
               ]}>
               <ThemedText type={selected ? 'smallBold' : 'small'} style={selected ? styles.selectedText : undefined}>

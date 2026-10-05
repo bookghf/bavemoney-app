@@ -134,7 +134,7 @@ export default function TransactionsScreen() {
           onPress={() => setShowFilters((open) => !open)}
           style={[
             styles.filterButton,
-            { backgroundColor: activeCount > 0 ? theme.tint : theme.surface, borderColor: activeCount > 0 ? theme.tint : theme.border },
+            { backgroundColor: activeCount > 0 ? theme.tintFill : theme.surface, borderColor: activeCount > 0 ? theme.tintFill : theme.border },
           ]}>
           <Ionicons name="options-outline" size={20} color={activeCount > 0 ? '#ffffff' : theme.text} />
           {activeCount > 0 ? <ThemedText style={styles.filterCount}>{activeCount}</ThemedText> : null}

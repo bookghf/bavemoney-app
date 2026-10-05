@@ -13,7 +13,8 @@ export function formatMoney(amount: number | string, currency = 'THB'): string {
   const symbol = SYMBOLS[currency];
   if (symbol) {
     const digits = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(value));
-    return `${value < 0 ? '-' : ''}${symbol}${digits}`;
+    // U+2212 minus, the same sign transaction rows use.
+    return `${value < 0 ? '\u2212' : ''}${symbol}${digits}`;
   }
   try {
     return new Intl.NumberFormat(locale, { style: 'currency', currency }).format(value);

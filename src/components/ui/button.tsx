@@ -19,7 +19,7 @@ export function Button({ title, variant = 'primary', loading, disabled, style, .
   const background = disabled
     ? theme.backgroundSelected
     : variant === 'primary'
-      ? theme.tint
+      ? theme.tintFill
       : variant === 'danger'
         ? theme.danger
         : theme.backgroundElement;

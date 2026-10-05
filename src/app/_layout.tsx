@@ -64,6 +64,7 @@ export default function RootLayout() {
               name="transactions"
               options={{ ...pushed, title: t('Transactions') }}
             />
+            <Stack.Screen name="categories" options={{ ...pushed, title: t('Categories') }} />
             <Stack.Screen
               name="budgets"
               options={{ ...pushed, title: t('Budgets') }}
@@ -75,6 +76,8 @@ export default function RootLayout() {
             <Stack.Screen name="add-budget" options={{ ...modal, title: t('New budget') }} />
             <Stack.Screen name="edit-profile" options={{ ...modal, title: t('Edit profile') }} />
             <Stack.Screen name="reset-account" options={{ ...modal, title: t('Reset account') }} />
+            <Stack.Screen name="category-form" options={{ ...modal, title: t('Category') }} />
+            <Stack.Screen name="import" options={{ ...modal, title: t('Import CSV') }} />
           </Stack.Protected>
 
           {/* Signed out: auth screens only. Stack.Protected redirects to the

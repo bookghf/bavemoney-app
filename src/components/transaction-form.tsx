@@ -14,7 +14,7 @@ import { SegmentedControl } from '@/components/ui/segmented-control';
 import { TextField } from '@/components/ui/text-field';
 import { toast } from '@/components/ui/toast';
 import { Spacing } from '@/constants/theme';
-import { useCategories } from '@/hooks/use-categories';
+import { useCategories, useJustCreatedCategory } from '@/hooks/use-categories';
 import { useQuickPicks, type QuickPick } from '@/hooks/use-quick-picks';
 import { FontScaleCap } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
@@ -110,6 +110,17 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
     setSubcategoryId(null);
   };
 
+  // A category created from the picker's "+ New" tile is selected on return.
+  // Adjusting state during render (not in an effect) is React's pattern for
+  // reacting to a changed value; handledId makes it happen once.
+  const justCreated = useJustCreatedCategory((state) => state.category);
+  const [handledId, setHandledId] = useState(() => justCreated?.id ?? null);
+  if (justCreated && justCreated.id !== handledId && justCreated.type === type) {
+    setHandledId(justCreated.id);
+    setCategoryId(justCreated.parent_id ?? justCreated.id);
+    setSubcategoryId(justCreated.parent_id ? justCreated.id : null);
+  }
+
   const pickCategory = (next: string | null) => {
     setCategoryId(next);
     setSubcategoryId(null); // subcategories belong to one parent
@@ -117,16 +128,32 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
 
   const applyPick = (pick: QuickPick) => {
     const resolved = resolveCategory(pick.categoryId, categories.data);
+    const pickAccount = activeAccounts.find((a) => a.id === pick.accountId && !a.is_archived);
     const alreadyApplied =
       parsedAmount === parsePositiveAmount(pick.amount) &&
       note.trim() === pick.note &&
-      (subcategoryId ?? categoryId) === pick.categoryId;
+      (subcategoryId ?? categoryId) === pick.categoryId &&
+      (!pickAccount || account?.id === pickAccount.id);
     setAmount(pick.amount);
+    // Pay from the same account as before (unless it was archived since).
+    if (pickAccount) {
+      setSelectedAccountId(pickAccount.id);
+      setToAccountId(null);
+    }
     setNote(pick.note);
     setCategoryId(resolved.top);
     setSubcategoryId(resolved.sub);
     // Tapping a pick that is already filled in saves it.
     if (alreadyApplied) submit({ amount: pick.amount, note: pick.note, categoryId: pick.categoryId });
+  };
+
+  // Name the account on a chip only when the same item comes from several.
+  const pickLabel = (pick: QuickPick) => {
+    const base = `${pick.note || categoryName(pick.categoryName ?? '') || t('No note')} · ${formatMoney(pick.amount, account?.currency)}`;
+    const twins = (quickPicks.data ?? []).filter(
+      (other) => other.note === pick.note && other.amount === pick.amount && other.categoryId === pick.categoryId,
+    );
+    return twins.length > 1 ? `${base} · ${pick.accountName}` : base;
   };
 
   const submit = (override?: { amount: string; note: string; categoryId: string | null }) => {
@@ -299,7 +326,7 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
             scroll
             options={(quickPicks.data ?? []).map((pick) => ({
               value: pick.key,
-              label: `${pick.note || categoryName(pick.categoryName ?? '') || t('No note')} · ${formatMoney(pick.amount, account?.currency)}`,
+              label: pickLabel(pick),
             }))}
             value={null}
             onChange={(key) => {
@@ -367,7 +394,17 @@ export function TransactionForm({ accounts, existing, initialType = 'expense' }:
           <ThemedText type="smallBold" themeColor="textSecondary">
             {t('Category')}
           </ThemedText>
-          <CategoryGrid categories={topCategories} value={category?.id ?? null} onChange={pickCategory} />
+          <CategoryGrid
+            categories={topCategories}
+            value={category?.id ?? null}
+            onChange={pickCategory}
+            onAdd={() =>
+              router.push({
+                pathname: '/category-form',
+                params: { type, ...(category ? { parent_id: category.id } : {}) },
+              })
+            }
+          />
           {subcategories.length > 0 ? (
             <ChipSelect
               scroll

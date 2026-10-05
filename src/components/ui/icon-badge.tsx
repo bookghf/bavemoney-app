@@ -17,12 +17,24 @@ const TONES: Record<Tone, { fg: ThemeColor; bg: ThemeColor }> = {
 };
 
 /** Rounded square holding an icon on a soft tinted background. */
-export function IconBadge({ icon, tone = 'tint', size = 40 }: { icon: IoniconName; tone?: Tone; size?: number }) {
+export function IconBadge({
+  icon,
+  tone = 'tint',
+  size = 40,
+  colors,
+}: {
+  icon: IoniconName;
+  tone?: Tone;
+  size?: number;
+  /** Explicit colors (e.g. a category's own hue) instead of a theme tone. */
+  colors?: { fg: string; bg: string };
+}) {
   const theme = useTheme();
-  const { fg, bg } = TONES[tone];
+  const fg = colors?.fg ?? theme[TONES[tone].fg];
+  const bg = colors?.bg ?? theme[TONES[tone].bg];
   return (
-    <View style={[styles.badge, { width: size, height: size, borderRadius: size * 0.32, backgroundColor: theme[bg] }]}>
-      <Ionicons name={icon} size={size * 0.5} color={theme[fg]} />
+    <View style={[styles.badge, { width: size, height: size, borderRadius: size * 0.32, backgroundColor: bg }]}>
+      <Ionicons name={icon} size={size * 0.5} color={fg} />
     </View>
   );
 }
