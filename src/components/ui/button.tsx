@@ -1,7 +1,7 @@
 import { ActivityIndicator, Pressable, StyleSheet, type PressableProps } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type ButtonProps = Omit<PressableProps, 'children'> & {
@@ -56,7 +56,7 @@ export function Button({ title, variant = 'primary', loading, disabled, style, .
 const styles = StyleSheet.create({
   button: {
     minHeight: 52,
-    borderRadius: 14,
+    borderRadius: Radius.md,
     paddingHorizontal: Spacing.three,
     alignItems: 'center',
     justifyContent: 'center',

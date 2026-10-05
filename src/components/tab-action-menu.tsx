@@ -11,7 +11,9 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
+import { create } from 'zustand';
 
+import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { FontScaleCap } from '@/hooks/use-font-scale';
 import { haptics } from '@/lib/feedback';
@@ -27,7 +29,7 @@ const BUTTON_CENTER_BELOW_BAR_TOP = 12;
 const NOTCH_RADIUS = BUTTON_SIZE / 2 + 6;
 /** Horizontal run of the smooth shoulder easing the bar edge into the cradle. */
 const NOTCH_SHOULDER = 16;
-const BAR_CORNER_RADIUS = 20;
+const BAR_CORNER_RADIUS = Radius.lg;
 
 const ITEM_SIZE = 50;
 const ITEM_WIDTH = 88;
@@ -90,9 +92,28 @@ const BACKDROP_TIMING = { duration: 100, easing: Easing.linear };
 /** "+" spins through "×" and "+" and settles on "×" (45° + 90°). */
 const OPEN_ROTATION_DEG = 135;
 
-/** Spacer rendered in the tab bar's center slot; the real button floats above it. */
+/**
+ * Whether the add menu is open. A store rather than local state so the /add
+ * route (reached by a deep link or a restored session) can open it.
+ */
+export const useAddMenu = create<{ open: boolean; setOpen: (open: boolean) => void }>((set) => ({
+  open: false,
+  setOpen: (open) => set({ open }),
+}));
+
+/**
+ * Spacer rendered in the tab bar's center slot; the real button floats above
+ * it. Hidden from screen readers, which reach the floating button instead.
+ */
 export function CenterTabSpacer() {
-  return <View style={styles.spacer} pointerEvents="none" />;
+  return (
+    <View
+      style={styles.spacer}
+      pointerEvents="none"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    />
+  );
 }
 
 /**
@@ -226,7 +247,9 @@ export function TabActionMenu({ open, onOpenChange, tabBarHeight }: TabActionMen
             onOpenChange(!open);
           }}
           accessibilityRole="button"
-          accessibilityLabel={open ? t('Close add menu') : t('Open add menu')}
+          // Named like the other tabs; the hint says what a tap does.
+          accessibilityLabel={t('Add')}
+          accessibilityHint={open ? t('Close add menu') : t('Open add menu')}
           accessibilityState={{ expanded: open }}
           style={({ pressed }) => [
             styles.button,
@@ -339,7 +362,8 @@ const styles = StyleSheet.create({
   },
   itemLabel: {
     fontSize: 13,
-    lineHeight: 16,
+    // About 1.4x, so Thai tone marks on the second line clear the first.
+    lineHeight: 18,
     fontWeight: 600,
     textAlign: 'center',
   },

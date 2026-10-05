@@ -1,4 +1,4 @@
-import { forwardRef, useId } from 'react';
+import { forwardRef, useId, useState } from 'react';
 import {
   InputAccessoryView,
   Keyboard,
@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { FontScaleCap } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
 import { t } from '@/lib/i18n';
@@ -27,12 +27,17 @@ type TextFieldProps = TextInputProps & {
 const NEEDS_DONE_BAR = new Set(['decimal-pad', 'number-pad', 'numeric', 'phone-pad']);
 
 export const TextField = forwardRef<TextInput, TextFieldProps>(function TextField(
-  { label, error, hint, style, keyboardType, ...rest },
+  { label, error, hint, style, keyboardType, onFocus, onBlur, ...rest },
   ref,
 ) {
   const theme = useTheme();
+  const [focused, setFocused] = useState(false);
   const accessoryId = `done-${useId()}`;
   const doneBar = Platform.OS === 'ios' && keyboardType && NEEDS_DONE_BAR.has(keyboardType);
+  // Resting edge is controlBorder (3:1 against the canvas). Focus and error
+  // both thicken it, in teal and red, so neither relies on color alone; an
+  // error keeps its red while the field is being corrected.
+  const borderColor = error ? theme.danger : focused ? theme.tint : theme.controlBorder;
 
   return (
     <View style={styles.field}>
@@ -47,9 +52,18 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
         maxFontSizeMultiplier={FontScaleCap.body}
         keyboardType={keyboardType}
         inputAccessoryViewID={doneBar ? accessoryId : undefined}
+        onFocus={(event) => {
+          setFocused(true);
+          onFocus?.(event);
+        }}
+        onBlur={(event) => {
+          setFocused(false);
+          onBlur?.(event);
+        }}
         style={[
           styles.input,
-          { color: theme.text, backgroundColor: theme.surface, borderColor: error ? theme.danger : theme.border },
+          (focused || !!error) && styles.inputEmphasis,
+          { color: theme.text, backgroundColor: theme.surface, borderColor },
           style,
         ]}
         {...rest}
@@ -82,13 +96,19 @@ const styles = StyleSheet.create({
   field: { gap: Spacing.one },
   input: {
     minHeight: 50,
-    borderRadius: 14,
+    borderRadius: Radius.md,
     borderWidth: 1,
     paddingHorizontal: Spacing.three,
     // Explicit padding keeps taller Thai glyphs (and placeholders) centered.
     paddingVertical: 12,
     textAlignVertical: 'center',
     fontSize: 16,
+  },
+  // A 2pt edge with 1pt less padding, so the text does not shift on focus.
+  inputEmphasis: {
+    borderWidth: 2,
+    paddingHorizontal: Spacing.three - 1,
+    paddingVertical: 11,
   },
   doneBar: {
     flexDirection: 'row',

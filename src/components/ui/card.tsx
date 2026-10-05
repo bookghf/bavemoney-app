@@ -1,7 +1,7 @@
 import { StyleSheet, type ViewProps } from 'react-native';
 
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -23,6 +23,6 @@ export function Card({ style, ...rest }: ViewProps) {
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: 20, padding: Spacing.three, gap: Spacing.two },
+  card: { borderRadius: Radius.lg, padding: Spacing.three, gap: Spacing.two },
   shadow: { boxShadow: '0 2px 12px rgba(15, 18, 34, 0.06)' },
 });
