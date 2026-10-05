@@ -191,7 +191,10 @@ export type TransactionListParams = {
   /** YYYY-MM-DD, inclusive, in `tz`. */
   from?: string;
   to?: string;
+  /** Matches the note, category, account, tags, or amount (number prefix). */
   search?: string;
+  /** Comma-separated category IDs that also count as a `search` match. */
+  search_categories?: string;
   tz?: string;
 };
 
