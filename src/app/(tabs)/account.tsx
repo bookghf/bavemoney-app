@@ -14,9 +14,9 @@ import { Spacing } from '@/constants/theme';
 import { useAccounts } from '@/hooks/use-accounts';
 import { useFontScale } from '@/hooks/use-font-scale';
 import { useTheme } from '@/hooks/use-theme';
+import { useAccountLook } from '@/lib/account-look';
 import { formatMoney, humanize } from '@/lib/format';
 import { t, tn } from '@/lib/i18n';
-import { accountIcon } from '@/lib/icons';
 import { isNegative, totalsByCurrency } from '@/lib/money';
 
 export default function AccountScreen() {
@@ -84,7 +84,7 @@ export default function AccountScreen() {
 
       {accounts.data && accounts.data.length > 0 ? (
         <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
-          {t('Tap an account to edit or archive it.')}
+          {t('Tap an account to edit it or set its current balance.')}
         </ThemedText>
       ) : null}
     </Screen>
@@ -99,6 +99,7 @@ function AccountRow({
   separator: boolean;
 }) {
   const theme = useTheme();
+  const look = useAccountLook()(account);
   const { isLargeText } = useFontScale();
   const negative = isNegative(account.current_balance);
   const balance = (
@@ -114,7 +115,7 @@ function AccountRow({
       onPress={() => router.push({ pathname: '/edit-account', params: { id: account.id } })}
       style={({ pressed }) => [styles.row, pressed && { backgroundColor: theme.backgroundElement }]}>
       {separator ? <View style={[styles.separator, { backgroundColor: theme.border }]} /> : null}
-      <IconBadge icon={accountIcon(account.type)} size={44} />
+      <IconBadge icon={look.icon} colors={look} size={44} />
       {/* With large text the balance moves under the name instead of squeezing it. */}
       <View style={styles.text}>
         <ThemedText type="smallBold" numberOfLines={isLargeText ? 2 : 1} style={styles.name}>

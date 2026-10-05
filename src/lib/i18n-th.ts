@@ -516,4 +516,24 @@ export const TH: Record<string, string> = {
   'Fills in the form': 'กรอกข้อมูลให้ในฟอร์ม',
   'See all ({count})': 'ดูทั้งหมด ({count})',
   'Show fewer': 'แสดงน้อยลง',
+
+  // --- accounts ---
+  'Set current balance': 'ตั้งยอดคงเหลือปัจจุบัน',
+  'Balance today': 'ยอดคงเหลือวันนี้',
+  'Enter what your bank or wallet shows now. The opening balance is adjusted to match, so no income or expense is added to your reports.':
+    'กรอกยอดที่ธนาคารหรือวอลเล็ตแสดงตอนนี้ ระบบจะปรับยอดเงินเริ่มต้นให้ตรงกัน โดยไม่เพิ่มรายรับหรือรายจ่ายในรายงาน',
+  'Set balance': 'ตั้งยอด',
+  'Balance set to {amount}': 'ตั้งยอดคงเหลือเป็น {amount} แล้ว',
+  'Only credit cards can be below zero': 'เฉพาะบัตรเครดิตเท่านั้นที่ยอดติดลบได้',
+  'Tap an account to edit it or set its current balance.': 'แตะบัญชีเพื่อแก้ไขหรือตั้งยอดคงเหลือปัจจุบัน',
+  Orange: 'ส้ม',
+  Amber: 'เหลืองอำพัน',
+  Lime: 'เขียวมะนาว',
+  Cyan: 'ฟ้าอมเขียว',
+  Indigo: 'คราม',
+  Violet: 'ม่วง',
+  Fuchsia: 'บานเย็น',
+  Pink: 'ชมพู',
+  Brown: 'น้ำตาล',
+  Slate: 'เทา',
 };

@@ -12,6 +12,7 @@ import { toast } from '@/components/ui/toast';
 import { Spacing } from '@/constants/theme';
 import { useCurrencies } from '@/hooks/use-accounts';
 import { useUpdateProfile } from '@/hooks/use-profile';
+import { orderCurrencies } from '@/lib/currency-order';
 import { haptics } from '@/lib/feedback';
 import { t } from '@/lib/i18n';
 import { displayNameProblem } from '@/lib/validation';
@@ -26,7 +27,8 @@ export default function EditProfileScreen() {
   const [displayName, setDisplayName] = useState(user?.display_name ?? '');
   const [currency, setCurrency] = useState(user?.default_currency ?? 'THB');
 
-  const codes = currencies.data?.map((c) => c.code) ?? [currency];
+  // Ordered by the saved currency, so chips don't move while picking.
+  const codes = orderCurrencies(currencies.data?.map((c) => c.code) ?? [currency], user?.default_currency);
   const profileChanged = displayName.trim() !== (user?.display_name ?? '') || currency !== user?.default_currency;
 
   const nameError = displayNameProblem(displayName);

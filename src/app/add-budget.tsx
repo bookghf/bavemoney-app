@@ -16,6 +16,7 @@ import { useCurrencies } from '@/hooks/use-accounts';
 import { useCreateBudget } from '@/hooks/use-budgets';
 import { useCategories, useJustCreatedCategory } from '@/hooks/use-categories';
 import type { BudgetPeriod } from '@/lib/api/types';
+import { orderCurrencies } from '@/lib/currency-order';
 import { toISODate } from '@/lib/dates';
 import { haptics } from '@/lib/feedback';
 import { t } from '@/lib/i18n';
@@ -120,7 +121,10 @@ export default function AddBudgetScreen() {
       {(currencies.data?.length ?? 0) > 1 ? (
         <ChipSelect
           label={t('Currency')}
-          options={(currencies.data ?? []).map((c) => ({ value: c.code, label: c.code }))}
+          options={orderCurrencies((currencies.data ?? []).map((c) => c.code), defaultCurrency).map((code) => ({
+            value: code,
+            label: code,
+          }))}
           value={currency}
           onChange={setCurrency}
         />
