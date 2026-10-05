@@ -4205,6 +4205,56 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bavemoney@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "bavemoney@workspace:."
+  dependencies:
+    "@expo/ui": ~57.0.19
+    "@expo/vector-icons": ^15.0.2
+    "@react-native/jest-preset": 0.86.3
+    "@tanstack/react-query": ^5.103.1
+    "@types/jest": ^30.0.0
+    "@types/react": ~19.2.2
+    axios: ^1.20.0
+    eslint: ^9.0.0
+    eslint-config-expo: ~57.0.2
+    expo: ~57.0.24
+    expo-constants: ~57.0.19
+    expo-device: ~57.0.2
+    expo-document-picker: ~57.0.3
+    expo-file-system: ~57.0.7
+    expo-font: ~57.0.4
+    expo-glass-effect: ~57.0.3
+    expo-haptics: ~57.0.3
+    expo-image: ~57.0.5
+    expo-linear-gradient: ~57.0.2
+    expo-linking: ~57.0.10
+    expo-router: ~57.0.22
+    expo-secure-store: ~57.0.4
+    expo-sharing: ~57.0.22
+    expo-splash-screen: ~57.0.9
+    expo-status-bar: ~57.0.1
+    expo-symbols: ~57.0.3
+    expo-system-ui: ~57.0.4
+    expo-web-browser: ~57.0.3
+    jest: ^30.5.2
+    jest-expo: ^57.0.5
+    react: 19.2.3
+    react-dom: 19.2.3
+    react-native: 0.86.3
+    react-native-gesture-handler: ~2.32.0
+    react-native-gifted-charts: ^1.4.79
+    react-native-reanimated: 4.5.1
+    react-native-safe-area-context: ~5.7.0
+    react-native-screens: ~4.26.0
+    react-native-svg: 15.15.4
+    react-native-web: ~0.21.0
+    react-native-worklets: 0.10.1
+    typescript: ~6.0.3
+    zustand: ^5.0.15
+  languageName: unknown
+  linkType: soft
+
 "big-integer@npm:1.6.x":
   version: 1.6.52
   resolution: "big-integer@npm:1.6.52"
@@ -8205,56 +8255,6 @@ __metadata:
   checksum: 0e29fb5917806ade293c6a41e2f28b1666829375b219d63b3fce630a4fa7baa3b9c76d9441faff732bad7cc7f44aa76c8090bea1e8dc7a75e1bb92b0a24bf486
   languageName: node
   linkType: hard
-
-"bavemoney@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "bavemoney@workspace:."
-  dependencies:
-    "@expo/ui": ~57.0.19
-    "@expo/vector-icons": ^15.0.2
-    "@react-native/jest-preset": 0.86.3
-    "@tanstack/react-query": ^5.103.1
-    "@types/jest": ^30.0.0
-    "@types/react": ~19.2.2
-    axios: ^1.20.0
-    eslint: ^9.0.0
-    eslint-config-expo: ~57.0.2
-    expo: ~57.0.24
-    expo-constants: ~57.0.19
-    expo-device: ~57.0.2
-    expo-document-picker: ~57.0.3
-    expo-file-system: ~57.0.7
-    expo-font: ~57.0.4
-    expo-glass-effect: ~57.0.3
-    expo-haptics: ~57.0.3
-    expo-image: ~57.0.5
-    expo-linear-gradient: ~57.0.2
-    expo-linking: ~57.0.10
-    expo-router: ~57.0.22
-    expo-secure-store: ~57.0.4
-    expo-sharing: ~57.0.22
-    expo-splash-screen: ~57.0.9
-    expo-status-bar: ~57.0.1
-    expo-symbols: ~57.0.3
-    expo-system-ui: ~57.0.4
-    expo-web-browser: ~57.0.3
-    jest: ^30.5.2
-    jest-expo: ^57.0.5
-    react: 19.2.3
-    react-dom: 19.2.3
-    react-native: 0.86.3
-    react-native-gesture-handler: ~2.32.0
-    react-native-gifted-charts: ^1.4.79
-    react-native-reanimated: 4.5.1
-    react-native-safe-area-context: ~5.7.0
-    react-native-screens: ~4.26.0
-    react-native-svg: 15.15.4
-    react-native-web: ~0.21.0
-    react-native-worklets: 0.10.1
-    typescript: ~6.0.3
-    zustand: ^5.0.15
-  languageName: unknown
-  linkType: soft
 
 "leven@npm:^3.1.0":
   version: 3.1.0
