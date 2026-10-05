@@ -349,16 +349,10 @@ export const TH: Record<string, string> = {
   'Preparing file…': 'กำลังเตรียมไฟล์…',
   'Sharing is not available on this device': 'อุปกรณ์นี้แชร์ไฟล์ไม่ได้',
   'Bring in your spending history': 'นำประวัติการใช้เงินเข้ามา',
-  'Export your Google Sheet or Excel file as CSV. It needs a date and an amount column; item, category, type, and account are used when present. Thai headers and dates like 30/07/2569 work.':
-    'ส่งออก Google Sheet หรือ Excel เป็นไฟล์ CSV ต้องมีคอลัมน์วันที่และจำนวนเงิน ถ้ามีรายการ หมวดหมู่ ประเภท และบัญชีก็จะนำมาใช้ด้วย รองรับหัวคอลัมน์ภาษาไทยและวันที่แบบ 30/07/2569',
   'Choose CSV file': 'เลือกไฟล์ CSV',
   'Choose another file': 'เลือกไฟล์อื่น',
   'This file has no date and amount columns. Use a CSV with a header row.':
     'ไฟล์นี้ไม่มีคอลัมน์วันที่และจำนวนเงิน กรุณาใช้ CSV ที่มีแถวหัวคอลัมน์',
-  'A file with this name was imported before. Importing again will duplicate those transactions.':
-    'เคยนำเข้าไฟล์ชื่อนี้แล้ว ถ้านำเข้าอีกครั้งรายการจะซ้ำ',
-  'Split the file: at most 2000 rows can be imported at a time.': 'นำเข้าได้ครั้งละไม่เกิน 2000 แถว กรุณาแบ่งไฟล์',
-  'Left out': 'ไม่ได้นำเข้า',
   '{count} transfer (add transfers in the app)': 'การโอน {count} รายการ (เพิ่มการโอนในแอป)',
   '{count} transfers (add transfers in the app)': 'การโอน {count} รายการ (เพิ่มการโอนในแอป)',
   'Line {line}: {message}': 'บรรทัด {line}: {message}',
@@ -368,7 +362,6 @@ export const TH: Record<string, string> = {
   'Unknown type "{value}"': 'ไม่รู้จักประเภท "{value}"',
   '…and {count} more': '…และอีก {count} รายการ',
   'Into account': 'นำเข้าบัญชี',
-  'Rows that name one of your accounts go to that account instead.': 'แถวที่ระบุชื่อบัญชีของคุณจะเข้าบัญชีนั้นแทน',
   Matched: 'ตรงกัน',
   'Create {count} new category': 'สร้างหมวดหมู่ใหม่ {count} หมวด',
   'Create {count} new categories': 'สร้างหมวดหมู่ใหม่ {count} หมวด',
@@ -475,4 +468,46 @@ export const TH: Record<string, string> = {
   'Clear search': 'ล้างคำค้นหา',
   'Clear filters': 'ล้างตัวกรอง',
   'Clear search and filters': 'ล้างคำค้นหาและตัวกรอง',
+
+  // --- import ---
+  'Save your Google Sheet or Excel file as CSV, one row per transaction:':
+    'บันทึก Google Sheet หรือ Excel เป็นไฟล์ CSV หนึ่งแถวต่อหนึ่งรายการ:',
+  Item: 'รายการ',
+  'Chicken rice': 'ข้าวมันไก่',
+  Skytrain: 'รถไฟฟ้า',
+  Coffee: 'กาแฟ',
+  Required: 'ต้องมี',
+  Optional: 'ไม่บังคับ',
+  'Thai headers and dates like 30/07/2569 work. A date on the first row of each day is enough.':
+    'รองรับหัวคอลัมน์ภาษาไทยและวันที่แบบ 30/07/2569 ใส่วันที่เฉพาะแถวแรกของแต่ละวันก็พอ',
+  'Up to 2,000 rows go in one import. Larger files are sent in parts of 2,000.':
+    'นำเข้าได้ครั้งละไม่เกิน 2,000 แถว ไฟล์ที่ใหญ่กว่านั้นจะถูกส่งเป็นชุดละ 2,000 แถว',
+  'Download sample file': 'ดาวน์โหลดไฟล์ตัวอย่าง',
+  '{count} of {total} rows': '{count} จาก {total} แถว',
+  'Checking for transactions you already have…': 'กำลังตรวจหารายการที่มีอยู่แล้ว…',
+  'Could not check for duplicates. Review the rows before importing.':
+    'ตรวจหารายการซ้ำไม่ได้ กรุณาตรวจสอบแถวก่อนนำเข้า',
+  '{count} row looks like a transaction you already have (same day, amount, and item or category). It is left out.':
+    '{count} แถวดูเหมือนรายการที่มีอยู่แล้ว (วัน จำนวนเงิน และรายการหรือหมวดหมู่ตรงกัน) จึงไม่ได้เลือกไว้',
+  '{count} rows look like transactions you already have (same day, amount, and item or category). They are left out.':
+    '{count} แถวดูเหมือนรายการที่มีอยู่แล้ว (วัน จำนวนเงิน และรายการหรือหมวดหมู่ตรงกัน) จึงไม่ได้เลือกไว้',
+  'Import likely duplicates too': 'นำเข้ารายการที่อาจซ้ำด้วย',
+  'One import takes up to 2,000 rows, so these go in {parts} parts. Each part is saved whole or not at all; if one fails, the parts before it stay imported.':
+    'นำเข้าได้ครั้งละไม่เกิน 2,000 แถว จึงแบ่งส่งเป็น {parts} ชุด แต่ละชุดจะบันทึกทั้งหมดหรือไม่บันทึกเลย ถ้าชุดใดล้มเหลว ชุดก่อนหน้าจะยังคงนำเข้าแล้ว',
+  'Rows to import': 'แถวที่จะนำเข้า',
+  'Tap a row to leave it out or bring it back.': 'แตะแถวเพื่อเอาออกหรือเลือกกลับมา',
+  'All ({count})': 'ทั้งหมด ({count})',
+  'Likely duplicates ({count})': 'อาจซ้ำ ({count})',
+  'Left out ({count})': 'ไม่นำเข้า ({count})',
+  'Likely duplicate': 'อาจซ้ำกับรายการที่มีอยู่',
+  'No rows here.': 'ไม่มีแถวในส่วนนี้',
+  'Show {count} more': 'แสดงเพิ่มอีก {count} แถว',
+  'Can not be imported': 'นำเข้าไม่ได้',
+  'No type column: every row is imported as spending.': 'ไม่มีคอลัมน์ประเภท ทุกแถวจะนำเข้าเป็นรายจ่าย',
+  'Type column found: {expense} spending, {income} income.': 'พบคอลัมน์ประเภท: รายจ่าย {expense} แถว รายรับ {income} แถว',
+  'No account column: every row goes to the account above.': 'ไม่มีคอลัมน์บัญชี ทุกแถวจะเข้าบัญชีด้านบน',
+  'Account column found. Rows that name one of your accounts go to it; the rest go to {name}.':
+    'พบคอลัมน์บัญชี แถวที่ระบุชื่อบัญชีของคุณจะเข้าบัญชีนั้น ที่เหลือเข้าบัญชี {name}',
+  '{done} of {total} rows were imported before the error. Choose the file again: those rows will show as duplicates.':
+    'นำเข้าแล้ว {done} จาก {total} แถวก่อนเกิดข้อผิดพลาด เลือกไฟล์อีกครั้ง แถวเหล่านั้นจะแสดงว่าอาจซ้ำ',
 };
