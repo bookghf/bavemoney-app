@@ -345,6 +345,23 @@ export const TH: Record<string, string> = {
   'Welcome back to your ledger.': 'ยินดีต้อนรับกลับ',
   'No account yet? Create one': 'ยังไม่มีบัญชี? สมัครเลย',
   'Already have an account? Sign in': 'มีบัญชีแล้ว? เข้าสู่ระบบ',
+
+  // --- forgot password --------------------------------------------------
+  'Forgot password?': 'ลืมรหัสผ่าน?',
+  'Reset password': 'ตั้งรหัสผ่านใหม่',
+  'Enter your email and we will send you a 6-digit code.': 'กรอกอีเมลของคุณ เราจะส่งรหัส 6 หลักไปให้',
+  'Send code': 'ส่งรหัส',
+  'If {email} has an account, we sent a 6-digit code to it. It expires in 15 minutes.':
+    'หาก {email} มีบัญชีอยู่ เราได้ส่งรหัส 6 หลักไปแล้ว รหัสใช้ได้ 15 นาที',
+  'Code': 'รหัส',
+  'Enter the 6-digit code': 'กรอกรหัส 6 หลัก',
+  'Set new password': 'ตั้งรหัสผ่านใหม่',
+  'Send a new code': 'ส่งรหัสใหม่',
+  'Use a different email': 'ใช้อีเมลอื่น',
+  'Back to sign in': 'กลับไปหน้าเข้าสู่ระบบ',
+  'Password reset. You are signed in.': 'ตั้งรหัสผ่านใหม่แล้ว เข้าสู่ระบบเรียบร้อย',
+  'New code sent': 'ส่งรหัสใหม่แล้ว',
+  'code is invalid or expired': 'รหัสไม่ถูกต้องหรือหมดอายุ',
   'Track every baht in seconds.': 'จดทุกบาทได้ในไม่กี่วินาที',
   'Display name': 'ชื่อที่แสดง',
   'e.g. Somchai': 'เช่น สมชาย',

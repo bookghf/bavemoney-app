@@ -86,6 +86,7 @@ export default function RootLayout() {
           <Stack.Protected guard={!isAuthenticated}>
             <Stack.Screen name="login" />
             <Stack.Screen name="register" />
+            <Stack.Screen name="forgot-password" />
           </Stack.Protected>
         </Stack>
         <ToastHost />
