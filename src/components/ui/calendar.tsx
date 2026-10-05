@@ -86,7 +86,7 @@ export function Calendar({ value, onChange, maxDate, minDate, range }: CalendarP
                 style={[
                   styles.cell,
                   inRange && { backgroundColor: theme.backgroundSelected },
-                  selected && { backgroundColor: theme.tint },
+                  selected && { backgroundColor: theme.tintFill },
                 ]}>
                 <ThemedText
                   type="small"

@@ -18,6 +18,7 @@ import { seriesColor } from '@/constants/chart-colors';
 import { Spacing } from '@/constants/theme';
 import { useCategories } from '@/hooks/use-categories';
 import { useChartPalette } from '@/hooks/use-chart-palette';
+import { useCategoryLook } from '@/lib/category-look';
 import { useReportSummary } from '@/hooks/use-reports';
 import { useTheme } from '@/hooks/use-theme';
 import type { CategoryType, ReportPeriod, ReportSummaryParams } from '@/lib/api/types';
@@ -105,16 +106,16 @@ export default function SummaryScreen() {
     value: type === 'expense' ? bucket.expense : bucket.income,
   }));
 
-  // Color follows the category (its position in the category list), never
-  // its rank in this report, so filtering never repaints the survivors.
-  const slotOf = (id: string) => topCategories.findIndex((category) => category.id === id);
+  // Top-level categories keep their own color, the same as on rows and tiles,
+  // never their rank in this report, so filtering never repaints them.
+  const lookOf = useCategoryLook();
   const pickCategory = (id: string) => {
     setCategoryId(id);
     setSubcategoryId(ALL);
   };
 
   const breakdown: BreakdownItem[] = (data?.by_category ?? []).flatMap((entry) => {
-    const color = seriesColor(palette, entry.category.id ? slotOf(entry.category.id) : -1);
+    const color = entry.category.id ? lookOf(entry.category).chart : palette.neutral;
     const children: BreakdownItem[] = entry.subcategories.map((sub) => {
       const childSlot = sub.id ? (selectedCategory?.children ?? []).findIndex((c) => c.id === sub.id) : -1;
       return {
@@ -247,7 +248,12 @@ export default function SummaryScreen() {
               {typeNoun}
               {filterLabel ? ` · ${filterLabel}` : ''} · {rangeLabel(period, range, todayISO)}
             </ThemedText>
-            <ThemedText type="amount" themeColor={type === 'expense' ? 'danger' : 'success'} numberOfLines={1} adjustsFontSizeToFit>
+            <ThemedText
+              type="amount"
+              // Zero is not an alarm: only real money gets the red/green.
+              themeColor={total === 0 ? undefined : type === 'expense' ? 'danger' : 'success'}
+              numberOfLines={1}
+              adjustsFontSizeToFit>
               {money(total)}
             </ThemedText>
             <View style={styles.stats}>
@@ -257,7 +263,7 @@ export default function SummaryScreen() {
                 <Stat
                   label={t('Net')}
                   value={money(Number.parseFloat(data.net) || 0)}
-                  color={(Number.parseFloat(data.net) || 0) < 0 ? 'danger' : 'success'}
+                  color={netColor(Number.parseFloat(data.net) || 0)}
                 />
               ) : null}
             </View>
@@ -420,3 +426,10 @@ const styles = StyleSheet.create({
   pieCenter: { alignItems: 'center', maxWidth: PIE_RADIUS * 1.1 },
   pieValue: { fontSize: 16, lineHeight: 22 },
 });
+
+/** Net is red below zero, green above, neutral at exactly zero. */
+function netColor(net: number): 'danger' | 'success' | undefined {
+  if (net < 0) return 'danger';
+  if (net > 0) return 'success';
+  return undefined;
+}

@@ -46,7 +46,7 @@ export function ChipSelect<T extends string>({
         style={({ pressed }) => [
           styles.chip,
           selected
-            ? { backgroundColor: theme.tint, borderColor: theme.tint }
+            ? { backgroundColor: theme.tintFill, borderColor: theme.tintFill }
             : { backgroundColor: theme.surface, borderColor: theme.border },
           pressed && styles.pressed,
         ]}>

@@ -8,7 +8,7 @@ import type { Budget } from '@/lib/api/types';
 import { daysBetween, today } from '@/lib/dates';
 import { formatMoney } from '@/lib/format';
 import { categoryName, t } from '@/lib/i18n';
-import { categoryIcon } from '@/lib/icons';
+import { useCategoryLook } from '@/lib/category-look';
 
 export type BudgetStatus = 'ok' | 'warning' | 'over';
 
@@ -29,8 +29,11 @@ export function budgetTitle(budget: Budget) {
  */
 export function BudgetProgress({ budget, compact }: { budget: Budget; compact?: boolean }) {
   const theme = useTheme();
+  const look = useCategoryLook()(budget.category, 'expense');
   const status = budgetStatus(budget);
-  const color = status === 'over' ? theme.danger : status === 'warning' ? theme.warning : theme.tint;
+  // The bar is the category's color until the budget needs attention.
+  const color =
+    status === 'over' ? theme.danger : status === 'warning' ? theme.warning : budget.category ? look.chart : theme.tint;
   const fill = Math.min(100, Math.max(0, budget.percent_used));
   const periodDays = daysBetween(budget.period_start, budget.period_end) + 1;
   const elapsed = Math.min(periodDays, Math.max(0, daysBetween(budget.period_start, today()) + 1));
@@ -50,8 +53,8 @@ export function BudgetProgress({ budget, compact }: { budget: Budget; compact?: 
       })}>
       <View style={styles.header}>
         {!compact ? (
-          <View style={[styles.icon, { backgroundColor: theme.tintSoft }]}>
-            <Ionicons name={budget.category ? categoryIcon(budget.category.name, 'expense') : 'wallet'} size={18} color={theme.tint} />
+          <View style={[styles.icon, { backgroundColor: budget.category ? look.bg : theme.tintSoft }]}>
+            <Ionicons name={budget.category ? look.icon : 'wallet'} size={18} color={budget.category ? look.fg : theme.tint} />
           </View>
         ) : null}
         <View style={styles.flex}>

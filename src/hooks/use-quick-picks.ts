@@ -11,6 +11,9 @@ export type QuickPick = {
   note: string;
   categoryId: string | null;
   categoryName: string | null;
+  /** The account it is paid from: an MRT ride on the bank card stays on the card. */
+  accountId: string;
+  accountName: string;
   count: number;
 };
 
@@ -19,8 +22,8 @@ const MAX_PICKS = 8;
 
 /**
  * Entries the user logs again and again ("MRT ฿17", "Coffee ฿60"), taken from
- * the latest transactions: same type, amount, note, and category at least
- * twice. Most frequent first, ties broken by recency.
+ * the latest transactions: same type, amount, note, category, and account at
+ * least twice. Most frequent first, ties broken by recency.
  */
 export function useQuickPicks(type: 'income' | 'expense' | 'transfer') {
   return useQuery({
@@ -31,7 +34,7 @@ export function useQuickPicks(type: 'income' | 'expense' | 'transfer') {
       for (const tx of data.transactions ?? []) {
         if (tx.type !== 'income' && tx.type !== 'expense') continue;
         const note = (tx.note ?? '').trim();
-        const key = [tx.type, tx.amount, note.toLowerCase(), tx.category?.id ?? ''].join('|');
+        const key = [tx.type, tx.amount, note.toLowerCase(), tx.category?.id ?? '', tx.account_id].join('|');
         const existing = groups.get(key);
         if (existing) existing.count += 1;
         else {
@@ -42,6 +45,8 @@ export function useQuickPicks(type: 'income' | 'expense' | 'transfer') {
             note,
             categoryId: tx.category?.id ?? null,
             categoryName: tx.category?.name ?? null,
+            accountId: tx.account_id,
+            accountName: tx.account_name,
             count: 1,
           });
         }

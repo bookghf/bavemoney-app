@@ -37,7 +37,7 @@ type MenuItem = {
   label: string;
   icon: IoniconName;
   /** Theme color of the item's circle: spending red, income green, transfer blue. */
-  color: 'danger' | 'success' | 'transfer' | 'tint';
+  color: 'danger' | 'success' | 'transfer' | 'tintFill';
   href: Href;
   /** Resting offset of the item's circle from the button center (pt). */
   offset: { x: number; y: number };
@@ -72,7 +72,7 @@ const MENU_ITEMS: readonly MenuItem[] = [
   },
   {
     key: 'account',
-    color: 'tint',
+    color: 'tintFill',
     label: 'New\naccount',
     icon: 'wallet-outline',
     href: '/add-account',
@@ -231,8 +231,8 @@ export function TabActionMenu({ open, onOpenChange, tabBarHeight }: TabActionMen
           style={({ pressed }) => [
             styles.button,
             {
-              backgroundColor: theme.tint,
-              boxShadow: `0 4px 14px ${theme.tint}59`,
+              backgroundColor: theme.tintFill,
+              boxShadow: `0 4px 14px ${theme.tintFill}59`,
               transform: [{ scale: pressed ? 0.94 : 1 }],
             },
           ]}>

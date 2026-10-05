@@ -101,8 +101,21 @@ export type TransactionType = 'income' | 'expense' | 'transfer';
 export type TransactionCategory = {
   id: string;
   name: string;
+  /** Palette key and icon name; for a subcategory, its parent carries the look. */
+  icon?: string;
+  color?: string;
   parent?: TransactionCategory;
 };
+
+export type CreateCategoryRequest = {
+  name: string;
+  type: CategoryType;
+  parent_id?: string;
+  icon?: string;
+  color?: string;
+};
+
+export type UpdateCategoryRequest = { name?: string; icon?: string; color?: string };
 
 export type Transaction = {
   id: string;
@@ -253,7 +266,7 @@ export type BudgetPeriod = 'weekly' | 'monthly' | 'yearly';
 export type Budget = {
   id: string;
   /** Null for an overall budget across every expense category. */
-  category: { id: string; name: string } | null;
+  category: { id: string; name: string; icon?: string; color?: string } | null;
   amount: string;
   currency: string;
   period: BudgetPeriod;

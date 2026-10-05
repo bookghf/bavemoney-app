@@ -17,9 +17,12 @@ export const Colors = {
     backgroundSelected: '#E2E5EC',
     border: '#E6E8EE',
     textSecondary: '#6B7080',
-    // Brand green: dark enough for white text on filled buttons (WCAG AA).
-    tint: '#15803D',
-    tintSoft: '#E3F6EA',
+    // Brand teal, kept apart from income green so green always means money in.
+    // tint is for text and icons; tintFill is a solid background under white
+    // text. Both clear WCAG AA (4.5:1) where they are used.
+    tint: '#0F766E',
+    tintFill: '#0F766E',
+    tintSoft: '#E0F2F1',
     // Money colors: income/saving green, spending red, transfers blue.
     success: '#15803D',
     successSoft: '#E3F6EA',
@@ -38,9 +41,11 @@ export const Colors = {
     backgroundSelected: '#2D313A',
     border: '#262A33',
     textSecondary: '#9BA1AE',
-    // Readable as text on the dark canvas and under white button labels.
-    tint: '#178A47',
-    tintSoft: '#12301F',
+    // In dark mode text needs a lighter teal (11:1 on the canvas) while
+    // filled buttons keep a deep one so white labels stay readable (5.5:1).
+    tint: '#2DD4BF',
+    tintFill: '#0F766E',
+    tintSoft: '#123A37',
     success: '#3DD68C',
     successSoft: '#12301F',
     danger: '#FF6369',
@@ -53,10 +58,12 @@ export const Colors = {
 } as const;
 
 /** Brand gradient for hero surfaces (balance card, avatar). */
-export const BrandGradient = ['#22A55E', '#0E6E44'] as const;
+// Starts dark enough that the small white labels on the hero card stay
+// above 4.5:1 contrast.
+export const BrandGradient = ['#0F766E', '#134E4A'] as const;
 
 /** Soft glow under hero surfaces, matching BrandGradient. */
-export const BrandShadow = '0 12px 28px rgba(14, 110, 68, 0.30)';
+export const BrandShadow = '0 12px 28px rgba(15, 118, 110, 0.30)';
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 

@@ -14,7 +14,7 @@ import { toast } from '@/components/ui/toast';
 import { Spacing } from '@/constants/theme';
 import { useCurrencies } from '@/hooks/use-accounts';
 import { useCreateBudget } from '@/hooks/use-budgets';
-import { useCategories } from '@/hooks/use-categories';
+import { useCategories, useJustCreatedCategory } from '@/hooks/use-categories';
 import type { BudgetPeriod } from '@/lib/api/types';
 import { toISODate } from '@/lib/dates';
 import { haptics } from '@/lib/feedback';
@@ -45,6 +45,14 @@ export default function AddBudgetScreen() {
   const [currency, setCurrency] = useState(defaultCurrency);
   const [threshold, setThreshold] = useState<(typeof THRESHOLDS)[number]>('80');
   const [showErrors, setShowErrors] = useState(false);
+
+  // Select a top-level category created from the "+ New" tile (once).
+  const justCreated = useJustCreatedCategory((state) => state.category);
+  const [handledId, setHandledId] = useState(() => justCreated?.id ?? null);
+  if (justCreated && justCreated.id !== handledId && justCreated.type === 'expense' && !justCreated.parent_id) {
+    setHandledId(justCreated.id);
+    setCategoryId(justCreated.id);
+  }
 
   const parsed = parsePositiveAmount(amount);
   const amountError = parsed ? null : t('Enter the most you want to spend, e.g. 8,000');
@@ -125,7 +133,12 @@ export default function AddBudgetScreen() {
         <ThemedText type="small" themeColor="textSecondary">
           {categoryId ? t('Tracks this category and its subcategories.') : t('No category picked: tracks all spending.')}
         </ThemedText>
-        <CategoryGrid categories={expenseCategories} value={categoryId} onChange={setCategoryId} />
+        <CategoryGrid
+          categories={expenseCategories}
+          value={categoryId}
+          onChange={setCategoryId}
+          onAdd={() => router.push({ pathname: '/category-form', params: { type: 'expense' } })}
+        />
       </View>
 
       <ChipSelect

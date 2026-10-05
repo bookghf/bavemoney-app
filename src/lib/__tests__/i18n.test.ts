@@ -73,7 +73,7 @@ describe('formatMoney', () => {
   it('uses the baht symbol and keeps the sign in front', () => {
     usePreferences.setState({ language: 'en' });
     expect(formatMoney('109809.75', 'THB')).toBe('฿109,809.75');
-    expect(formatMoney('-12190.25', 'THB')).toBe('-฿12,190.25');
+    expect(formatMoney('-12190.25', 'THB')).toBe('\u2212฿12,190.25');
     expect(formatMoney(0, 'USD')).toBe('$0.00');
   });
 
