@@ -299,3 +299,59 @@ export type UpdateBudgetRequest = {
   period?: BudgetPeriod;
   alert_threshold_pct?: number;
 };
+
+// --- recurring rules -----------------------------------------------------
+
+export type RecurringFrequency = 'monthly' | 'weekly';
+
+/**
+ * A template the API turns into a transaction on each due day (local to
+ * `time_zone`). Created transactions are tagged `recurring:<id>`.
+ */
+export type RecurringRule = {
+  id: string;
+  type: TransactionType;
+  account_id: string;
+  account_name: string;
+  to_account_id?: string;
+  to_account_name?: string;
+  category: TransactionCategory | null;
+  amount: string;
+  currency: string;
+  note?: string;
+  frequency: RecurringFrequency;
+  /** 1-31 for monthly rules; past the month's end means its last day. */
+  day_of_month: number | null;
+  /** 0 (Sunday) - 6 (Saturday) for weekly rules. */
+  weekday: number | null;
+  start_date: string;
+  end_date: string | null;
+  /** Null once the rule has passed its end date. */
+  next_run_on: string | null;
+  last_run_on: string | null;
+  time_zone: string;
+  is_active: boolean;
+  /** Set when the API paused the rule itself, e.g. its account was archived. */
+  pause_reason: 'account_archived' | 'invalid' | (string & {}) | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CreateRecurringRuleRequest = {
+  type: TransactionType;
+  account_id: string;
+  to_account_id?: string;
+  category_id?: string;
+  amount: string;
+  note?: string;
+  frequency: RecurringFrequency;
+  day_of_month?: number;
+  weekday?: number;
+  start_date: string;
+  end_date?: string;
+  time_zone: string;
+  is_active?: boolean;
+};
+
+/** PATCH body; an empty to_account_id, category_id, note, or end_date clears it. */
+export type UpdateRecurringRuleRequest = Partial<CreateRecurringRuleRequest>;

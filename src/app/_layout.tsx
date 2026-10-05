@@ -69,11 +69,13 @@ export default function RootLayout() {
               name="budgets"
               options={{ ...pushed, title: t('Budgets') }}
             />
+            <Stack.Screen name="recurring" options={{ ...pushed, title: t('Recurring') }} />
             <Stack.Screen name="add-transaction" options={{ ...modal, title: t('Add transaction') }} />
             <Stack.Screen name="transaction/[id]" options={{ ...modal, title: t('Edit transaction') }} />
             <Stack.Screen name="add-account" options={{ ...modal, title: t('New account') }} />
             <Stack.Screen name="edit-account" options={{ ...modal, title: t('Edit account') }} />
             <Stack.Screen name="add-budget" options={{ ...modal, title: t('New budget') }} />
+            <Stack.Screen name="recurring-form" options={{ ...modal, title: t('Recurring item') }} />
             <Stack.Screen name="edit-profile" options={{ ...modal, title: t('Edit profile') }} />
             <Stack.Screen name="reset-account" options={{ ...modal, title: t('Reset account') }} />
             <Stack.Screen name="delete-account" options={{ ...modal, title: t('Delete account') }} />
