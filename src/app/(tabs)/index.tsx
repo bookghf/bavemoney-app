@@ -14,13 +14,15 @@ import { BrandGradient, BrandShadow, Spacing } from '@/constants/theme';
 import { useAccounts } from '@/hooks/use-accounts';
 import { useBudgets } from '@/hooks/use-budgets';
 import { FontScaleCap, useFontScale } from '@/hooks/use-font-scale';
+import { useMonthStartDay } from '@/hooks/use-month-start-day';
 import { toISODate, useReportSummary } from '@/hooks/use-reports';
 import { useTheme } from '@/hooks/use-theme';
 import { useRecentTransactions } from '@/hooks/use-transactions';
 import { getErrorMessage } from '@/lib/api/client';
 import { formatMoney } from '@/lib/format';
-import { dateLocale, t, tn } from '@/lib/i18n';
+import { t, tn } from '@/lib/i18n';
 import { totalsByCurrency } from '@/lib/money';
+import { monthName, monthRange } from '@/lib/report-period';
 import { useAuthStore } from '@/store/auth-store';
 
 export default function DashboardScreen() {
@@ -30,6 +32,7 @@ export default function DashboardScreen() {
   const currency = user?.default_currency || 'THB';
   const today = new Date();
 
+  const monthStartDay = useMonthStartDay();
   const accounts = useAccounts();
   const summary = useReportSummary({ period: 'month', date: toISODate(today), currency });
   const recent = useRecentTransactions(5);
@@ -45,7 +48,8 @@ export default function DashboardScreen() {
 
   const income = Number.parseFloat(summary.data?.total_income ?? '0') || 0;
   const expense = Number.parseFloat(summary.data?.total_expense ?? '0') || 0;
-  const monthLabel = today.toLocaleDateString(dateLocale(), { month: 'long' });
+  // "October", or "25 Sep – 24 Oct" when the month starts on payday.
+  const monthLabel = monthName(monthRange(toISODate(today), monthStartDay));
   const name = user?.display_name || user?.email || '';
 
   const refreshing = accounts.isRefetching || summary.isRefetching || recent.isRefetching || budgets.isRefetching;
@@ -121,9 +125,17 @@ export default function DashboardScreen() {
 
           {/* Side by side normally; stacked when large text would squeeze it. */}
           <View style={[styles.flowRow, isLargeText && styles.flowRowStacked]}>
-            <Flow icon="arrow-down" label={t('{month} income', { month: monthLabel })} value={formatMoney(income, currency)} />
+            <Flow
+              icon="arrow-down"
+              label={monthStartDay === 1 ? t('{month} income', { month: monthLabel }) : t('Income {range}', { range: monthLabel })}
+              value={formatMoney(income, currency)}
+            />
             <View style={isLargeText ? styles.flowDividerStacked : styles.flowDivider} />
-            <Flow icon="arrow-up" label={t('{month} spent', { month: monthLabel })} value={formatMoney(expense, currency)} />
+            <Flow
+              icon="arrow-up"
+              label={monthStartDay === 1 ? t('{month} spent', { month: monthLabel }) : t('Spent {range}', { range: monthLabel })}
+              value={formatMoney(expense, currency)}
+            />
           </View>
         </LinearGradient>
       </View>

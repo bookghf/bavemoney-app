@@ -15,26 +15,32 @@ import { Spacing } from '@/constants/theme';
 import { useCurrencies } from '@/hooks/use-accounts';
 import { useCreateBudget } from '@/hooks/use-budgets';
 import { useCategories, useJustCreatedCategory } from '@/hooks/use-categories';
+import { useMonthStartDay } from '@/hooks/use-month-start-day';
 import type { BudgetPeriod } from '@/lib/api/types';
 import { orderCurrencies } from '@/lib/currency-order';
-import { toISODate } from '@/lib/dates';
+import { toISODate, today } from '@/lib/dates';
 import { haptics } from '@/lib/feedback';
 import { t } from '@/lib/i18n';
 import { parsePositiveAmount } from '@/lib/money';
+import { monthRange, rangeLabel } from '@/lib/report-period';
 import { useAuthStore } from '@/store/auth-store';
 
 const THRESHOLDS = ['50', '80', '90', '100'] as const;
 
-/** First day of the period that contains today, so the budget starts now. */
-function periodStart(period: BudgetPeriod): string {
+/**
+ * First day of the period that contains today, so the budget starts now.
+ * Months start on the user's month_start_day, as the API counts them.
+ */
+function periodStart(period: BudgetPeriod, monthStartDay: number): string {
   const now = new Date();
   if (period === 'weekly') return toISODate(new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()));
   if (period === 'yearly') return `${now.getFullYear()}-01-01`;
-  return toISODate(new Date(now.getFullYear(), now.getMonth(), 1));
+  return monthRange(toISODate(now), monthStartDay).from;
 }
 
 export default function AddBudgetScreen() {
   const defaultCurrency = useAuthStore((state) => state.user?.default_currency) || 'THB';
+  const monthStartDay = useMonthStartDay();
   const categories = useCategories();
   const currencies = useCurrencies();
   const createBudget = useCreateBudget();
@@ -73,7 +79,7 @@ export default function AddBudgetScreen() {
         amount: parsed,
         currency,
         period,
-        start_date: periodStart(period),
+        start_date: periodStart(period, monthStartDay),
         alert_threshold_pct: Number(threshold),
       },
       {
@@ -107,6 +113,14 @@ export default function AddBudgetScreen() {
         value={period}
         onChange={setPeriod}
       />
+      {period === 'monthly' && monthStartDay !== 1 ? (
+        <ThemedText type="small" themeColor="textSecondary">
+          {t('Follows your month, which starts on day {day}: {range}', {
+            day: monthStartDay,
+            range: rangeLabel('month', monthRange(today(), monthStartDay), today()),
+          })}
+        </ThemedText>
+      ) : null}
 
       <TextField
         label={t('Limit')}

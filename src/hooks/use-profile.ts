@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
+import { budgetKeys } from '@/hooks/use-budgets';
 import { reportKeys } from '@/hooks/use-reports';
 import { api, normalizeAuthResponse } from '@/lib/api/client';
 import type {
@@ -21,8 +22,12 @@ export function useUpdateProfile() {
     },
     onSuccess: async (user) => {
       await useAuthStore.getState().setUser(user);
-      // Reports default to the main currency, so refetch them.
-      await queryClient.invalidateQueries({ queryKey: reportKeys.all });
+      // Reports default to the main currency, and month_start_day moves
+      // monthly report and budget periods, so refetch both.
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: reportKeys.all }),
+        queryClient.invalidateQueries({ queryKey: budgetKeys.all }),
+      ]);
     },
   });
 }

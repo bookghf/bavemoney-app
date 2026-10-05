@@ -15,6 +15,12 @@ export type User = {
   email: string;
   display_name: string;
   default_currency: string;
+  /**
+   * Day (1-28) the user's month starts on, e.g. 25 when paid on the 25th.
+   * Monthly reports and budgets follow it. Missing on sessions saved by an
+   * older app version: treat as 1.
+   */
+  month_start_day?: number;
   status: string;
   created_at: string;
 };
@@ -37,7 +43,7 @@ export type RegisterRequest = LoginRequest & {
 export type LogoutRequest = { refresh_token: string; all?: boolean };
 
 /** PATCH /me; omitted fields are left unchanged. Email can not be changed. */
-export type UpdateProfileRequest = { display_name?: string; default_currency?: string };
+export type UpdateProfileRequest = { display_name?: string; default_currency?: string; month_start_day?: number };
 
 /** POST /auth/reset-password: a code from POST /auth/forgot-password. */
 export type ResetPasswordRequest = { email: string; code: string; new_password: string };
