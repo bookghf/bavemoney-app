@@ -346,6 +346,13 @@ export const TH: Record<string, string> = {
   'No account yet? Create one': 'ยังไม่มีบัญชี? สมัครเลย',
   'Already have an account? Sign in': 'มีบัญชีแล้ว? เข้าสู่ระบบ',
 
+  // --- legal ------------------------------------------------------------
+  'About': 'เกี่ยวกับ',
+  'Privacy policy': 'นโยบายความเป็นส่วนตัว',
+  'Terms of use': 'ข้อกำหนดการใช้งาน',
+  'By creating an account you agree to the': 'การสร้างบัญชีถือว่าคุณยอมรับ',
+  'and': 'และ',
+
   // --- forgot password --------------------------------------------------
   'Forgot password?': 'ลืมรหัสผ่าน?',
   'Reset password': 'ตั้งรหัสผ่านใหม่',

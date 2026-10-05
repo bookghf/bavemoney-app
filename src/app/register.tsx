@@ -11,6 +11,7 @@ import { TextField } from '@/components/ui/text-field';
 import { useRegister } from '@/hooks/use-auth';
 import { haptics } from '@/lib/feedback';
 import { t } from '@/lib/i18n';
+import { openLegalPage, PRIVACY_URL, TERMS_URL } from '@/lib/legal';
 import { displayNameProblem, passwordProblem } from '@/lib/validation';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -51,6 +52,16 @@ export default function RegisterScreen() {
       footer={
         <>
           <ErrorText error={register.error} />
+          <ThemedText type="small" themeColor="textSecondary" style={styles.consent}>
+            {t('By creating an account you agree to the')}{' '}
+            <ThemedText type="small" themeColor="tint" onPress={() => openLegalPage(TERMS_URL)} accessibilityRole="link">
+              {t('Terms of use')}
+            </ThemedText>{' '}
+            {t('and')}{' '}
+            <ThemedText type="small" themeColor="tint" onPress={() => openLegalPage(PRIVACY_URL)} accessibilityRole="link">
+              {t('Privacy policy')}
+            </ThemedText>
+          </ThemedText>
           <Button title={t('Create account')} onPress={submit} loading={register.isPending} />
           <Link href="/login" replace style={styles.link}>
             <ThemedText type="linkPrimary">{t('Already have an account? Sign in')}</ThemedText>
@@ -102,4 +113,5 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   link: { alignSelf: 'center', paddingVertical: 8 },
+  consent: { textAlign: 'center' },
 });

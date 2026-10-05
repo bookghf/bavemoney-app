@@ -17,6 +17,7 @@ import { getErrorMessage } from '@/lib/api/client';
 import { useTheme } from '@/hooks/use-theme';
 import { haptics } from '@/lib/feedback';
 import { formatDate } from '@/lib/format';
+import { openLegalPage, PRIVACY_URL, TERMS_URL } from '@/lib/legal';
 import { t } from '@/lib/i18n';
 import { useAuthStore } from '@/store/auth-store';
 import { usePreferences, type CalendarSystem, type Language } from '@/store/preferences-store';
@@ -114,6 +115,14 @@ export default function ProfileScreen() {
             onChange={(next) => update({ calendar: next })}
           />
         </View>
+      </Card>
+
+      <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionLabel}>
+        {t('About')}
+      </ThemedText>
+      <Card style={styles.list}>
+        <LinkRow icon="shield-checkmark-outline" label={t('Privacy policy')} onPress={() => openLegalPage(PRIVACY_URL)} />
+        <LinkRow icon="document-text-outline" label={t('Terms of use')} onPress={() => openLegalPage(TERMS_URL)} separator />
       </Card>
 
       <Card style={styles.list}>
