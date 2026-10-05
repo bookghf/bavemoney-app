@@ -8,6 +8,7 @@ import { Screen } from '@/components/ui/screen';
 import { toast } from '@/components/ui/toast';
 import { useCreateAccount } from '@/hooks/use-accounts';
 import type { AccountType } from '@/lib/api/types';
+import type { CategoryColorKey } from '@/lib/category-look';
 import { haptics } from '@/lib/feedback';
 import { t } from '@/lib/i18n';
 import { useAuthStore } from '@/store/auth-store';
@@ -17,6 +18,8 @@ export default function AddAccountScreen() {
   const [name, setName] = useState('');
   const [type, setType] = useState<AccountType>('bank');
   const [currency, setCurrency] = useState(defaultCurrency);
+  // Null until picked, so the color follows the type's default.
+  const [color, setColor] = useState<CategoryColorKey | null>(null);
   const [balance, setBalance] = useState('');
   const [showErrors, setShowErrors] = useState(false);
   const submitting = useRef(false);
@@ -32,7 +35,7 @@ export default function AddAccountScreen() {
     if (submitting.current) return;
     submitting.current = true;
     createAccount.mutate(
-      { name: name.trim(), type, currency, initial_balance: parsed },
+      { name: name.trim(), type, currency, initial_balance: parsed, color: color ?? undefined },
       {
         onSuccess: () => {
           haptics.success();
@@ -60,6 +63,8 @@ export default function AddAccountScreen() {
         onName={setName}
         type={type}
         onType={setType}
+        color={color}
+        onColor={setColor}
         currency={currency}
         onCurrency={setCurrency}
         balance={balance}

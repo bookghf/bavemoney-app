@@ -61,6 +61,8 @@ export type Account = {
   name: string;
   type: AccountType | (string & {});
   currency: string;
+  /** Palette key (see lib/category-look.ts); absent means the type's default. */
+  color?: string;
   initial_balance: string;
   current_balance: string;
   is_archived: boolean;
@@ -73,10 +75,18 @@ export type CreateAccountRequest = {
   currency: string;
   /** Decimal string; negative only for credit cards (amount owed). */
   initial_balance: string;
+  /** Palette key; omit for the type's default, "" on PATCH clears it. */
+  color?: string;
 };
 
 /** PATCH /accounts/:id; omitted fields are left unchanged. Currency can only change while the account has no transactions. */
 export type UpdateAccountRequest = Partial<CreateAccountRequest> & { is_archived?: boolean };
+
+/**
+ * POST /accounts/:id/reconcile: the balance the account really holds today.
+ * The API moves the opening balance to match, so no transaction is added.
+ */
+export type ReconcileAccountRequest = { balance: string };
 
 export type Currency = { code: string; name: string; symbol: string };
 
