@@ -20,7 +20,7 @@ import { useCategories } from '@/hooks/use-categories';
 import { useTheme } from '@/hooks/use-theme';
 import { api, getErrorMessage } from '@/lib/api/client';
 import type { Category, TransactionListResponse } from '@/lib/api/types';
-import { detectColumns, importTag, occurredAt, parseCSV, resolveCategories, toDraftRows, type DraftRow, type ParseResult } from '@/lib/csv';
+import { detectColumns, importTag, occurredAt, parseCSV, resolveCategories, toDraftRows, type DraftRow, type ParseResult, type RowProblem } from '@/lib/csv';
 import { haptics } from '@/lib/feedback';
 import { formatMoney } from '@/lib/format';
 import { t, tn } from '@/lib/i18n';
@@ -226,7 +226,7 @@ export default function ImportScreen() {
               ) : null}
               {loaded.parsed.problems.slice(0, 5).map((problem) => (
                 <ThemedText key={problem.line} type="small" themeColor="textSecondary">
-                  {t('Line {line}: {message}', { line: problem.line, message: problem.message })}
+                  {t('Line {line}: {message}', { line: problem.line, message: problemText(problem) })}
                 </ThemedText>
               ))}
               {loaded.parsed.problems.length > 5 ? (
@@ -294,3 +294,17 @@ const styles = StyleSheet.create({
   categoryRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   toggle: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginTop: Spacing.one },
 });
+
+function problemText(problem: RowProblem): string {
+  const value = problem.value ?? '';
+  switch (problem.kind) {
+    case 'date':
+      return t('Unreadable date "{value}"', { value });
+    case 'missingDate':
+      return t('No date above this row');
+    case 'amount':
+      return t('Unreadable amount "{value}"', { value });
+    case 'type':
+      return t('Unknown type "{value}"', { value });
+  }
+}

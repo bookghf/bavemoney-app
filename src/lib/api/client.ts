@@ -8,7 +8,7 @@ import {
 } from 'axios';
 
 import type { AuthResponse } from '@/lib/api/types';
-import { t } from '@/lib/i18n';
+import { hasTranslation, t } from '@/lib/i18n';
 import { useAuthStore } from '@/store/auth-store';
 
 /**
@@ -252,14 +252,27 @@ api.interceptors.response.use(
 );
 
 /** Human-readable message from an API error (`{"error": "..."}`) or network failure. */
+function statusMessage(status: number): string {
+  if (status === 400 || status === 422) return t('Some details are not valid. Check them and try again.');
+  if (status === 401) return t('Your session expired. Sign in again.');
+  if (status === 403) return t('You do not have permission to do this.');
+  if (status === 404) return t('This item no longer exists.');
+  if (status === 409) return t('This conflicts with data you already have.');
+  if (status === 413) return t('The file is too large.');
+  if (status >= 500) return t('Something went wrong on our side. Try again.');
+  return t('Request failed ({status})', { status });
+}
+
 export function getErrorMessage(error: unknown): string {
   if (isAxiosError(error)) {
     const body = error.response?.data as { error?: string; message?: string } | undefined;
-    // Server messages are English; known ones are translated.
-    if (body?.error) return t(body.error);
-    if (body?.message) return t(body.message);
-    if (error.response?.status === 429) return t('Too many attempts. Wait a minute and try again.');
-    if (error.response) return t('Request failed ({status})', { status: error.response.status });
+    const status = error.response?.status;
+    // Server messages are English; known ones are translated, and the rest
+    // fall back to a translated message for their status.
+    const serverMessage = body?.error ?? body?.message;
+    if (serverMessage && hasTranslation(serverMessage)) return t(serverMessage);
+    if (status === 429) return t('Too many attempts. Wait a minute and try again.');
+    if (status !== undefined) return statusMessage(status);
     if (error.code === 'ECONNABORTED') return t('Request timed out');
     return t('Cannot reach the server. Check your connection.');
   }
