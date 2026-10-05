@@ -146,6 +146,21 @@ export default function ProfileScreen() {
           </ThemedText>
           <Ionicons name="chevron-forward" size={16} color={theme.textSecondary} />
         </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityHint={t('Deletes your login and all your data after you confirm with your password')}
+          onPress={() => router.push('/delete-account')}
+          style={({ pressed }) => [
+            styles.row,
+            { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+            pressed && { backgroundColor: theme.backgroundElement },
+          ]}>
+          <IconBadge icon="trash-outline" tone="danger" size={36} />
+          <ThemedText type="smallBold" themeColor="danger" style={styles.label}>
+            {t('Delete account')}
+          </ThemedText>
+          <Ionicons name="chevron-forward" size={16} color={theme.textSecondary} />
+        </Pressable>
       </Card>
     </Screen>
   );

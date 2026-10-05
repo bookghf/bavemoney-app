@@ -255,6 +255,21 @@ export const TH: Record<string, string> = {
   'password is incorrect': 'รหัสผ่านไม่ถูกต้อง',
   'password is required': 'กรุณากรอกรหัสผ่าน',
 
+  // --- delete account ---------------------------------------------------
+  'Delete account': 'ลบบัญชีผู้ใช้',
+  'Deletes your login and all your data after you confirm with your password':
+    'ลบบัญชีเข้าสู่ระบบและข้อมูลทั้งหมดหลังยืนยันด้วยรหัสผ่าน',
+  'Delete your account for good': 'ลบบัญชีของคุณถาวร',
+  'Your login ({email}) and all your data will be permanently deleted. You will be signed out on this device.':
+    'บัญชีเข้าสู่ระบบ ({email}) และข้อมูลทั้งหมดจะถูกลบถาวร และคุณจะออกจากระบบบนอุปกรณ์นี้',
+  'Want a copy first? Export your transactions as CSV before you delete.':
+    'ต้องการเก็บสำเนาไว้ก่อนไหม? ส่งออกรายการเป็น CSV ก่อนลบ',
+  'Delete your account?': 'ลบบัญชีผู้ใช้หรือไม่?',
+  'Your login and all your transactions, accounts, budgets, and categories will be permanently deleted. This can not be undone.':
+    'บัญชีเข้าสู่ระบบ รายการ บัญชี งบประมาณ และหมวดหมู่ทั้งหมดจะถูกลบถาวร และย้อนกลับไม่ได้',
+  'Delete permanently': 'ลบถาวร',
+  'Your account was deleted.': 'ลบบัญชีผู้ใช้แล้ว',
+
   // --- input rules ------------------------------------------------------
   'Password can not be only spaces': 'รหัสผ่านต้องไม่เป็นช่องว่างทั้งหมด',
   'Password is too long': 'รหัสผ่านยาวเกินไป',
