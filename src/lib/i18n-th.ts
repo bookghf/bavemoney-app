@@ -49,7 +49,6 @@ export const TH: Record<string, string> = {
   'budget not found': 'ไม่พบงบประมาณนี้',
   'to_account_id not found': 'ไม่พบบัญชีปลายทาง',
   'only credit card accounts can start with a negative balance': 'เฉพาะบัญชีบัตรเครดิตที่เริ่มต้นด้วยยอดติดลบได้',
-  'can not change a transaction to or from a transfer': 'เปลี่ยนรายการเป็นหรือจากการโอนไม่ได้',
   'can not transfer to the same account': 'โอนเข้าบัญชีเดียวกันไม่ได้',
   'budgets can only track expense categories': 'งบประมาณใช้ได้กับหมวดหมู่รายจ่ายเท่านั้น',
   'system categories can not be modified': 'แก้ไขหมวดหมู่ค่าเริ่มต้นไม่ได้',
@@ -94,7 +93,6 @@ export const TH: Record<string, string> = {
   Transfer: 'โอนเงิน',
   Amount: 'จำนวนเงิน',
   Account: 'บัญชี',
-  'Account: {name}': 'บัญชี: {name}',
   'From account': 'จากบัญชี',
   'To account': 'ไปยังบัญชี',
   Category: 'หมวดหมู่',
@@ -104,7 +102,6 @@ export const TH: Record<string, string> = {
   'e.g. Lunch': 'เช่น ข้าวกลางวัน',
   'No note': 'ไม่มีบันทึก',
   'Quick picks': 'รายการที่ใช้บ่อย',
-  'Tap to fill in, tap again to save.': 'แตะเพื่อกรอก แตะอีกครั้งเพื่อบันทึก',
   'Save transfer': 'บันทึกการโอน',
   'Delete transaction': 'ลบรายการ',
   'Delete this transaction?': 'ลบรายการนี้หรือไม่?',
@@ -120,10 +117,7 @@ export const TH: Record<string, string> = {
   'You need an account before adding transactions.': 'ต้องมีบัญชีก่อนจึงจะเพิ่มรายการได้',
   'You need another {currency} account to transfer to.': 'ต้องมีบัญชี {currency} อีกบัญชีเพื่อโอนเงิน',
   'Create an account': 'สร้างบัญชี',
-  'Transfers stay transfers; you can change the amount, date, and note.':
-    'รายการโอนเงินแก้ได้เฉพาะจำนวนเงิน วันที่ และบันทึกช่วยจำ',
   'Opens the transaction to edit or delete it': 'เปิดรายการเพื่อแก้ไขหรือลบ',
-  'Search notes': 'ค้นหาบันทึกช่วยจำ',
   Filters: 'ตัวกรอง',
   When: 'ช่วงเวลา',
   'Any time': 'ทุกช่วงเวลา',
@@ -178,7 +172,6 @@ export const TH: Record<string, string> = {
   'Net worth': 'มูลค่าสุทธิ',
   'Add a bank account, card, e-wallet or cash to start recording transactions.':
     'เพิ่มบัญชีธนาคาร บัตร วอลเล็ต หรือเงินสด เพื่อเริ่มบันทึกรายการ',
-  'Tap an account to edit or archive it.': 'แตะบัญชีเพื่อแก้ไขหรือเก็บ',
 
   // --- budgets ----------------------------------------------------------
   Budgets: 'งบประมาณ',
@@ -330,7 +323,6 @@ export const TH: Record<string, string> = {
     'รายการยังอยู่แต่จะไม่มีหมวดหมู่ และงบประมาณของหมวดนี้จะถูกลบ',
   'Edit this category': 'แก้ไขหมวดหมู่นี้',
   'Add a subcategory': 'เพิ่มหมวดหมู่ย่อย',
-  'Built-in': 'ค่าเริ่มต้น',
   'Built-in categories can not be changed, but you can add your own subcategories under them.':
     'หมวดหมู่ค่าเริ่มต้นแก้ไขไม่ได้ แต่เพิ่มหมวดหมู่ย่อยของคุณเองได้',
   'Give the category a name': 'กรุณาตั้งชื่อหมวดหมู่',
